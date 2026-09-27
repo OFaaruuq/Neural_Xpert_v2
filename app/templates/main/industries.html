@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename='img/normal/about-neural-xpert.jpg') }}">
+        <div class="container">
+            <div class="breadcumb-content">
+                <h1 class="breadcumb-title text-anime-style-3">Industries</h1>
+                <ul class="breadcumb-menu wow fadeInUp">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li>Industries</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <section class="space bg-smoke2 overflow-hidden" id="industries-sec">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="title-area text-center">
+                        <span class="sub-title style2 text-anime-style-2">INDUSTRIES</span>
+                        <h2 class="sec-title text-anime-style-3">Industries We Serve</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row gy-4 justify-content-center">
+                <div class="col-6 col-md-4 col-xl" style="min-width:0">
+                    <div class="service-card h-100 text-center">
+                        <div class="box-icon mx-auto">
+                            <i class="fa-solid fa-landmark" style="font-size:32px;line-height:80px;" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="box-title">Government &amp; Public</h3>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xl" style="min-width:0">
+                    <div class="service-card h-100 text-center">
+                        <div class="box-icon mx-auto">
+                            <i class="fa-solid fa-tower-broadcast" style="font-size:32px;line-height:80px;" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="box-title">Telecommunications</h3>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xl" style="min-width:0">
+                    <div class="service-card h-100 text-center">
+                        <div class="box-icon mx-auto">
+                            <i class="fa-solid fa-heart-pulse" style="font-size:32px;line-height:80px;" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="box-title">Healthcare</h3>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xl" style="min-width:0">
+                    <div class="service-card h-100 text-center">
+                        <div class="box-icon mx-auto">
+                            <i class="fa-solid fa-coins" style="font-size:32px;line-height:80px;" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="box-title">Finance &amp; Microfinance</h3>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-xl" style="min-width:0">
+                    <div class="service-card h-100 text-center">
+                        <div class="box-icon mx-auto">
+                            <i class="fa-solid fa-truck" style="font-size:32px;line-height:80px;" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="box-title">Logistics &amp; Supply</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

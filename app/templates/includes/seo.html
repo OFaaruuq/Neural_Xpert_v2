@@ -1,0 +1,23 @@
+    <title>{{ seo_title }}</title>
+    <meta name="author" content="Neural Xpert">
+    <meta name="description" content="{{ meta_description }}">
+    {% if seo_keywords %}
+    <meta name="keywords" content="{{ seo_keywords }}">
+    {% endif %}
+    <meta name="robots" content="{{ robots }}">
+    <meta name="googlebot" content="{{ robots }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+    <meta property="og:type" content="{{ og_type }}">
+    <meta property="og:title" content="{{ og_title or seo_title }}">
+    <meta property="og:description" content="{{ og_description or meta_description }}">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:site_name" content="Neural Xpert">
+    {% if og_image %}
+    <meta property="og:image" content="{{ og_image }}">
+    {% endif %}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ og_title or seo_title }}">
+    <meta name="twitter:description" content="{{ og_description or meta_description }}">
+    {% if og_image %}
+    <meta name="twitter:image" content="{{ og_image }}">
+    {% endif %}

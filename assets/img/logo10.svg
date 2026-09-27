@@ -1,0 +1,28 @@
+<svg width="320.335" height="74" viewBox="0 0 320.335 74" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="5.5" y="5.5" width="63" height="63" rx="7.5" fill="white" stroke="#E5E5E5"/>
+<g opacity="0.5" filter="url(#filter0_f_4906_6119)">
+<rect x="15" y="15" width="44" height="44" rx="22" fill="url(#paint0_linear_4906_6119)"/>
+</g>
+<rect x="13.1289" y="13.1289" width="48" height="48" rx="8" fill="url(#paint1_linear_4906_6119)"/>
+<rect x="13.6289" y="13.6289" width="47" height="47" rx="7.5" stroke="white" stroke-opacity="0.5"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M40.0075 45.9586H36.4992H33.2261C29.4809 45.9586 26.445 42.9228 26.445 39.1776C26.445 35.4324 29.4809 32.3966 33.2261 32.3966C36.9713 32.3966 40.0071 35.4328 40.0071 39.1776V40.2261C40.0071 42.3475 41.7268 44.0676 43.8486 44.0676V39.1772C43.8486 33.3106 39.0927 28.5547 33.2261 28.5547C27.3594 28.5547 22.6035 33.3106 22.6035 39.1772C22.6035 45.0439 27.3594 49.7998 33.2261 49.7998H43.849C43.849 47.6783 42.1289 45.9586 40.0075 45.9586Z" fill="white"/>
+<path d="M33.2259 35.8535C31.3898 35.8535 29.9014 37.3419 29.9014 39.178C29.9014 41.0142 31.3898 42.5026 33.2259 42.5026C35.062 42.5026 36.5504 41.0142 36.5504 39.178C36.5507 37.3419 35.062 35.8535 33.2259 35.8535ZM33.2259 41.1635C32.1312 41.1635 31.2404 40.273 31.2404 39.178C31.2404 38.0833 32.1312 37.1926 33.2259 37.1926C34.3209 37.1926 35.2116 38.0833 35.2116 39.178C35.2116 40.273 34.3209 41.1635 33.2259 41.1635Z" fill="white"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M46.6953 34.8607V49.7993C48.8167 49.7993 50.5368 48.0796 50.5368 45.9582V31.0195C48.4154 31.0195 46.6953 32.7392 46.6953 34.8607Z" fill="white"/>
+<path d="M48.6158 29.759C50.1511 29.759 51.3957 28.5144 51.3957 26.9791C51.3957 25.4438 50.1511 24.1992 48.6158 24.1992C47.0805 24.1992 45.8359 25.4438 45.8359 26.9791C45.8359 28.5144 47.0805 29.759 48.6158 29.759Z" fill="white"/>
+
+<text x="80.96" y="49.58" fill="#06050B" font-family="Arial, Helvetica, sans-serif" font-size="30.83" font-weight="700">Neural Xpert</text><defs>
+<filter id="filter0_f_4906_6119" x="0" y="0" width="74" height="74" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="7.5" result="effect1_foregroundBlur_4906_6119"/>
+</filter>
+<linearGradient id="paint0_linear_4906_6119" x1="59" y1="50.1071" x2="15.5265" y2="14.3597" gradientUnits="userSpaceOnUse">
+<stop stop-color="#A378FF"/>
+<stop offset="1" stop-color="#1C4EFF"/>
+</linearGradient>
+<linearGradient id="paint1_linear_4906_6119" x1="61.1289" y1="51.4276" x2="13.7033" y2="12.4303" gradientUnits="userSpaceOnUse">
+<stop stop-color="#A378FF"/>
+<stop offset="1" stop-color="#1C4EFF"/>
+</linearGradient>
+</defs>
+</svg>

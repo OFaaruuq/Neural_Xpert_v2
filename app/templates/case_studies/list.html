@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="breadcumb-wrapper case-studies-hero" data-bg-src="{{ url_for('static', filename='img/bg/case-studies-hero.jpg') }}">
+        <div class="container">
+            <div class="breadcumb-content">
+                <h1 class="breadcumb-title text-anime-style-3">Case studies</h1>
+                <ul class="breadcumb-menu wow fadeInUp">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li>case studies</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="overflow-hidden space overflow-hidden">
+        <div class="container th-container5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="title-area text-center">
+                        <span class="sub-title style2">CASE STUDIES</span>
+                        <h2 class="sec-title">Enterprise AI in Action</h2>
+                        <p class="mb-0">Explore how Neural Xpert designs and delivers secure, production-ready AI solutions that connect enterprise data, applications, people, and workflows.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row gy-4 justify-content-center">
+                {% for study in studies %}
+                <div class="col-lg-6">
+                    <div class="case-study">
+                        <div class="box-img"><img src="{{ url_for('static', filename=study.featured_image) }}" alt="{{ study.title }}">
+                            <div class="tags">
+                                {% for tag in study.technology_list() %}<span>{{ tag }}</span>{% endfor %}
+                            </div>
+                        </div>
+                        <div class="box-content">
+                            <div class="date">{{ study.industry }}</div>
+                            <h2 class="box-title"><a href="{{ url_for('case_studies.detail', slug=study.slug) }}">{{ study.title }}</a></h2>
+                            <p class="box-text">{{ study.summary }}</p>
+                            <div class="btn-group">
+                                <a href="{{ url_for('case_studies.detail', slug=study.slug) }}" class="th-btn">Read Case Study<span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

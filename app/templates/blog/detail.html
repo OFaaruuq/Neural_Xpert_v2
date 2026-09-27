@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": {{ article.title|tojson }},
+  "datePublished": "{{ article.published_at.isoformat() if article.published_at else '' }}",
+  "author": {"@type": "Organization", "name": {{ article.author|tojson }}},
+  "description": {{ (article.meta_description or article.excerpt)|tojson }}
+}
+</script>
+{% endblock %}
+{% block content %}
+    <div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename=article.featured_image) if article.featured_image else url_for('static', filename='img/bg/process-bg.jpg') }}">
+        <div class="container">
+            <div class="breadcumb-content">
+                <h1 class="breadcumb-title text-anime-style-3">{{ article.title }}</h1>
+                <ul class="breadcumb-menu wow fadeInUp">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li><a href="{{ url_for('blog.index') }}">Blog</a></li>
+                    <li>{{ article.category.name if article.category else 'Insight' }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <section class="th-blog-wrapper blog-details overflow-hidden space-top space-extra-bottom">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="blog-wrapp">
+                        <div class="blog-content">
+                            <p class="blog-desc mb-60">{{ article.excerpt }}</p>
+                            <div class="blog-meta">
+                                {% if article.category %}<a href="{{ url_for('blog.index', category=article.category.slug) }}">{{ article.category.name }}</a>{% endif %}
+                            </div>
+                        </div>
+                        <div class="right-text">
+                            <div class="box-profile">
+                                <div class="box-author"><img src="{{ url_for('static', filename='img/blog/author.jpg') }}" alt=""></div>
+                                <div class="box-info">
+                                    <h2 class="h3 box-title">{{ article.author }}</h2>
+                                    <span class="box-desig">{{ article.category.name if article.category else 'Neural Xpert' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if article.featured_image %}
+                    <div class="global-img th-radius mt-60 mb-60">
+                        <img data-animate="true" src="{{ url_for('static', filename=article.featured_image) }}" alt="{{ article.title }}" width="1320" height="550">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row gx-40">
+                <div class="col-xxl-8 col-lg-7">
+                    <div class="th-blog blog-single">
+                        <div class="blog-content">
+                            <div class="blog-meta">
+                                <a class="author" href="{{ url_for('blog.index') }}"><i class="fa-solid fa-user"></i>by {{ article.author }}</a>
+                                <a href="{{ url_for('blog.index') }}"><i class="fa-solid fa-calendar-days"></i>{{ article.published_at.strftime('%b %d, %Y') if article.published_at else '' }}</a>
+                            </div>
+                            <h2 class="h3 blog-title">{{ article.title }}</h2>
+                            {{ article.content|sanitize_html|safe }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-4 col-lg-5">
+                    <aside class="sidebar-area style2">
+                        <div class="widget">
+                            <h3 class="widget_title">Recent Posts</h3>
+                            <div class="recent-post-wrap">
+                                {% for recent in recent_articles %}
+                                <div class="recent-post">
+                                    <div class="media-img">
+                                        <a href="{{ url_for('blog.detail', slug=recent.slug) }}"><img src="{{ url_for('static', filename=recent.featured_image) }}" alt="{{ recent.title }}"></a>
+                                    </div>
+                                    <div class="media-body">
+                                        <div class="recent-post-meta">
+                                            <a href="{{ url_for('blog.index') }}"><i class="fa-sharp fa-solid fa-calendar-days"></i>{{ recent.published_at.strftime('%B %d, %Y') if recent.published_at else '' }}</a>
+                                        </div>
+                                        <h4 class="post-title"><a class="text-inherit" href="{{ url_for('blog.detail', slug=recent.slug) }}">{{ recent.title }}</a></h4>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="widget widget_categories">
+                            <h3 class="widget_title style2">Categories</h3>
+                            <ul>
+                                {% for category in categories %}
+                                <li><a href="{{ url_for('blog.index', category=category.slug) }}">{{ category.name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

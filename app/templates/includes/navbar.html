@@ -1,0 +1,173 @@
+<!--[if lte IE 9]>
+    	<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+  <![endif]-->
+
+    <!--********************************
+   		Code Start From Here 
+	******************************** -->
+
+    <div class="mouseCursor cursor-outer"></div>
+    <div class="mouseCursor cursor-inner"></div>
+
+    <div id="preloader">
+        <div class="preloader-bg preloader-bg-one"></div>
+        <div class="preloader-bg preloader-bg-two"></div>
+        <div class="loader-wrapper">
+            <span class="loader-letter">N</span>
+            <span class="loader-letter">E</span>
+            <span class="loader-letter">U</span>
+            <span class="loader-letter">R</span>
+            <span class="loader-letter">A</span>
+            <span class="loader-letter">L</span>
+            <span class="loader-letter">&nbsp;</span>
+            <span class="loader-letter">X</span>
+            <span class="loader-letter">P</span>
+            <span class="loader-letter">E</span>
+            <span class="loader-letter">R</span>
+            <span class="loader-letter">T</span>
+            <div class="loader"></div>
+        </div>
+
+
+    </div><!--==============================
+    Sidemenu
+============================== -->
+    <div class="sidemenu-wrapper ">
+        <div class="sidemenu-content">
+            <button class="closeButton sideMenuCls"><i class="far fa-times"></i></button>
+            <div class="widget footer-widget mb-0">
+                <div class="th-widget-about">
+                    <div class="about-logo">
+                        <a href="{{ url_for('main.index') }}" aria-label="Neural Xpert"><svg width="248" height="48" viewBox="0 0 248 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Neural Xpert"><path d="M23.6698 0.660156C10.5974 0.660156 0 11.2579 0 24.3306C0 37.4033 10.5974 48.001 23.6698 48.001C28.6054 48.001 33.1864 46.4891 36.979 43.9051V48.001H47.3401V24.3306C47.3401 11.2573 36.7427 0.660156 23.6698 0.660156ZM23.6698 42.8626C13.4354 42.8626 5.13828 34.5657 5.13828 24.3306C5.13828 14.096 13.4354 5.79857 23.6698 5.79857C33.9041 5.79857 42.2012 14.0954 42.2012 24.3306C42.2012 34.5652 33.9046 42.8626 23.6698 42.8626Z" fill="#06050B"/><path d="M23.6665 21.5586C22.1376 21.5586 20.8936 22.8027 20.8936 24.3316C20.8936 25.8606 22.1376 27.1047 23.6665 27.1047C25.1954 27.1047 26.44 25.8606 26.44 24.3316C26.44 22.8027 25.196 21.5586 23.6665 21.5586Z" fill="#06050B"/><path d="M23.6702 16.8203C19.5219 16.8203 16.1592 20.1831 16.1592 24.3315C16.1592 28.48 19.5219 31.8428 23.6702 31.8428C27.8185 31.8428 31.1812 28.48 31.1812 24.3315C31.1818 20.1831 27.8185 16.8203 23.6702 16.8203ZM23.6702 28.8174C21.197 28.8174 19.1845 26.8054 19.1845 24.3315C19.1845 21.8582 21.197 19.8457 23.6702 19.8457C26.144 19.8457 28.1565 21.8582 28.1565 24.3315C28.1565 26.8054 26.144 28.8174 23.6702 28.8174Z" fill="url(#nx-side)"/><text x="56" y="32" fill="#06050B" font-family="Sora, Arial, sans-serif" font-size="20" font-weight="700">Neural Xpert</text><defs><linearGradient id="nx-side" x1="31.1812" y1="28.8066" x2="16.3386" y2="16.6021" gradientUnits="userSpaceOnUse"><stop stop-color="#A378FF"/><stop offset="1" stop-color="#1C4EFF"/></linearGradient></defs></svg></a>
+                    </div>
+                    <p class="about-text">Neural Xpert designs, builds, deploys, and supports secure, production-ready enterprise AI solutions across Generative AI, AI Agents, RAG, Machine Learning, Intelligent Automation, AI Security, and MLOps.</p>
+                    <!-- Placeholder social profiles (facebook.com, twitter.com, youtube.com, linkedin.com homepages) stay unpublished until Neural Xpert profile URLs are set. -->
+                </div>
+            </div>
+            <div class="widget footer-widget">
+                <h3 class="widget_title">Recent Posts</h3>
+                <div class="recent-post-wrap">
+                    {% for post in sidebar_posts %}
+                    <div class="recent-post">
+                        <div class="media-img">
+                            <a href="{{ url_for('blog.detail', slug=post.slug) }}"><img src="{{ url_for('static', filename=post.featured_image) }}" alt="{{ post.title }}"></a>
+                        </div>
+                        <div class="media-body">
+                            <div class="recent-post-meta">
+                                <a href="{{ url_for('blog.detail', slug=post.slug) }}"><i class="fa-sharp fa-solid fa-calendar-days"></i>{{ post.published_at.strftime('%B %d, %Y') if post.published_at else '' }}</a>
+                            </div>
+                            <h4 class="post-title"><a class="text-inherit" href="{{ url_for('blog.detail', slug=post.slug) }}">{{ post.title }}</a></h4>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--==============================
+    Mobile Menu
+  ============================== -->
+    <div class="th-menu-wrapper">
+        <div class="th-menu-area text-center">
+            <button class="th-menu-toggle"><i class="fal fa-times"></i></button>
+            <div class="mobile-logo">
+                <a href="{{ url_for('main.index') }}" aria-label="Neural Xpert"><svg width="248" height="48" viewBox="0 0 248 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Neural Xpert"><path d="M23.6698 0.660156C10.5974 0.660156 0 11.2579 0 24.3306C0 37.4033 10.5974 48.001 23.6698 48.001C28.6054 48.001 33.1864 46.4891 36.979 43.9051V48.001H47.3401V24.3306C47.3401 11.2573 36.7427 0.660156 23.6698 0.660156ZM23.6698 42.8626C13.4354 42.8626 5.13828 34.5657 5.13828 24.3306C5.13828 14.096 13.4354 5.79857 23.6698 5.79857C33.9041 5.79857 42.2012 14.0954 42.2012 24.3306C42.2012 34.5652 33.9046 42.8626 23.6698 42.8626Z" fill="#06050B"/><path d="M23.6665 21.5586C22.1376 21.5586 20.8936 22.8027 20.8936 24.3316C20.8936 25.8606 22.1376 27.1047 23.6665 27.1047C25.1954 27.1047 26.44 25.8606 26.44 24.3316C26.44 22.8027 25.196 21.5586 23.6665 21.5586Z" fill="#06050B"/><path d="M23.6702 16.8203C19.5219 16.8203 16.1592 20.1831 16.1592 24.3315C16.1592 28.48 19.5219 31.8428 23.6702 31.8428C27.8185 31.8428 31.1812 28.48 31.1812 24.3315C31.1818 20.1831 27.8185 16.8203 23.6702 16.8203ZM23.6702 28.8174C21.197 28.8174 19.1845 26.8054 19.1845 24.3315C19.1845 21.8582 21.197 19.8457 23.6702 19.8457C26.144 19.8457 28.1565 21.8582 28.1565 24.3315C28.1565 26.8054 26.144 28.8174 23.6702 28.8174Z" fill="url(#nx-mobile)"/><text x="56" y="32" fill="#06050B" font-family="Sora, Arial, sans-serif" font-size="20" font-weight="700">Neural Xpert</text><defs><linearGradient id="nx-mobile" x1="31.1812" y1="28.8066" x2="16.3386" y2="16.6021" gradientUnits="userSpaceOnUse"><stop stop-color="#A378FF"/><stop offset="1" stop-color="#1C4EFF"/></linearGradient></defs></svg></a>
+            </div>
+
+            <div class="th-mobile-menu">
+                <ul>
+                                        <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                                        <li><a href="{{ url_for('main.about') }}">About</a></li>
+                                        <li class="menu-item-has-children">
+                                            <a href="{{ url_for('main.solutions') }}">Solutions</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="{{ url_for('main.solutions') }}#generative-ai">Generative AI</a></li>
+                                                <li><a href="{{ url_for('main.solutions') }}#ai-agents">AI Agents &amp; Agentic Systems</a></li>
+                                                <li><a href="{{ url_for('main.solutions') }}#enterprise-rag">Enterprise RAG &amp; Knowledge AI</a></li>
+                                                <li><a href="{{ url_for('main.solutions') }}#machine-learning">Machine Learning &amp; Predictive AI</a></li>
+                                                <li><a href="{{ url_for('main.solutions') }}#intelligent-automation">Intelligent Automation</a></li>
+                                                <li><a href="{{ url_for('main.solutions') }}#ai-security">AI Security &amp; Governance</a></li>
+                                            </ul>
+                                        </li>
+                                        <li class="menu-item-has-children">
+                                            <a href="{{ url_for('main.services') }}">Services</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="{{ url_for('main.services') }}">AI Strategy &amp; Consulting</a></li>
+                                                <li><a href="{{ url_for('main.services') }}">AI Engineering &amp; Development</a></li>
+                                                <li><a href="{{ url_for('main.services') }}#cloud-infrastructure">Cloud &amp; AI Infrastructure</a></li>
+                                                <li><a href="{{ url_for('main.services') }}#cybersecurity">Cybersecurity</a></li>
+                                                <li><a href="{{ url_for('main.services') }}#data-integration">Data &amp; Integration</a></li>
+                                                <li><a href="{{ url_for('main.services') }}#mlops">MLOps &amp; AI Operations</a></li>
+                                            </ul>
+                                        </li>
+                                        <li><a href="{{ url_for('main.industries') }}">Industries</a></li>
+                                        <li><a href="{{ url_for('case_studies.index') }}">Case Studies</a></li>
+                                        <li><a href="{{ url_for('blog.index') }}">Insights</a></li>
+                                        <li><a href="{{ url_for('careers.index') }}">Careers</a></li>
+                                        <li><a href="{{ url_for('contact.index') }}">Contact</a></li>
+                                    </ul>
+            </div>
+        </div>
+    </div><!--==============================       
+	Header Area
+==============================-->
+    <header class="th-header header-layout1 style2">
+        <div class="container th-container">
+            <div class="menu-area">
+                <div class="sticky-wrapper">
+                    <!-- Main Menu Area -->
+                    <div class="container">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto">
+                                <div class="header-logo">
+                                    <a href="{{ url_for('main.index') }}" aria-label="Neural Xpert"><svg width="248" height="48" viewBox="0 0 248 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Neural Xpert"><path d="M23.6698 0.660156C10.5974 0.660156 0 11.2579 0 24.3306C0 37.4033 10.5974 48.001 23.6698 48.001C28.6054 48.001 33.1864 46.4891 36.979 43.9051V48.001H47.3401V24.3306C47.3401 11.2573 36.7427 0.660156 23.6698 0.660156ZM23.6698 42.8626C13.4354 42.8626 5.13828 34.5657 5.13828 24.3306C5.13828 14.096 13.4354 5.79857 23.6698 5.79857C33.9041 5.79857 42.2012 14.0954 42.2012 24.3306C42.2012 34.5652 33.9046 42.8626 23.6698 42.8626Z" fill="#06050B"/><path d="M23.6665 21.5586C22.1376 21.5586 20.8936 22.8027 20.8936 24.3316C20.8936 25.8606 22.1376 27.1047 23.6665 27.1047C25.1954 27.1047 26.44 25.8606 26.44 24.3316C26.44 22.8027 25.196 21.5586 23.6665 21.5586Z" fill="#06050B"/><path d="M23.6702 16.8203C19.5219 16.8203 16.1592 20.1831 16.1592 24.3315C16.1592 28.48 19.5219 31.8428 23.6702 31.8428C27.8185 31.8428 31.1812 28.48 31.1812 24.3315C31.1818 20.1831 27.8185 16.8203 23.6702 16.8203ZM23.6702 28.8174C21.197 28.8174 19.1845 26.8054 19.1845 24.3315C19.1845 21.8582 21.197 19.8457 23.6702 19.8457C26.144 19.8457 28.1565 21.8582 28.1565 24.3315C28.1565 26.8054 26.144 28.8174 23.6702 28.8174Z" fill="url(#nx-header)"/><text x="56" y="32" fill="#06050B" font-family="Sora, Arial, sans-serif" font-size="20" font-weight="700">Neural Xpert</text><defs><linearGradient id="nx-header" x1="31.1812" y1="28.8066" x2="16.3386" y2="16.6021" gradientUnits="userSpaceOnUse"><stop stop-color="#A378FF"/><stop offset="1" stop-color="#1C4EFF"/></linearGradient></defs></svg></a>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <nav class="main-menu style2 d-none d-xl-inline-block">
+                                    <ul>
+                                        <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                                        <li><a href="{{ url_for('main.about') }}">About</a></li>
+                                        <li class="menu-item-has-children">
+                                            <a href="{{ url_for('main.solutions') }}">Solutions</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="{{ url_for('main.solutions') }}#generative-ai">Generative AI</a></li>
+                                                <li><a href="{{ url_for('main.solutions') }}#ai-agents">AI Agents &amp; Agentic Systems</a></li>
+                                                <li><a href="{{ url_for('main.solutions') }}#enterprise-rag">Enterprise RAG &amp; Knowledge AI</a></li>
+                                                <li><a href="{{ url_for('main.solutions') }}#machine-learning">Machine Learning &amp; Predictive AI</a></li>
+                                                <li><a href="{{ url_for('main.solutions') }}#intelligent-automation">Intelligent Automation</a></li>
+                                                <li><a href="{{ url_for('main.solutions') }}#ai-security">AI Security &amp; Governance</a></li>
+                                            </ul>
+                                        </li>
+                                        <li class="menu-item-has-children">
+                                            <a href="{{ url_for('main.services') }}">Services</a>
+                                            <ul class="sub-menu">
+                                                <li><a href="{{ url_for('main.services') }}">AI Strategy &amp; Consulting</a></li>
+                                                <li><a href="{{ url_for('main.services') }}">AI Engineering &amp; Development</a></li>
+                                                <li><a href="{{ url_for('main.services') }}#cloud-infrastructure">Cloud &amp; AI Infrastructure</a></li>
+                                                <li><a href="{{ url_for('main.services') }}#cybersecurity">Cybersecurity</a></li>
+                                                <li><a href="{{ url_for('main.services') }}#data-integration">Data &amp; Integration</a></li>
+                                                <li><a href="{{ url_for('main.services') }}#mlops">MLOps &amp; AI Operations</a></li>
+                                            </ul>
+                                        </li>
+                                        <li><a href="{{ url_for('main.industries') }}">Industries</a></li>
+                                        <li><a href="{{ url_for('case_studies.index') }}">Case Studies</a></li>
+                                        <li><a href="{{ url_for('blog.index') }}">Insights</a></li>
+                                        <li><a href="{{ url_for('careers.index') }}">Careers</a></li>
+                                        <li><a href="{{ url_for('contact.index') }}">Contact</a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                            <div class="col-auto">
+                                <div class="header-button">
+                                    <a href="{{ url_for('contact.index') }}" class="th-btn">Contact Us <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                                    <a href="#" class="icon-btn sideMenuToggler d-none d-md-block"><img src="{{ url_for('static', filename='img/icon/grid.svg') }}" alt=""></a>
+                                    <button type="button" class="th-menu-toggle d-inline-block d-xl-none"><i class="far fa-bars"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>

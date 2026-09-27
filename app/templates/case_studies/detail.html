@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename=study.featured_image) if study.featured_image else url_for('static', filename='img/bg/process-bg.jpg') }}">
+        <div class="container">
+            <div class="breadcumb-content">
+                <h1 class="breadcumb-title text-anime-style-3">{{ study.title }}</h1>
+                <ul class="breadcumb-menu wow fadeInUp">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li><a href="{{ url_for('case_studies.index') }}">Case Studies</a></li>
+                    <li>{{ study.industry }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <section class="th-case-wrapper case-details overflow-hidden overflow-hidden space">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="blog-wrapp mb-60">
+                        <div class="blog-content">
+                            <div class="blog-meta mb-20">
+                                {% for tag in study.technology_list() %}<a href="{{ url_for('case_studies.index') }}">{{ tag }}</a>{% endfor %}
+                            </div>
+                            <h2 class="case-text h3">{{ study.title }}</h2>
+                            <p class="blog-desc mb-0">{{ study.summary }}</p>
+                        </div>
+                        <div class="right-text">
+                            <div class="box-profile">
+                                <div class="box-info">
+                                    <h3 class="box-title">{{ study.client_display_name or 'Enterprise client' }}</h3>
+                                    <span class="box-desig">{{ study.industry }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if study.featured_image %}
+                    <div class="global-img th-radius mb-60">
+                        <img data-animate="true" src="{{ url_for('static', filename=study.featured_image) }}" alt="{{ study.title }}">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row gx-40">
+                <div class="col-lg-8">
+                    <div class="th-blog blog-single mb-0">
+                        <div class="blog-content">
+                            {{ study.content|sanitize_html|safe }}
+                            {% if study.challenge %}<h3 class="blog-title h4">Challenge</h3><p class="blog-desc">{{ study.challenge }}</p>{% endif %}
+                            {% if study.solution %}<h3 class="blog-title h4">Solution</h3><p class="blog-desc">{{ study.solution }}</p>{% endif %}
+                            {% if study.architecture %}<h3 class="blog-title h4">Architecture</h3><p class="blog-desc">{{ study.architecture }}</p>{% endif %}
+                            {% if study.results %}<h3 class="blog-title h4">Results</h3><p class="blog-desc">{{ study.results }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

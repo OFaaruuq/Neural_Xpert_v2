@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<!--==============================
+    Breadcumb
+============================== -->
+    <div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename='img/bg/cta-ready-bg.jpg') }}">
+        <div class="container">
+            <div class="breadcumb-content">
+                <h1 class="breadcumb-title text-anime-style-3">Cookie Policy</h1>
+                <ul class="breadcumb-menu wow fadeInUp">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li>Cookie Policy</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <section class="space overflow-hidden">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-8 text-center">
+                    <div class="title-area">
+                        <span class="sub-title style2">Cookies</span>
+                        <h2 class="sec-title">Cookie Policy</h2>
+                    </div>
+                    <p class="box-text">Neural Xpert uses cookies and similar technologies on neuralxpert.com to keep the site working, remember basic preferences, and understand which pages are used.</p>
+                    <p class="box-text">Essential cookies support page loading, security, and form submissions. Analytics cookies, when enabled, help us see aggregate traffic so we can improve the site. We do not use cookies to sell personal information.</p>
+                    <p class="box-text">You can block or delete cookies in your browser settings. Some site features may not work if essential cookies are disabled. Questions can be sent to <a href="mailto:partnerships@neuralxpert.com">partnerships@neuralxpert.com</a>.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!--==============================
+	Footer Area
+==============================-->
+{% endblock %}

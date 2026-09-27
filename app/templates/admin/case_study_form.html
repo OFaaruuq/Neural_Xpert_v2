@@ -1,0 +1,15 @@
+{% extends 'admin/base.html' %}
+{% block body %}
+<h1 class="h3">{{ 'Edit case study' if item.id else 'New case study' }}</h1>
+<form method="post" class="row">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% for name, label in [('title','Title'),('slug','Slug'),('category','Category'),('technologies','Technologies, comma separated'),('featured_image','Featured image path'),('client_name','Client name (internal)'),('client_display_name','Public client name'),('industry','Industry'),('seo_title','SEO title')] %}
+    <div class="col-md-6 form-group"><input class="form-control" name="{{ name }}" value="{{ item|attr(name) or '' }}" placeholder="{{ label }}"></div>
+    {% endfor %}
+    <div class="col-md-6 form-group"><select class="form-control" name="status"><option value="draft">Draft</option><option value="published" {% if item.status == 'published' %}selected{% endif %}>Published</option></select></div>
+    {% for name in ['summary','content','challenge','solution','architecture','results','meta_description'] %}
+    <div class="col-12 form-group"><textarea class="form-control" name="{{ name }}" rows="3" placeholder="{{ name }}">{{ item|attr(name) or '' }}</textarea></div>
+    {% endfor %}
+    <div class="col-12"><button class="th-btn" type="submit">Save</button></div>
+</form>
+{% endblock %}

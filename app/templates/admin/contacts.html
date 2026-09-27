@@ -1,0 +1,16 @@
+{% extends 'admin/base.html' %}
+{% block body %}
+<h1 class="h3">Contact enquiries</h1>
+{% for item in submissions %}
+<article class="mb-40">
+    <h2 class="h5">{{ item.subject }} — {{ item.name }}</h2>
+    <p>{{ item.email }} · {{ item.phone }} · {{ item.company }} · {{ item.status }}</p>
+    <p>{{ item.message }}</p>
+    <form method="post" action="{{ url_for('admin.contact_status', item_id=item.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="status" value="reviewed">
+        <button class="th-btn" type="submit">Mark reviewed</button>
+    </form>
+</article>
+{% endfor %}
+{% endblock %}

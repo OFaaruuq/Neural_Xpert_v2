@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename='img/normal/features-benefits.jpg') }}">
+        <div class="container">
+            <div class="breadcumb-content">
+                <h1 class="breadcumb-title text-anime-style-3">Solutions</h1>
+                <ul class="breadcumb-menu wow fadeInUp">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li>Solutions</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <section class="service-area position-relative overflow-hidden space" id="features-sec">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="title-area text-center">
+                        <span class="sub-title style2 text-anime-style-2">OUR CAPABILITIES</span>
+                        <h2 class="sec-title text-anime-style-3">Enterprise AI Capabilities</h2>
+                        <p class="mb-0">From intelligent applications to production AI platforms, Neural Xpert helps enterprises design, build, integrate, secure, and scale AI across their business.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row gy-4 justify-content-center">
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card" id="generative-ai">
+                        <div class="box-icon">
+                            <img src="{{ url_for('static', filename='img/icon/service_1_1.svg') }}" alt="icon">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title"><a href="{{ url_for('main.solutions') }}">Generative AI &amp; LLM Applications</a></h3>
+                            <p class="box-text">Build enterprise copilots, conversational AI, document intelligence, and custom Generative AI applications grounded in your business requirements and data.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card" id="ai-agents">
+                        <div class="box-icon">
+                            <img src="{{ url_for('static', filename='img/icon/service_1_2.svg') }}" alt="icon">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title"><a href="{{ url_for('main.solutions') }}">AI Agents &amp; Agentic Systems</a></h3>
+                            <p class="box-text">Design intelligent AI agents that reason, use tools, interact with enterprise systems, and automate complex multi-step business workflows.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card" id="enterprise-rag">
+                        <div class="box-icon">
+                            <img src="{{ url_for('static', filename='img/icon/service_1_3.svg') }}" alt="icon">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title"><a href="{{ url_for('main.solutions') }}">Enterprise RAG &amp; Knowledge AI</a></h3>
+                            <p class="box-text">Connect AI securely to enterprise documents, databases, and knowledge sources with Retrieval-Augmented Generation and intelligent enterprise search.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card" id="machine-learning">
+                        <div class="box-icon">
+                            <img src="{{ url_for('static', filename='img/icon/service_1_4.svg') }}" alt="icon">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title"><a href="{{ url_for('main.solutions') }}">Machine Learning &amp; Predictive AI</a></h3>
+                            <p class="box-text">Develop machine learning solutions for forecasting, classification, anomaly detection, recommendations, and data-driven decision intelligence.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card" id="intelligent-automation">
+                        <div class="box-icon">
+                            <img src="{{ url_for('static', filename='img/icon/service_1_5.svg') }}" alt="icon">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title"><a href="{{ url_for('main.solutions') }}">AI Integration &amp; Intelligent Automation</a></h3>
+                            <p class="box-text">Integrate AI with enterprise applications, APIs, databases, cloud platforms, and workflows to automate operations and improve productivity.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card" id="ai-security">
+                        <div class="box-icon">
+                            <img src="{{ url_for('static', filename='img/icon/service_1_1.svg') }}" alt="icon">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title"><a href="{{ url_for('main.solutions') }}">AI Security, Governance &amp; MLOps</a></h3>
+                            <p class="box-text">Operationalize AI with secure architecture, evaluation, guardrails, monitoring, model lifecycle management, governance, and production MLOps.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+{% endblock %}

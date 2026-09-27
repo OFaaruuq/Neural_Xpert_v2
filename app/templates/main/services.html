@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename='img/project/production-ai-platform.jpg') }}">
+        <div class="container">
+            <div class="breadcumb-content">
+                <h1 class="breadcumb-title text-anime-style-3">Services</h1>
+                <ul class="breadcumb-menu wow fadeInUp">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li>Services</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <section class="service-area position-relative overflow-hidden space bg-smoke2" id="services-sec">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="title-area text-center">
+                        <span class="sub-title style2 text-anime-style-2">OUR SERVICES</span>
+                        <h2 class="sec-title text-anime-style-3">Enterprise Technology Built Around AI</h2>
+                        <p class="mb-0">Neural Xpert combines Artificial Intelligence, cloud engineering, cybersecurity, and intelligent automation to help organizations build secure, scalable, and production-ready digital systems.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row gy-4 justify-content-center">
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card h-100">
+                        <div class="box-icon">
+                            <img src="{{ url_for('static', filename='img/icon/service_1_1.svg') }}" alt="icon">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title">Enterprise AI &amp; Generative AI</h3>
+                            <p class="box-text">Design and deploy Generative AI, AI Agents, Enterprise RAG, Machine Learning, intelligent assistants, and AI-powered applications integrated with your business data and workflows.</p>
+                            <div class="btn-group mt-30">
+                                <a href="{{ url_for('main.solutions') }}" class="th-btn">Explore Enterprise AI <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card h-100">
+                        <div class="box-icon">
+                            <img src="{{ url_for('static', filename='img/icon/service_1_2.svg') }}" alt="icon">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title">AI Agents &amp; Intelligent Automation</h3>
+                            <p class="box-text">Build intelligent agents and automated workflows that connect AI with enterprise applications, APIs, data, and business processes to improve operational efficiency.</p>
+                            <div class="btn-group mt-30">
+                                <a href="{{ url_for('main.solutions') }}" class="th-btn">Explore AI Automation <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card h-100" id="cloud-infrastructure">
+                        <div class="box-icon">
+                            <img src="{{ url_for('static', filename='img/icon/service_1_3.svg') }}" alt="icon">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title">Cloud &amp; AI Infrastructure</h3>
+                            <p class="box-text">Build secure, scalable infrastructure for enterprise applications and AI workloads across cloud, hybrid, container, DevOps, and modern platform environments.</p>
+                            <div class="btn-group mt-30">
+                                <a href="{{ url_for('main.solutions') }}" class="th-btn">Explore Cloud Solutions <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card h-100" id="cybersecurity">
+                        <div class="box-icon">
+                            <img src="{{ url_for('static', filename='img/icon/service_1_4.svg') }}" alt="icon">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title">Cybersecurity &amp; AI Security</h3>
+                            <p class="box-text">Protect enterprise systems and AI workloads through security architecture, assessments, Zero Trust, threat monitoring, data protection, AI security controls, and governance.</p>
+                            <div class="btn-group mt-30">
+                                <a href="{{ url_for('main.solutions') }}" class="th-btn">Explore Cybersecurity <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card h-100" id="data-integration">
+                        <div class="box-icon">
+                            <img src="{{ url_for('static', filename='img/icon/service_1_5.svg') }}" alt="icon">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title">Data, RAG &amp; Knowledge Intelligence</h3>
+                            <p class="box-text">Transform enterprise data and knowledge into intelligent experiences using RAG, enterprise search, document intelligence, data engineering, and AI-powered knowledge systems.</p>
+                            <div class="btn-group mt-30">
+                                <a href="{{ url_for('main.solutions') }}" class="th-btn">Explore Data &amp; RAG <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card h-100" id="mlops">
+                        <div class="box-icon">
+                            <img src="{{ url_for('static', filename='img/icon/service_1_6.svg') }}" alt="icon">
+                        </div>
+                        <div class="box-content">
+                            <h3 class="box-title">MLOps &amp; AI Operations</h3>
+                            <p class="box-text">Move AI from experimentation into production with deployment automation, evaluation, observability, model lifecycle management, monitoring, and continuous optimization.</p>
+                            <div class="btn-group mt-30">
+                                <a href="{{ url_for('main.solutions') }}" class="th-btn">Explore AI Operations <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename='img/bg/process-bg.jpg') }}">
+        <div class="container">
+            <div class="breadcumb-content">
+                <h1 class="breadcumb-title text-anime-style-3">Blog Posts</h1>
+                <ul class="breadcumb-menu wow fadeInUp">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li>Blog Posts</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <section class="th-blog-wrapper space-top space-extra-bottom">
+        <div class="container">
+            <div class="row">
+                {% for article in articles %}
+                <div class="col-lg-6">
+                    <div class="th-blog blog-single has-post-thumbnail single-grid">
+                        <div class="blog-img global-img">
+                            <a href="{{ url_for('blog.detail', slug=article.slug) }}"><img src="{{ url_for('static', filename=article.featured_image) }}" alt="{{ article.title }}" width="632" height="260"></a>
+                        </div>
+                        <div class="blog-content">
+                            <div class="blog-meta">
+                                {% if article.category %}<a href="{{ url_for('blog.index', category=article.category.slug) }}">{{ article.category.name }}</a>{% endif %}
+                                <a class="date" href="{{ url_for('blog.detail', slug=article.slug) }}">{{ article.published_at.strftime('%b %d, %Y') if article.published_at else '' }}</a>
+                            </div>
+                            <h2 class="box-title"><a href="{{ url_for('blog.detail', slug=article.slug) }}">{{ article.title }}</a></h2>
+                            <a href="{{ url_for('blog.detail', slug=article.slug) }}" class="th-btn th-border">Read More <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12 text-center"><p class="box-text">Insights will be published here.</p></div>
+                {% endfor %}
+            </div>
+            {% if pagination.pages > 1 %}
+            <div class="th-pagination text-center mt-30">
+                <ul>
+                    {% if pagination.has_prev %}
+                    <li><a href="{{ url_for('blog.index', page=pagination.prev_num, category=request.args.get('category')) }}"><i class="fa-regular fa-arrow-left"></i></a></li>
+                    {% endif %}
+                    {% for number in pagination.iter_pages() %}
+                        {% if number %}
+                        <li><a href="{{ url_for('blog.index', page=number, category=request.args.get('category')) }}">{{ number }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if pagination.has_next %}
+                    <li><a href="{{ url_for('blog.index', page=pagination.next_num, category=request.args.get('category')) }}"><i class="fa-regular fa-arrow-right"></i></a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

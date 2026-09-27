@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+<!--==============================
+    Breadcumb
+============================== -->
+    <div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename='img/bg/process-bg.jpg') }}">
+        <div class="container">
+            <div class="breadcumb-content">
+                <h1 class="breadcumb-title text-anime-style-3">404 Error</h1>
+                <ul class="breadcumb-menu wow fadeInUp">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li>404 Error</li>
+                </ul>
+            </div>
+        </div>
+    </div><!--==============================
+Error Area 
+==============================-->
+    <section class=" space">
+        <div class="container">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-lg-6">
+                    <div class="error-img">
+                        <img src="{{ url_for('static', filename='img/theme-img/error.png') }}" alt="404 image">
+                    </div>
+                    <div class="error-content">
+                        <h2 class="error-title h3">PAGE NOT FOUND</h2>
+                        <p class="error-text">Oops! The page you’re looking for doesn’t exist</p>
+                        <a href="{{ url_for('main.index') }}" class="th-btn">Back To Home<i class="fal fa-home ms-2"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="position-relative space-bottom  overflow-hidden">
+        <div class="marquee-content positive-relative overflow-hidden">
+            <div class="marquee">
+                <div class="marquee-group style6">
+                    <div class="item "><span>Empowering Every Industry By Trusworthy AIu</span></div>
+                    <div class="item"><span>Empowering Every Industry By Trusworthy AIus</span></div>
+                    <div class="item "><span>Empowering Every Industry By Trusworthy AIu</span></div>
+                    <div class="item"><span>Empowering Every Industry By Trusworthy AIu</span></div>
+                    <div class="item "><span>Empowering Every Industry By Trusworthy AIu</span></div>
+                    <div class="item"><span>Empowering Every Industry By Trusworthy AIus</span></div>
+                    <div class="item "><span>Empowering Every Industry By Trusworthy AIu</span></div>
+                    <div class="item"><span>Empowering Every Industry By Trusworthy AIu</span></div>
+
+                </div>
+                <div aria-hidden="true" class="marquee-group style6">
+                    <div class="item "><span>Empowering Every Industry By Trusworthy AIu</span></div>
+                    <div class="item"><span>Empowering Every Industry By Trusworthy AIus</span></div>
+                    <div class="item "><span>Empowering Every Industry By Trusworthy AIu</span></div>
+                    <div class="item"><span>Empowering Every Industry By Trusworthy AIu</span></div>
+                    <div class="item "><span>Empowering Every Industry By Trusworthy AIu</span></div>
+                    <div class="item"><span>Empowering Every Industry By Trusworthy AIus</span></div>
+                    <div class="item "><span>Empowering Every Industry By Trusworthy AIu</span></div>
+                    <div class="item"><span>Empowering Every Industry By Trusworthy AIu</span></div>
+                </div>
+            </div>
+        </div>
+    </div><!--==============================
+	Footer Area
+==============================-->
+{% endblock %}

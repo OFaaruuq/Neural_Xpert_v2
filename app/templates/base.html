@@ -1,0 +1,19 @@
+<!doctype html>
+<html class="no-js" lang="zxx">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    {% include 'includes/seo.html' %}
+    {% include 'includes/head.html' %}
+    {% block structured_data %}{% endblock %}
+</head>
+<body>
+    <!--[if lte IE 9]>
+    	<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+    <![endif]-->
+    {% include 'includes/navbar.html' %}
+    {% block content %}{% endblock %}
+    {% include 'includes/footer.html' %}
+    {% include 'includes/scripts.html' %}
+</body>
+</html>

@@ -1,0 +1,6 @@
+{% extends 'admin/base.html' %}
+{% block body %}
+<div class="d-flex justify-content-between"><h1 class="h3">Insights</h1><a class="th-btn" href="{{ url_for('admin.article_edit') }}">New article</a></div>
+<table class="table mt-20"><thead><tr><th>Title</th><th>Status</th><th></th></tr></thead>
+<tbody>{% for article in articles %}<tr><td>{{ article.title }}</td><td>{{ article.status }}</td><td><a href="{{ url_for('admin.article_edit', item_id=article.id) }}">Edit</a></td></tr>{% endfor %}</tbody></table>
+{% endblock %}

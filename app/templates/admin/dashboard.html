@@ -1,0 +1,11 @@
+{% extends 'admin/base.html' %}
+{% block body %}
+<h1 class="h3">Dashboard</h1>
+<ul>
+    <li>Insights: {{ counts.articles }}</li>
+    <li>Case studies: {{ counts.studies }}</li>
+    <li>Jobs: {{ counts.jobs }}</li>
+    <li>Applications: {{ counts.applications }}</li>
+    <li>New contact enquiries: {{ counts.contacts }}</li>
+</ul>
+{% endblock %}

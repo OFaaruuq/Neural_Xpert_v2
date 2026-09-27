@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<!--==============================
+    Breadcumb
+============================== -->
+    <div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename='img/bg/cta-ready-bg.jpg') }}">
+        <div class="container">
+            <div class="breadcumb-content">
+                <h1 class="breadcumb-title text-anime-style-3">Terms of Service</h1>
+                <ul class="breadcumb-menu wow fadeInUp">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li>Terms of Service</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <section class="space overflow-hidden">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-8 text-center">
+                    <div class="title-area">
+                        <span class="sub-title style2">Terms</span>
+                        <h2 class="sec-title">Terms of Service</h2>
+                    </div>
+                    <p class="box-text">These terms govern use of the Neural Xpert website. By using neuralxpert.com, you agree to use the site for lawful business purposes and not to disrupt, copy, or misuse its content.</p>
+                    <p class="box-text">Site content, including text, graphics, and case studies, belongs to Neural Xpert unless noted otherwise. Project work, software, and support are delivered under a separate written agreement. Nothing on this site is an offer to provide a specific system until that agreement is signed.</p>
+                    <p class="box-text">The website is provided as available. Neural Xpert is not liable for decisions made solely from website content. Questions about these terms can be sent to <a href="mailto:partnerships@neuralxpert.com">partnerships@neuralxpert.com</a>.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!--==============================
+	Footer Area
+==============================-->
+{% endblock %}

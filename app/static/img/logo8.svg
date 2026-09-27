@@ -1,0 +1,29 @@
+<svg width="341.935" height="80" viewBox="0 0 341.935 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="341.935" height="80" rx="40" fill="#E5E5E5"/>
+<rect x="8.5" y="8.5" width="63" height="63" rx="31.5" fill="white" stroke="#E5E5E5"/>
+<g opacity="0.5" filter="url(#filter0_f_4906_3313)">
+<rect x="18" y="18" width="44" height="44" rx="22" fill="url(#paint0_linear_4906_3313)"/>
+</g>
+<rect x="16.1289" y="16.1289" width="48" height="48" rx="24" fill="url(#paint1_linear_4906_3313)"/>
+<rect x="16.6289" y="16.6289" width="47" height="47" rx="23.5" stroke="white" stroke-opacity="0.5"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M43.0075 48.9586H39.4992H36.2261C32.4809 48.9586 29.445 45.9228 29.445 42.1776C29.445 38.4324 32.4809 35.3966 36.2261 35.3966C39.9713 35.3966 43.0071 38.4328 43.0071 42.1776V43.2261C43.0071 45.3475 44.7268 47.0676 46.8486 47.0676V42.1772C46.8486 36.3106 42.0927 31.5547 36.2261 31.5547C30.3594 31.5547 25.6035 36.3106 25.6035 42.1772C25.6035 48.0439 30.3594 52.7998 36.2261 52.7998H46.849C46.849 50.6783 45.1289 48.9586 43.0075 48.9586Z" fill="#06050B"/>
+<path d="M36.2259 38.8535C34.3898 38.8535 32.9014 40.3419 32.9014 42.178C32.9014 44.0142 34.3898 45.5026 36.2259 45.5026C38.062 45.5026 39.5504 44.0142 39.5504 42.178C39.5507 40.3419 38.062 38.8535 36.2259 38.8535ZM36.2259 44.1635C35.1312 44.1635 34.2404 43.273 34.2404 42.178C34.2404 41.0833 35.1312 40.1926 36.2259 40.1926C37.3209 40.1926 38.2116 41.0833 38.2116 42.178C38.2116 43.273 37.3209 44.1635 36.2259 44.1635Z" fill="#06050B"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M49.6953 37.8607V52.7993C51.8167 52.7993 53.5368 51.0796 53.5368 48.9582V34.0195C51.4154 34.0195 49.6953 35.7392 49.6953 37.8607Z" fill="#06050B"/>
+<path d="M51.6158 32.759C53.1511 32.759 54.3957 31.5144 54.3957 29.9791C54.3957 28.4438 53.1511 27.1992 51.6158 27.1992C50.0805 27.1992 48.8359 28.4438 48.8359 29.9791C48.8359 31.5144 50.0805 32.759 51.6158 32.759Z" fill="#06050B"/>
+
+<text x="83.96" y="53.6" fill="#06050B" font-family="Arial, Helvetica, sans-serif" font-size="33.33" font-weight="700">Neural Xpert</text><defs>
+<filter id="filter0_f_4906_3313" x="3" y="3" width="74" height="74" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="7.5" result="effect1_foregroundBlur_4906_3313"/>
+</filter>
+<linearGradient id="paint0_linear_4906_3313" x1="24.8349" y1="11.8746" x2="74.2933" y2="43.2978" gradientUnits="userSpaceOnUse">
+<stop stop-color="#AEFF5D"/>
+<stop offset="1" stop-color="#5DFFD9"/>
+</linearGradient>
+<linearGradient id="paint1_linear_4906_3313" x1="23.5851" y1="9.44666" x2="77.5398" y2="43.7265" gradientUnits="userSpaceOnUse">
+<stop stop-color="#AEFF5D"/>
+<stop offset="1" stop-color="#5DFFD9"/>
+</linearGradient>
+</defs>
+</svg>

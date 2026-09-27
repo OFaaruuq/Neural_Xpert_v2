@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<!--==============================
+    Breadcumb
+============================== -->
+    <div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename='img/normal/about-neural-xpert.jpg') }}">
+        <div class="container">
+            <div class="breadcumb-content">
+                <h1 class="breadcumb-title text-anime-style-3">Careers</h1>
+                <ul class="breadcumb-menu wow fadeInUp">
+                    <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                    <li>Careers</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <section class="space overflow-hidden">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-8 text-center">
+                    <div class="title-area">
+                        <span class="sub-title style2">Careers</span>
+                        <h2 class="sec-title">Build Enterprise AI With Neural Xpert</h2>
+                    </div>
+                    <p class="box-text">Neural Xpert works with engineers, architects, and consultants who design, build, secure, and operate production AI for enterprises.</p>
+                    <p class="box-text">Open roles are shared directly with candidates. To talk with the team about joining Neural Xpert, write to <a href="mailto:partnerships@neuralxpert.com">partnerships@neuralxpert.com</a>.</p>
+                    <div class="btn-group mt-40">
+                        <a href="{{ url_for('contact.index') }}" class="th-btn">Contact the Team <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% if jobs %}
+    <section class="space-bottom overflow-hidden">
+        <div class="container">
+            <div class="row gy-4 justify-content-center">
+                {% for job in jobs %}
+                <div class="col-lg-6">
+                    <div class="service-card h-100">
+                        <div class="box-content">
+                            <div class="blog-meta">
+                                <a href="{{ url_for('careers.detail', slug=job.slug) }}">{{ job.department }}</a>
+                                <a href="{{ url_for('careers.detail', slug=job.slug) }}">{{ job.location }}</a>
+                            </div>
+                            <h3 class="box-title"><a href="{{ url_for('careers.detail', slug=job.slug) }}">{{ job.title }}</a></h3>
+                            <p class="box-text">{{ job.employment_type }}</p>
+                            <a href="{{ url_for('careers.detail', slug=job.slug) }}" class="th-btn th-border">View Role <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+{% endblock %}

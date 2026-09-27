@@ -1,0 +1,5 @@
+{% extends 'admin/base.html' %}
+{% block body %}
+<div class="d-flex justify-content-between"><h1 class="h3">Case studies</h1><a class="th-btn" href="{{ url_for('admin.case_study_edit') }}">New case study</a></div>
+<table class="table mt-20"><tbody>{% for study in studies %}<tr><td>{{ study.title }}</td><td>{{ study.status }}</td><td><a href="{{ url_for('admin.case_study_edit', item_id=study.id) }}">Edit</a></td></tr>{% endfor %}</tbody></table>
+{% endblock %}
