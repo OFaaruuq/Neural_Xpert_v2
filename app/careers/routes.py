@@ -5,6 +5,7 @@ from flask import Blueprint, abort, current_app, flash, redirect, render_templat
 from werkzeug.utils import secure_filename
 
 from app.extensions import db, limiter
+from app.mailer import notify_application
 from app.models import Job, JobApplication
 from app.services import seo_for
 
@@ -82,16 +83,16 @@ def _save_application(job):
     folder = current_app.config["UPLOAD_FOLDER"]
     os.makedirs(folder, exist_ok=True)
     upload.save(os.path.join(folder, stored))
-    db.session.add(
-        JobApplication(
-            job=job,
-            name=name,
-            email=email,
-            phone=phone,
-            cover_letter=cover_letter,
-            cv_filename=stored,
-            cv_original_name=original,
-        )
+    application = JobApplication(
+        job=job,
+        name=name,
+        email=email,
+        phone=phone,
+        cover_letter=cover_letter,
+        cv_filename=stored,
+        cv_original_name=original,
     )
+    db.session.add(application)
     db.session.commit()
+    notify_application(job, application)
     return []

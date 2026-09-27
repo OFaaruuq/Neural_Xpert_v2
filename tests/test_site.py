@@ -74,6 +74,29 @@ def test_case_study_detail(client):
     assert b"Enterprise AI Knowledge Assistant" in response.data
 
 
+def test_contact_sends_staff_notice_and_reply(client, app):
+    from app.extensions import mail
+
+    app.config["MAIL_SERVER"] = "smtp.example.com"
+    app.config["MAIL_SUPPRESS_SEND"] = True
+    app.config["MAIL_DEFAULT_SENDER"] = "Neural Xpert"
+    app.config["MAIL_USERNAME"] = "neuralxperts@gmail.com"
+    app.config["MAIL_DEFAULT_RECIPIENT"] = "inbox@example.com"
+    with app.app_context():
+        with mail.record_messages() as outbox:
+            response = client.post(
+                "/contact",
+                data={"name": "Ada Lovelace", "email": "ada@example.com", "number": "123", "subject": "AI", "message": "Hello"},
+            )
+    assert response.status_code == 200
+    assert len(outbox) == 2
+    assert outbox[0].recipients == ["inbox@example.com"]
+    assert outbox[0].reply_to == "ada@example.com"
+    assert outbox[0].sender == "Neural Xpert <neuralxperts@gmail.com>"
+    assert outbox[1].recipients == ["ada@example.com"]
+    assert "We received your message" in outbox[1].subject
+
+
 def test_contact_submission(client, app):
     response = client.post(
         "/contact",

@@ -6,6 +6,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def _flag(name, default="false"):
+    value = os.environ.get(name, default)
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
+
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-change-me")
     SQLALCHEMY_DATABASE_URI = os.environ.get(
@@ -24,13 +29,18 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
     REMEMBER_COOKIE_HTTPONLY = True
     RATELIMIT_STORAGE_URI = "memory://"
+    MAIL_DEBUG = False
     MAIL_SERVER = os.environ.get("MAIL_SERVER", "")
     MAIL_PORT = int(os.environ.get("MAIL_PORT", "587"))
-    MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", "true").lower() == "true"
+    MAIL_USE_TLS = _flag("MAIL_USE_TLS", "true")
+    MAIL_USE_SSL = _flag("MAIL_USE_SSL", "false")
     MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "")
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "")
-    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", "partnerships@neuralxpert.com")
-    CONTACT_RECIPIENT = os.environ.get("CONTACT_RECIPIENT", "partnerships@neuralxpert.com")
+    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", "Neural Xpert")
+    MAIL_DEFAULT_RECIPIENT = os.environ.get("MAIL_DEFAULT_RECIPIENT", "")
+    CONTACT_RECIPIENT = os.environ.get("CONTACT_RECIPIENT") or os.environ.get(
+        "MAIL_DEFAULT_RECIPIENT", "partnerships@neuralxpert.com"
+    )
 
 
 class DevelopmentConfig(Config):
@@ -51,6 +61,8 @@ class TestingConfig(Config):
     RATELIMIT_ENABLED = False
     SITE_URL = "https://neuralxpert.com"
     UPLOAD_FOLDER = "instance/test-uploads"
+    MAIL_SERVER = ""
+    MAIL_SUPPRESS_SEND = True
 
 
 class ProductionConfig(Config):

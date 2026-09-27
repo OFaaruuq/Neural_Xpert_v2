@@ -1,8 +1,8 @@
 from email_validator import EmailNotValidError, validate_email
-from flask import Blueprint, current_app, render_template, request
-from flask_mail import Message
+from flask import Blueprint, render_template, request
 
-from app.extensions import db, limiter, mail
+from app.extensions import db, limiter
+from app.mailer import notify_contact
 from app.models import ContactSubmission
 from app.services import seo_for
 
@@ -51,29 +51,5 @@ def submit():
     )
     db.session.add(submission)
     db.session.commit()
-    _notify(submission)
+    notify_contact(submission)
     return "Thank You! Your message has been sent.", 200
-
-
-def _notify(submission):
-    if not current_app.config.get("MAIL_SERVER"):
-        current_app.logger.info("Contact enquiry %s stored. Email delivery is not configured.", submission.id)
-        return
-    body = (
-        f"Name: {submission.name}\n"
-        f"Company: {submission.company}\n"
-        f"Email: {submission.email}\n"
-        f"Phone: {submission.phone}\n"
-        f"Subject: {submission.subject}\n\n"
-        f"{submission.message}\n"
-    )
-    message = Message(
-        subject=f"New contact from {submission.subject}",
-        recipients=[current_app.config["CONTACT_RECIPIENT"]],
-        body=body,
-        reply_to=submission.email,
-    )
-    try:
-        mail.send(message)
-    except Exception:
-        current_app.logger.exception("Contact enquiry %s was stored but email failed.", submission.id)
