@@ -29,7 +29,8 @@ def create_app(config_name=None):
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrations_dir = os.path.abspath(os.path.join(app.root_path, os.pardir, "migrations"))
+    migrate.init_app(app, db, directory=migrations_dir)
     csrf.init_app(app)
     limiter.init_app(app)
     mail.init_app(app)

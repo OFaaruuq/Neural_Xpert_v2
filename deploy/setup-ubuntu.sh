@@ -48,6 +48,15 @@ apt-get install -y \
   rsync \
   ca-certificates
 
+if [[ ! -f "${SOURCE_DIR}/migrations/env.py" ]]; then
+  echo "Restoring the PostgreSQL migrations folder from git..."
+  git -C "${SOURCE_DIR}" checkout HEAD -- migrations
+fi
+if [[ ! -f "${SOURCE_DIR}/migrations/env.py" || ! -d "${SOURCE_DIR}/migrations/versions" ]]; then
+  echo "migrations/ is missing in ${SOURCE_DIR}. PostgreSQL schema cannot be created."
+  exit 1
+fi
+
 echo "Copying the application to ${APP_DIR}..."
 install -d -m 755 "${APP_DIR}"
 rsync -a --delete \
@@ -195,6 +204,11 @@ load_env() {
     export "${key}=${value}"
   done < "$1"
 }
+
+if [[ ! -f "${APP_DIR}/migrations/env.py" ]]; then
+  echo "migrations/ was not copied to ${APP_DIR}."
+  exit 1
+fi
 
 echo "Applying PostgreSQL migrations and seed data..."
 (
