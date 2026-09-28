@@ -14,8 +14,8 @@ def _require_production_secrets(app):
     database_url = app.config.get("SQLALCHEMY_DATABASE_URI") or ""
     if secret in weak_secrets or len(secret) < 32:
         raise RuntimeError("Set a unique SECRET_KEY of at least 32 characters before production.")
-    if database_url.startswith("sqlite") or "neuralxpert:neuralxpert@" in database_url:
-        raise RuntimeError("Set DATABASE_URL to the production PostgreSQL database.")
+    if not database_url.startswith("postgresql") or "neuralxpert:neuralxpert@" in database_url:
+        raise RuntimeError("Set DATABASE_URL to the production PostgreSQL URL (postgresql+psycopg://).")
 
 
 def create_app(config_name=None):

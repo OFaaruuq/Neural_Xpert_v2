@@ -64,11 +64,40 @@ rsync -a --delete \
 install -d -o www-data -g www-data -m 750 "${APP_DIR}/instance"
 install -d -o www-data -g www-data -m 750 "${APP_DIR}/instance/uploads"
 
-if [[ ! -f "${APP_DIR}/.env" ]]; then
-  echo "Creating PostgreSQL role and database..."
-  DB_PASSWORD="$(openssl rand -hex 24)"
-  SECRET_KEY="$(openssl rand -hex 32)"
+env_get() {
+  local line value
+  line="$(grep -E "^${2}=" "${1}" | tail -n 1 || true)"
+  value="${line#*=}"
+  if [[ "${value}" == \"*\" && "${value}" == *\" ]]; then
+    value="${value:1:${#value}-2}"
+  elif [[ "${value}" == \'*\' && "${value}" == *\' ]]; then
+    value="${value:1:${#value}-2}"
+  fi
+  printf '%s' "${value}"
+}
 
+env_set() {
+  local tmp
+  tmp="$(mktemp)"
+  if [[ -f "${1}" ]]; then
+    grep -v -E "^${2}=" "${1}" > "${tmp}" || true
+  fi
+  printf '%s="%s"\n' "${2}" "${3}" >> "${tmp}"
+  mv "${tmp}" "${1}"
+}
+
+systemctl enable postgresql
+systemctl start postgresql
+
+echo "Ensuring the PostgreSQL role and database..."
+ENV_FILE="${APP_DIR}/.env"
+CURRENT_URL=""
+if [[ -f "${ENV_FILE}" ]]; then
+  CURRENT_URL="$(env_get "${ENV_FILE}" DATABASE_URL)"
+fi
+
+if [[ -z "${CURRENT_URL}" || "${CURRENT_URL}" != postgresql* ]]; then
+  DB_PASSWORD="$(openssl rand -hex 24)"
   sudo -u postgres psql -v ON_ERROR_STOP=1 <<SQL
 DO \$\$
 BEGIN
@@ -80,44 +109,69 @@ BEGIN
 END
 \$\$;
 SQL
+  DATABASE_URL="postgresql+psycopg://${DB_USER}:${DB_PASSWORD}@localhost:5432/${DB_NAME}"
+  echo "PostgreSQL URL written. MySQL and SQLite URLs are not used."
+else
+  DATABASE_URL="${CURRENT_URL}"
+  echo "Keeping the existing PostgreSQL DATABASE_URL."
+fi
 
-  if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${DB_NAME}'" | grep -q 1; then
-    sudo -u postgres createdb --owner="${DB_USER}" "${DB_NAME}"
-  fi
-  sudo -u postgres psql -v ON_ERROR_STOP=1 -d "${DB_NAME}" <<SQL
+if ! sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${DB_NAME}'" | grep -q 1; then
+  sudo -u postgres createdb --owner="${DB_USER}" "${DB_NAME}"
+fi
+sudo -u postgres psql -v ON_ERROR_STOP=1 -d "${DB_NAME}" <<SQL
 GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${DB_USER};
 GRANT ALL ON SCHEMA public TO ${DB_USER};
 SQL
 
-  umask 077
-  cat > "${APP_DIR}/.env" <<ENV
-FLASK_CONFIG=production
-SECRET_KEY=${SECRET_KEY}
-DATABASE_URL=postgresql+psycopg://${DB_USER}:${DB_PASSWORD}@localhost:5432/${DB_NAME}
-SITE_URL=https://${DOMAIN}
-MAIL_SERVER=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USE_TLS=1
-MAIL_USE_SSL=0
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_DEFAULT_SENDER=Neural Xpert
-MAIL_DEFAULT_RECIPIENT=
-CONTACT_RECIPIENT=
+umask 077
+if [[ ! -f "${ENV_FILE}" ]]; then
+  SECRET_KEY="$(openssl rand -hex 32)"
+  cat > "${ENV_FILE}" <<ENV
+FLASK_CONFIG="production"
+SECRET_KEY="${SECRET_KEY}"
+DATABASE_URL="${DATABASE_URL}"
+SITE_URL="https://www.${DOMAIN}"
+MAIL_SERVER="smtp.gmail.com"
+MAIL_PORT="587"
+MAIL_USE_TLS="1"
+MAIL_USE_SSL="0"
+MAIL_USERNAME="${MAIL_USERNAME:-}"
+MAIL_PASSWORD="${MAIL_PASSWORD:-}"
+MAIL_DEFAULT_SENDER="Neural Xpert"
+MAIL_DEFAULT_RECIPIENT="${MAIL_DEFAULT_RECIPIENT:-}"
+CONTACT_RECIPIENT="${CONTACT_RECIPIENT:-${MAIL_DEFAULT_RECIPIENT:-}}"
 ENV
   cat > "${CREDENTIALS_FILE}" <<CREDS
 Neural Xpert production credentials
-Database: ${DB_NAME}
+Database: PostgreSQL
+Database name: ${DB_NAME}
 Database user: ${DB_USER}
 Database password: ${DB_PASSWORD}
-Site: https://${DOMAIN}
+Site: https://www.${DOMAIN}
 CREDS
-  chmod 600 "${APP_DIR}/.env" "${CREDENTIALS_FILE}"
-  chgrp www-data "${APP_DIR}/.env"
-  chmod 640 "${APP_DIR}/.env"
+  chmod 600 "${CREDENTIALS_FILE}"
 else
-  echo "Keeping the existing ${APP_DIR}/.env"
+  env_set "${ENV_FILE}" FLASK_CONFIG production
+  env_set "${ENV_FILE}" DATABASE_URL "${DATABASE_URL}"
+  env_set "${ENV_FILE}" MAIL_DEFAULT_SENDER "Neural Xpert"
+  if [[ -z "$(env_get "${ENV_FILE}" SITE_URL)" || "$(env_get "${ENV_FILE}" SITE_URL)" == "https://${DOMAIN}" ]]; then
+    env_set "${ENV_FILE}" SITE_URL "https://www.${DOMAIN}"
+  fi
+  if [[ -n "${DB_PASSWORD:-}" ]]; then
+    cat > "${CREDENTIALS_FILE}" <<CREDS
+Neural Xpert production credentials
+Database: PostgreSQL
+Database name: ${DB_NAME}
+Database user: ${DB_USER}
+Database password: ${DB_PASSWORD}
+Site: https://www.${DOMAIN}
+CREDS
+    chmod 600 "${CREDENTIALS_FILE}"
+  fi
 fi
+chgrp www-data "${ENV_FILE}"
+chmod 640 "${ENV_FILE}"
 
 if [[ ! -x "${APP_DIR}/.venv/bin/flask" ]]; then
   echo "Creating the application virtualenv..."
@@ -126,14 +180,35 @@ fi
 "${APP_DIR}/.venv/bin/pip" install --upgrade pip
 "${APP_DIR}/.venv/bin/pip" install -r "${APP_DIR}/requirements.txt"
 
-echo "Applying database migrations and seed data..."
+load_env() {
+  local line key value
+  while IFS= read -r line || [[ -n "${line}" ]]; do
+    line="${line%%$'\r'}"
+    [[ -z "${line}" || "${line}" =~ ^[[:space:]]*# ]] && continue
+    key="${line%%=*}"
+    value="${line#*=}"
+    if [[ "${value}" == \"*\" && "${value}" == *\" ]]; then
+      value="${value:1:${#value}-2}"
+    elif [[ "${value}" == \'*\' && "${value}" == *\' ]]; then
+      value="${value:1:${#value}-2}"
+    fi
+    export "${key}=${value}"
+  done < "$1"
+}
+
+echo "Applying PostgreSQL migrations and seed data..."
 (
   cd "${APP_DIR}"
-  set -a
-  # shellcheck disable=SC1091
-  source .env
-  set +a
+  load_env .env
+  case "${DATABASE_URL}" in
+    postgresql*) ;;
+    *)
+      echo "DATABASE_URL must start with postgresql+psycopg://. MySQL is not used."
+      exit 1
+      ;;
+  esac
   export FLASK_APP=wsgi:app
+  export FLASK_CONFIG=production
   .venv/bin/flask db upgrade
   .venv/bin/flask seed
 )
