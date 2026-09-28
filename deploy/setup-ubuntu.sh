@@ -181,6 +181,7 @@ CREDS
 fi
 chgrp www-data "${ENV_FILE}"
 chmod 640 "${ENV_FILE}"
+umask 022
 
 if [[ ! -x "${APP_DIR}/.venv/bin/flask" ]]; then
   echo "Creating the application virtualenv..."
@@ -188,6 +189,9 @@ if [[ ! -x "${APP_DIR}/.venv/bin/flask" ]]; then
 fi
 "${APP_DIR}/.venv/bin/pip" install --upgrade pip
 "${APP_DIR}/.venv/bin/pip" install -r "${APP_DIR}/requirements.txt"
+# www-data must be able to execute Gunicorn. The secrets file stays private.
+chmod -R a+rX "${APP_DIR}/.venv"
+find "${APP_DIR}" -path "${ENV_FILE}" -prune -o -type d -exec chmod a+rx {} +
 
 load_env() {
   local line key value
