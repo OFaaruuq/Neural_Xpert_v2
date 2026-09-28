@@ -4,7 +4,7 @@ import pytest
 
 from app import create_app
 from app.extensions import db
-from app.models import Job, User
+from app.models import Job
 from app.seed import seed
 
 
@@ -14,9 +14,6 @@ def app():
     with application.app_context():
         db.create_all()
         seed()
-        admin = User(email="admin@neuralxpert.com", role="admin")
-        admin.set_password("correct-horse")
-        db.session.add(admin)
         db.session.commit()
     yield application
     with application.app_context():
@@ -112,13 +109,9 @@ def test_contact_submission(client, app):
     assert rejected.status_code == 400
 
 
-def test_admin_is_private_and_has_no_registration(client):
-    assert client.get("/admin").status_code == 302
-    assert client.get("/admin/register").status_code == 404
-    login = client.post("/admin/login", data={"email": "admin@neuralxpert.com", "password": "wrong"})
-    assert b"Invalid email or password" in login.data
-    success = client.post("/admin/login", data={"email": "admin@neuralxpert.com", "password": "correct-horse"}, follow_redirects=True)
-    assert b"Dashboard" in success.data
+def test_admin_is_not_available(client):
+    assert client.get("/admin").status_code == 404
+    assert client.get("/admin/login").status_code == 404
 
 
 def test_job_application_rejects_bad_files(client, app):
@@ -155,7 +148,7 @@ def test_job_application_rejects_bad_files(client, app):
 def test_sitemap_and_robots(client):
     robots = client.get("/robots.txt")
     assert b"Sitemap:" in robots.data
-    assert b"Disallow: /admin" in robots.data
+    assert b"/admin" not in robots.data
     sitemap = client.get("/sitemap.xml")
     assert b"/insights/rathat-android-trojan-uses-ai-for-automation" in sitemap.data
 

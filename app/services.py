@@ -1,10 +1,8 @@
 import logging
 import os
 import re
-from functools import wraps
 
-from flask import current_app, flash, redirect, request, url_for
-from flask_login import current_user
+from flask import current_app, flash, request, url_for
 
 from app.models import PageSeo
 
@@ -78,16 +76,6 @@ def db_seo(page_key):
     except Exception:
         current_app.logger.debug("SEO lookup skipped for %s", page_key)
         return None
-
-
-def admin_required(view):
-    @wraps(view)
-    def wrapped(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.role != "admin":
-            return redirect(url_for("admin.login", next=request.path))
-        return view(*args, **kwargs)
-
-    return wrapped
 
 
 def configure_logging(app):

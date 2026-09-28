@@ -1,5 +1,0 @@
-{% extends 'admin/base.html' %}
-{% block body %}
-<div class="d-flex justify-content-between"><h1 class="h3">Jobs</h1><a class="th-btn" href="{{ url_for('admin.job_edit') }}">New job</a></div>
-<table class="table mt-20"><tbody>{% for job in jobs %}<tr><td>{{ job.title }}</td><td>{{ job.status }}</td><td><a href="{{ url_for('admin.job_edit', item_id=job.id) }}">Edit</a></td></tr>{% endfor %}</tbody></table>
-{% endblock %}

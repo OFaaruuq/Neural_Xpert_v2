@@ -1,6 +1,0 @@
-{% extends 'admin/base.html' %}
-{% block body %}
-<h1 class="h3">Applications</h1>
-<table class="table"><thead><tr><th>Candidate</th><th>Role</th><th>Status</th><th>CV</th></tr></thead>
-<tbody>{% for item in applications %}<tr><td>{{ item.name }}<br>{{ item.email }}</td><td>{{ item.job.title }}</td><td>{{ item.status }}</td><td><a href="{{ url_for('admin.application_cv', item_id=item.id) }}">Download</a></td></tr>{% endfor %}</tbody></table>
-{% endblock %}

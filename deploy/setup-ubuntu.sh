@@ -8,7 +8,7 @@
 #   bash deploy/setup-ubuntu.sh
 #
 # Optional environment overrides:
-#   DOMAIN=neuralxpert.com ADMIN_EMAIL=admin@neuralxpert.com bash deploy/setup-ubuntu.sh
+#   DOMAIN=neuralxpert.com bash deploy/setup-ubuntu.sh
 
 set -euo pipefail
 
@@ -16,7 +16,6 @@ APP_DIR="${APP_DIR:-/var/www/neuralxpert}"
 DOMAIN="${DOMAIN:-neuralxpert.com}"
 DB_NAME="${DB_NAME:-neuralxpert}"
 DB_USER="${DB_USER:-neuralxpert}"
-ADMIN_EMAIL="${ADMIN_EMAIL:-admin@neuralxpert.com}"
 CERTBOT_EMAIL="${CERTBOT_EMAIL:-partnerships@neuralxpert.com}"
 CREDENTIALS_FILE="${CREDENTIALS_FILE:-/root/neuralxpert-credentials.txt}"
 
@@ -69,7 +68,6 @@ if [[ ! -f "${APP_DIR}/.env" ]]; then
   echo "Creating PostgreSQL role and database..."
   DB_PASSWORD="$(openssl rand -hex 24)"
   SECRET_KEY="$(openssl rand -hex 32)"
-  ADMIN_PASSWORD="$(openssl rand -base64 24 | tr -d '/+=' | head -c 24)"
 
   sudo -u postgres psql -v ON_ERROR_STOP=1 <<SQL
 DO \$\$
@@ -106,16 +104,12 @@ MAIL_PASSWORD=
 MAIL_DEFAULT_SENDER=Neural Xpert
 MAIL_DEFAULT_RECIPIENT=
 CONTACT_RECIPIENT=
-ADMIN_EMAIL=${ADMIN_EMAIL}
-ADMIN_PASSWORD=${ADMIN_PASSWORD}
 ENV
   cat > "${CREDENTIALS_FILE}" <<CREDS
 Neural Xpert production credentials
 Database: ${DB_NAME}
 Database user: ${DB_USER}
 Database password: ${DB_PASSWORD}
-Admin email: ${ADMIN_EMAIL}
-Admin password: ${ADMIN_PASSWORD}
 Site: https://${DOMAIN}
 CREDS
   chmod 600 "${APP_DIR}/.env" "${CREDENTIALS_FILE}"
@@ -142,18 +136,7 @@ echo "Applying database migrations and seed data..."
   export FLASK_APP=wsgi:app
   .venv/bin/flask db upgrade
   .venv/bin/flask seed
-  if [[ -n "${ADMIN_PASSWORD:-}" ]]; then
-    .venv/bin/flask create-admin
-  fi
 )
-
-# The running web process does not need the admin password.
-if grep -q '^ADMIN_PASSWORD=' "${APP_DIR}/.env"; then
-  grep -v '^ADMIN_PASSWORD=' "${APP_DIR}/.env" > "${APP_DIR}/.env.tmp"
-  mv "${APP_DIR}/.env.tmp" "${APP_DIR}/.env"
-  chgrp www-data "${APP_DIR}/.env"
-  chmod 640 "${APP_DIR}/.env"
-fi
 
 echo "Installing the Gunicorn service..."
 cat > /etc/systemd/system/neuralxpert.service <<UNIT
@@ -244,6 +227,6 @@ echo
 echo "Neural Xpert is installed at ${APP_DIR}"
 echo "Public site: http://${DOMAIN}"
 if [[ -f "${CREDENTIALS_FILE}" ]]; then
-  echo "Database and admin passwords are in ${CREDENTIALS_FILE}"
+  echo "Database credentials are in ${CREDENTIALS_FILE}"
 fi
 echo "Service status: systemctl status neuralxpert --no-pager"

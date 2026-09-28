@@ -1,0 +1,299 @@
+.nx-admin {
+  margin: 0;
+  min-height: 100vh;
+  background: #f3f5f8;
+  color: #12151c;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.nx-admin-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.nx-admin-side {
+  width: 260px;
+  flex: 0 0 260px;
+  background: #071426;
+  color: #e8eef8;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.nx-admin-brand {
+  display: block;
+  padding: 28px 24px 18px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.nx-admin-brand span {
+  display: block;
+  margin-top: 4px;
+  color: #9aa8bd;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nx-admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+}
+
+.nx-admin-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 8px;
+  color: #d5deea;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.nx-admin-nav a:hover,
+.nx-admin-nav a.is-active {
+  background: rgba(212, 255, 18, 0.12);
+  color: #fff;
+}
+
+.nx-admin-nav a.is-active {
+  box-shadow: inset 3px 0 0 #d4ff12;
+}
+
+.nx-admin-badge {
+  min-width: 22px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #d4ff12;
+  color: #071426;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.nx-admin-side-foot {
+  margin-top: auto;
+  padding: 16px 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nx-admin-side-foot a,
+.nx-admin-side-foot button {
+  width: 100%;
+}
+
+.nx-admin-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 32px 36px 64px;
+}
+
+.nx-admin-pagehead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.nx-admin-pagehead h1,
+.nx-admin h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.nx-admin-pagehead p {
+  margin: 6px 0 0;
+  color: #5c6778;
+}
+
+.nx-admin-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.nx-admin-stat {
+  display: block;
+  background: #fff;
+  border: 1px solid #e4e8ee;
+  border-radius: 12px;
+  padding: 16px 18px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.nx-admin-stat:hover {
+  border-color: #071426;
+}
+
+.nx-admin-stat strong {
+  display: block;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.nx-admin-stat span {
+  display: block;
+  margin-top: 6px;
+  color: #5c6778;
+  font-size: 14px;
+}
+
+.nx-admin-panels {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 16px;
+}
+
+.nx-admin-panel {
+  background: #fff;
+  border: 1px solid #e4e8ee;
+  border-radius: 12px;
+  padding: 18px 20px 8px;
+}
+
+.nx-admin-panel h2 {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+.nx-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.nx-admin-table th,
+.nx-admin-table td,
+.nx-admin .table th,
+.nx-admin .table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #eef1f5;
+  text-align: left;
+  vertical-align: top;
+  font-size: 14px;
+}
+
+.nx-admin-main > h1,
+.nx-admin-main > .d-flex {
+  margin-bottom: 16px;
+}
+
+.nx-admin .table {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e4e8ee;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.nx-admin .form-control,
+.nx-admin .form-select {
+  width: 100%;
+  margin-bottom: 12px;
+  border: 1px solid #d5dbe3;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+.nx-admin-btn,
+.nx-admin .th-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  background: #071426;
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.nx-admin-btn-ghost {
+  background: transparent;
+  color: #d5deea;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.nx-admin-main .nx-admin-btn-ghost {
+  color: #071426;
+  border-color: #cfd6e0;
+  background: #fff;
+}
+
+.nx-admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background: #071426;
+}
+
+.nx-admin-login-card {
+  width: min(440px, 100%);
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 28px;
+}
+
+.nx-admin .form-messages.error {
+  color: #9b1c1c;
+}
+
+.nx-admin .form-messages.success {
+  color: #146c43;
+}
+
+@media (max-width: 1100px) {
+  .nx-admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .nx-admin-panels {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  .nx-admin-shell {
+    flex-direction: column;
+  }
+  .nx-admin-side {
+    width: 100%;
+    flex-basis: auto;
+    height: auto;
+    position: sticky;
+    z-index: 5;
+  }
+  .nx-admin-nav {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+  .nx-admin-nav a {
+    white-space: nowrap;
+  }
+  .nx-admin-side-foot {
+    flex-direction: row;
+  }
+  .nx-admin-main {
+    padding: 20px 16px 48px;
+  }
+}

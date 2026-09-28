@@ -3,7 +3,7 @@ import os
 from flask import Flask, abort, redirect, render_template, request, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from app.extensions import csrf, db, limiter, login_manager, mail, migrate
+from app.extensions import csrf, db, limiter, mail, migrate
 from app.services import configure_logging, sanitize_html, seo_for
 from config import CONFIGS
 
@@ -30,7 +30,6 @@ def create_app(config_name=None):
 
     db.init_app(app)
     migrate.init_app(app, db)
-    login_manager.init_app(app)
     csrf.init_app(app)
     limiter.init_app(app)
     mail.init_app(app)
@@ -38,7 +37,6 @@ def create_app(config_name=None):
     app.jinja_env.filters["sanitize_html"] = sanitize_html
 
     from app import models  # noqa: F401
-    from app.admin.routes import bp as admin_bp
     from app.blog.routes import bp as blog_bp
     from app.careers.routes import bp as careers_bp
     from app.case_studies.routes import bp as case_studies_bp
@@ -50,7 +48,6 @@ def create_app(config_name=None):
     app.register_blueprint(case_studies_bp)
     app.register_blueprint(careers_bp)
     app.register_blueprint(contact_bp)
-    app.register_blueprint(admin_bp)
 
     if config_name == "production":
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
@@ -119,7 +116,7 @@ def create_app(config_name=None):
 
     @app.route("/robots.txt")
     def robots():
-        body = f"User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: {app.config['SITE_URL'].rstrip('/')}/sitemap.xml\n"
+        body = f"User-agent: *\nAllow: /\nSitemap: {app.config['SITE_URL'].rstrip('/')}/sitemap.xml\n"
         return body, 200, {"Content-Type": "text/plain; charset=utf-8"}
 
     @app.route("/sitemap.xml")
@@ -183,25 +180,5 @@ def create_app(config_name=None):
 
         seed()
         print("Seed data is ready.")
-
-    @app.cli.command("create-admin")
-    def create_admin():
-        from app.models import User
-
-        email = os.environ.get("ADMIN_EMAIL", "").strip().lower()
-        password = os.environ.get("ADMIN_PASSWORD", "")
-        if not email or not password:
-            raise SystemExit("Set ADMIN_EMAIL and ADMIN_PASSWORD before creating an administrator.")
-        existing = User.query.filter_by(email=email).first()
-        if existing:
-            existing.set_password(password)
-            existing.role = "admin"
-            existing.is_active_user = True
-        else:
-            existing = User(email=email, role="admin")
-            existing.set_password(password)
-            db.session.add(existing)
-        db.session.commit()
-        print(f"Administrator ready: {email}")
 
     return app
