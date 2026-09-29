@@ -22,8 +22,13 @@ def index():
     query = Article.query.filter_by(status="published")
     active_category = None
     if search:
-        like = f"%{search}%"
-        query = query.filter(Article.title.ilike(like) | Article.excerpt.ilike(like))
+        safe = search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        like = f"%{safe}%"
+        query = query.filter(
+            Article.title.ilike(like, escape="\\")
+            | Article.excerpt.ilike(like, escape="\\")
+            | Article.content.ilike(like, escape="\\")
+        )
     if category_slug:
         active_category = Category.query.filter_by(slug=category_slug, kind="article").first()
         if active_category:

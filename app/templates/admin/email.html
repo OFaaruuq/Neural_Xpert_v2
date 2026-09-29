@@ -1,0 +1,64 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Email</h1>
+<p class="text-secondary">These settings send admin sign-in codes, contact notifications, and career applications. The password is never shown again after you save it.</p>
+{% if mail.using_saved %}
+<p class="text-secondary">The site is using the SMTP server saved here.</p>
+{% else %}
+<p class="text-secondary">The site is using the SMTP server from the environment until you save a server on this page.</p>
+{% endif %}
+<form method="post" style="max-width:720px" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <h2 class="h5 mt-4">SMTP</h2>
+    <label class="form-label mt-3">SMTP server
+        <input class="form-control" name="mail_server" value="{{ mail.server }}" placeholder="smtp.gmail.com" autocomplete="off">
+    </label>
+    <label class="form-label mt-3">Port
+        <input class="form-control" name="mail_port" value="{{ mail.port }}" inputmode="numeric">
+    </label>
+    <input type="hidden" name="mail_use_tls" value="0">
+    <div class="form-check mt-3">
+        <input class="form-check-input" type="checkbox" name="mail_use_tls" value="1" id="mail-tls" {% if mail.tls %}checked{% endif %}>
+        <label class="form-check-label" for="mail-tls">Use TLS (port 587)</label>
+    </div>
+    <input type="hidden" name="mail_use_ssl" value="0">
+    <div class="form-check mt-2">
+        <input class="form-check-input" type="checkbox" name="mail_use_ssl" value="1" id="mail-ssl" {% if mail.ssl %}checked{% endif %}>
+        <label class="form-check-label" for="mail-ssl">Use SSL (port 465)</label>
+    </div>
+    <label class="form-label mt-3">Mailbox address
+        <input class="form-control" type="email" name="mail_username" value="{{ mail.username }}" autocomplete="off">
+    </label>
+    <label class="form-label mt-3">Password
+        <input class="form-control" type="password" name="mail_password" value="" autocomplete="new-password" placeholder="{% if mail.password_set %}Leave blank to keep the saved password{% else %}SMTP password{% endif %}">
+    </label>
+    {% if mail.password_set %}
+    <p class="small text-secondary mb-0">{% if mail.password_saved %}A password is saved in admin.{% else %}A password is set in the server environment.{% endif %} Leave the field blank to keep it.</p>
+    {% endif %}
+    <label class="form-label mt-3">From name
+        <input class="form-control" name="mail_sender" value="{{ mail.sender }}">
+    </label>
+    <label class="form-label mt-3">Inbox for contact and career messages
+        <input class="form-control" type="email" name="mail_recipient" value="{{ mail.recipient }}">
+    </label>
+
+    <h2 class="h5 mt-4">Automatic replies</h2>
+    <p class="small text-secondary">Contact replies can use {name} and {subject}. Career replies can use {name} and {job}.</p>
+    <label class="form-label mt-3">Contact reply subject
+        <input class="form-control" name="mail_contact_subject" value="{{ mail.contact_subject }}">
+    </label>
+    <label class="form-label mt-3">Contact reply
+        <textarea class="form-control" name="mail_contact_body" rows="6">{{ mail.contact_body }}</textarea>
+    </label>
+    <label class="form-label mt-3">Career reply subject
+        <input class="form-control" name="mail_career_subject" value="{{ mail.career_subject }}">
+    </label>
+    <label class="form-label mt-3">Career reply
+        <textarea class="form-control" name="mail_career_body" rows="6">{{ mail.career_body }}</textarea>
+    </label>
+    <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-primary" type="submit" name="action" value="save">Save email settings</button>
+        <button class="btn btn-outline-primary" type="submit" name="action" value="test">Save and send a test to me</button>
+    </div>
+</form>
+{% endblock %}

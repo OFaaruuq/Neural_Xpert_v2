@@ -1,0 +1,7 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Backups</h1>
+<p>Production backups stay with the server database, outside this application. The deploy host keeps the PostgreSQL database and the application directory. Restore from that backup before changing production data.</p>
+<p>Lead export is available from <a href="{{ url_for('admin.crm') }}">Leads</a> for people who can export.</p>
+<p><a href="{{ url_for('admin.leads_export') }}">Download the lead CSV</a> when your role includes export.</p>
+{% endblock %}

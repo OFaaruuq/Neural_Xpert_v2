@@ -1,0 +1,56 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+    <div>
+        <h1 class="h3 mb-1">Case studies</h1>
+        <p class="text-secondary mb-0">{{ total }} case {{ 'study' if total == 1 else 'studies' }}. Published studies appear on the public site.</p>
+    </div>
+    {% if g.staff.has_any(['content.edit']) %}
+    <a class="btn btn-primary" href="{{ url_for('admin.study_new') }}">New case study</a>
+    {% endif %}
+</div>
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <a class="nx-filter {% if not status %}is-on{% endif %}" href="{{ url_for('admin.studies', q=q or none) }}">All {{ total }}</a>
+    {% for item in statuses %}
+    <a class="nx-filter {% if status == item %}is-on{% endif %}" href="{{ url_for('admin.studies', status=item, q=q or none) }}">{{ item }} {{ counts[item] }}</a>
+    {% endfor %}
+</div>
+<form class="card mb-3" method="get">
+    <div class="card-body d-flex flex-wrap gap-2">
+        {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+        <input class="form-control" style="max-width:420px" name="q" value="{{ q }}" placeholder="Search title, industry, or client">
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+    </div>
+</form>
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr><th>Title</th><th>Industry</th><th>Client</th><th>Status</th><th>Updated</th><th></th></tr>
+            </thead>
+            <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>
+                    <a class="fw-semibold" href="{{ url_for('admin.study_edit', study_id=row.id) }}">{{ row.title }}</a>
+                    {% if row.category %}<div class="small text-secondary">{{ row.category }}</div>{% endif %}
+                </td>
+                <td>{{ row.industry or '—' }}</td>
+                <td>{{ row.client_display_name or row.client_name or '—' }}</td>
+                <td><span class="nx-pill nx-pill-{{ row.status|replace(' ', '-') }}">{{ row.status }}</span></td>
+                <td class="text-secondary">{{ row.updated_at.strftime('%d %b %Y') if row.updated_at else '' }}</td>
+                <td class="text-end text-nowrap">
+                    <a href="{{ url_for('admin.study_edit', study_id=row.id) }}">Edit</a>
+                    {% if row.status == 'published' %}
+                    <a class="ms-2" href="{{ url_for('case_studies.detail', slug=row.slug) }}" target="_blank" rel="noopener">View</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="text-secondary p-4">No case studies match this view.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

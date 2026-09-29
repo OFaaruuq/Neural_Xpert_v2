@@ -1,0 +1,222 @@
+{% extends "admin/base.html" %}
+{% block content %}
+{% set first = g.staff.name.split(' ')[0] if g.staff.name else '' %}
+<section class="nx-dash">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+        <div>
+            <p class="nx-welcome"><span></span> Welcome back{% if first %}, {{ first }}{% endif %}</p>
+            <h1 class="h3 mb-1">Neural Xpert Website Dashboard</h1>
+            <p class="text-secondary mb-0">Manage your content, track performance, and grow your business with enterprise AI.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            {% if g.staff.has_any(['content.edit']) %}
+            <a class="btn btn-primary" href="{{ url_for('admin.article_new') }}">+ New Insight</a>
+            <a class="btn btn-outline-primary" href="{{ url_for('admin.study_new') }}">+ New Case Study</a>
+            <a class="btn btn-outline-primary" href="{{ url_for('admin.solutions_new') }}">+ New Solution</a>
+            {% endif %}
+            {% if g.staff.has_any(['careers.edit']) %}
+            <a class="btn btn-outline-primary" href="{{ url_for('admin.career_new') }}">+ New Job</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 row-cols-xxl-6 g-3 mb-3">
+        {% for card in board.kpis %}
+        <div class="col">
+            <a class="card nx-kpi h-100 text-decoration-none" href="{% if card.icon == 'pages' %}{{ url_for('admin.pages') }}{% elif card.icon == 'articles' %}{{ url_for('admin.articles') }}{% elif card.icon == 'studies' %}{{ url_for('admin.studies') }}{% elif card.icon == 'solutions' %}{{ url_for('admin.solutions') }}{% elif card.icon == 'services' %}{{ url_for('admin.services') }}{% else %}{{ url_for('admin.industries') }}{% endif %}">
+                <span class="nx-kpi-icon nx-kpi-{{ card.icon }}">
+                    {% if card.icon == 'pages' %}<svg viewBox="0 0 24 24"><path d="M7 3.5h7l5 5V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z"/><path d="M14 3.5V9h5"/></svg>
+                    {% elif card.icon == 'articles' %}<svg viewBox="0 0 24 24"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v16H7.5A2.5 2.5 0 0 0 5 21.5z"/></svg>
+                    {% elif card.icon == 'studies' %}<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7"/></svg>
+                    {% elif card.icon == 'solutions' %}<svg viewBox="0 0 24 24"><path d="M12 3l1.6 5.2L19 10l-5.4 1.8L12 17l-1.6-5.2L5 10l5.4-1.8L12 3z"/></svg>
+                    {% elif card.icon == 'services' %}<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.2M12 18.3v2.2M4.8 6.2l1.6 1.6M17.6 16.2l1.6 1.6"/></svg>
+                    {% else %}<svg viewBox="0 0 24 24"><path d="M5 20V6.5A1.5 1.5 0 0 1 6.5 5h6A1.5 1.5 0 0 1 14 6.5V20M3 20h18"/></svg>
+                    {% endif %}
+                </span>
+                <div>
+                    <div class="nx-kpi-label">{{ card.label }}</div>
+                    <div class="nx-kpi-value">{{ card.value }} <span class="nx-{{ card.trend.tone }}">{{ card.trend.text }}</span></div>
+                    <div class="nx-kpi-hint">{{ card.hint }}</div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-xl-8">
+            <article class="card nx-panel h-100">
+                <header class="nx-panel-head">
+                    <h2>Website Traffic Overview</h2>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">Last {{ board.days }} days</button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('admin.dashboard', days=7) }}">Last 7 days</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.dashboard', days=30) }}">Last 30 days</a></li>
+                        </ul>
+                    </div>
+                </header>
+                <div class="nx-metric">
+                    <strong>{{ board.views_total }}</strong>
+                    {% if board.views_delta is not none %}
+                    <em class="{% if board.views_delta >= 0 %}nx-up{% else %}nx-down{% endif %}">{% if board.views_delta >= 0 %}↑{% else %}↓{% endif %} {{ board.views_delta|abs }}%</em>
+                    {% endif %}
+                </div>
+                <p class="nx-metric-label">Total Page Views <span>Visitors today {{ board.visitors_today }}</span></p>
+                <div class="nx-legend"><i class="nx-swatch-views"></i> Page Views <i class="nx-swatch-visitors"></i> Unique Visitors</div>
+                <svg class="nx-chart" viewBox="0 0 640 168" role="img" aria-label="Page views and unique visitors for the last 30 days">
+                    {% for tick in board.chart.ticks %}
+                    <line x1="46" x2="632" y1="{{ tick.y }}" y2="{{ tick.y }}" class="nx-grid"/>
+                    <text x="2" y="{{ tick.y + 4 }}" class="nx-axis">{{ tick.text }}</text>
+                    {% endfor %}
+                    <path d="{{ board.chart.area }}" class="nx-area"></path>
+                    <polyline points="{{ board.chart.views }}" class="nx-line-views"></polyline>
+                    <polyline points="{{ board.chart.visitors }}" class="nx-line-visitors"></polyline>
+                </svg>
+                <div class="nx-xlabels">
+                    {% for label in board.chart.labels %}<span style="left: {{ label.x }}%">{{ label.text }}</span>{% endfor %}
+                </div>
+            </article>
+        </div>
+        <div class="col-xl-4">
+            <article class="card nx-panel h-100">
+                <header class="nx-panel-head">
+                    <h2>Lead Overview</h2>
+                    {% if g.staff.has_any(['crm.view']) %}<a href="{{ url_for('admin.crm') }}">View All</a>{% endif %}
+                </header>
+                <div class="nx-metric"><strong>{{ board.leads.total_label }}</strong></div>
+                <p class="nx-metric-label">Open leads</p>
+                <div class="nx-donut-row">
+                    <div class="nx-donut" style="background: {{ board.leads.style }}">
+                        <div><strong>{{ board.leads.total_label }}</strong><span>Total Leads</span></div>
+                    </div>
+                    <ul class="nx-legend-list">
+                        {% for slice in board.leads.slices %}
+                        <li><i style="background: {{ slice.color }}"></i>{% if g.staff.has_any(['crm.view']) %}<a href="{{ url_for('admin.crm', status=slice.key) }}">{{ slice.label }}</a>{% else %}{{ slice.label }}{% endif %} <b>{{ slice.count }}</b></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-xl-7">
+            <article class="card nx-panel h-100">
+                <header class="nx-panel-head">
+                    <h2>Recently Published Content</h2>
+                    <a href="{{ url_for('admin.articles') }}">View All</a>
+                </header>
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle mb-0 nx-table">
+                        <thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Date</th></tr></thead>
+                        <tbody>
+                        {% for row in board.published %}
+                        <tr>
+                            <td><a href="{{ row.url }}"><span class="nx-mini">{{ row.initials }}</span>{{ row.title }}</a></td>
+                            <td>{{ row.kind }}</td>
+                            <td><span class="nx-status">Published</span></td>
+                            <td class="text-nowrap">{{ row.when }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4">No published content yet.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </div>
+        {% if g.staff.has_any(['crm.view']) %}
+        <div class="col-xl-5">
+            <article class="card nx-panel h-100">
+                <header class="nx-panel-head">
+                    <h2>Recent Leads</h2>
+                    <a href="{{ url_for('admin.crm') }}">View All<span class="visually-hidden"> Open CRM</span></a>
+                </header>
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle mb-0 nx-table">
+                        <thead><tr><th>Name</th><th>Company</th><th>Source</th><th>Date</th></tr></thead>
+                        <tbody>
+                        {% for row in board.recent_leads %}
+                        <tr>
+                            <td><a href="{{ row.url }}"><span class="nx-mini" style="background: {{ row.color }}">{{ row.initials }}</span>{{ row.name }}</a></td>
+                            <td>{{ row.company }}</td>
+                            <td>{{ row.source }}</td>
+                            <td class="text-nowrap">{{ row.when }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4">No inquiries yet.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row g-3">
+        <div class="col-xl-4">
+            <article class="card nx-panel h-100">
+                <header class="nx-panel-head">
+                    <h2>Content Status</h2>
+                    <a href="{{ url_for('admin.workflow') }}">View All</a>
+                </header>
+                <div class="nx-donut-row">
+                    <div class="nx-donut" style="background: {{ board.content.style }}">
+                        <div><strong>{{ board.content.total_label }}</strong><span>Total</span></div>
+                    </div>
+                    <ul class="nx-legend-list">
+                        {% for slice in board.content.slices %}
+                        <li><i style="background: {{ slice.color }}"></i>{{ slice.label }} <b>{{ slice.count }}</b></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </article>
+        </div>
+        <div class="col-xl-4">
+            <article class="card nx-panel h-100">
+                <header class="nx-panel-head">
+                    <h2>Top Performing Pages</h2>
+                    <a href="{{ url_for('admin.analytics') }}">View All</a>
+                </header>
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle mb-0 nx-table">
+                        <thead><tr><th>Page</th><th class="text-end">Views</th><th class="text-end">CTA Clicks</th><th class="text-end">Leads</th></tr></thead>
+                        <tbody>
+                        {% for row in board.top_pages %}
+                        <tr>
+                            <td>{{ row.path }}</td>
+                            <td class="text-end">{{ row.views }}</td>
+                            <td class="text-end">{{ row.clicks }}</td>
+                            <td class="text-end">{{ row.leads }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4">No visits recorded yet.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </div>
+        <div class="col-xl-4">
+            <article class="card nx-panel h-100">
+                <header class="nx-panel-head">
+                    <h2>SEO Health</h2>
+                    <a href="{{ url_for('admin.seo') }}">View Details</a>
+                </header>
+                <div class="nx-donut-row">
+                    <div class="nx-donut" style="background: {{ board.seo.style }}">
+                        <div><strong>{{ board.seo.score }}%</strong><span>SEO Score</span></div>
+                    </div>
+                    <ul class="nx-legend-list">
+                        {% for slice in board.seo.slices %}
+                        <li><i style="background: {{ slice.color }}"></i>{{ slice.label }} <b>{{ slice.count }}</b></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+{% endblock %}

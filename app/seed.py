@@ -99,7 +99,7 @@ def seed():
         fields = dict(category=category, author="Neural Xpert", status="published", seo_title=row["title"], meta_description=row["excerpt"], **row)
         if article is None:
             db.session.add(Article(**fields))
-        else:
+        elif not article.managed_in_admin:
             for key, value in fields.items():
                 setattr(article, key, value)
 

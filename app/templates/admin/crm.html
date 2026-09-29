@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+    <div>
+        <h1 class="h3 mb-1">CRM</h1>
+        <p class="text-secondary mb-0">{{ rows|length }} {{ 'lead' if rows|length == 1 else 'leads' }} in this view. {{ active_total }} active.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        {% if g.staff.has_any(['leads.export', 'crm.edit']) %}
+        <a class="btn btn-outline-primary" href="{{ url_for('admin.leads_export') }}">Export</a>
+        {% endif %}
+        {% if g.staff.has_any(['crm.edit']) %}
+        <a class="btn btn-primary" href="{{ url_for('admin.crm_new') }}">New lead</a>
+        {% endif %}
+    </div>
+</div>
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <a class="nx-filter {% if not status and not archived and not due %}is-on{% endif %}" href="{{ url_for('admin.crm', q=search or none, owner=owner or none) }}">Active {{ active_total }}</a>
+    {% for item in statuses %}
+    <a class="nx-filter {% if status == item and not archived %}is-on{% endif %}" href="{{ url_for('admin.crm', status=item, q=search or none, owner=owner or none, due=1 if due else none) }}">{{ item }} {{ counts[item] }}</a>
+    {% endfor %}
+    <a class="nx-filter {% if due and not archived %}is-on{% endif %}" href="{{ url_for('admin.crm', due=1, q=search or none, owner=owner or none) }}">Follow-up due {{ due_count }}</a>
+    <a class="nx-filter {% if archived %}is-on{% endif %}" href="{{ url_for('admin.crm', archived=1, q=search or none) }}">Archived {{ archived_count }}</a>
+</div>
+<form class="card mb-3" method="get">
+    <div class="card-body d-flex flex-wrap gap-2">
+        {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+        {% if archived %}<input type="hidden" name="archived" value="1">{% endif %}
+        {% if due %}<input type="hidden" name="due" value="1">{% endif %}
+        <input class="form-control" style="max-width:360px" name="q" value="{{ search }}" placeholder="Search name, email, phone, company, or subject" aria-label="Search name, email, phone, company, or subject">
+        <select class="form-select" style="max-width:240px" name="owner" aria-label="Owner">
+            <option value="">Any owner</option>
+            {% for person in staff %}
+            <option value="{{ person.id }}" {% if owner|string == person.id|string %}selected{% endif %}>{{ person.display_name }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin.crm') }}">Clear</a>
+    </div>
+</form>
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr><th>Lead</th><th>Company</th><th>Subject</th><th>Owner</th><th>Follow-up</th><th>Status</th><th>Received</th><th></th></tr>
+            </thead>
+            <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>
+                    <a class="fw-semibold" href="{{ url_for('admin.inquiry', inquiry_id=row.id) }}">{{ row.name }}</a>
+                    <div class="small text-secondary">{{ row.email }}{% if row.phone %} · {{ row.phone }}{% endif %}</div>
+                </td>
+                <td>{{ row.company or '—' }}</td>
+                <td>{{ row.subject }}{% if row.interest and row.interest != row.subject %}<div class="small text-secondary">{{ row.interest }}</div>{% endif %}</td>
+                <td>{{ row.assigned_to.display_name if row.assigned_to else '—' }}</td>
+                <td class="{% if row.follow_up_on and row.follow_up_on <= today and row.status not in ['won', 'lost', 'closed'] %}nx-due{% endif %}">{{ row.follow_up_on.strftime('%d %b %Y') if row.follow_up_on else '—' }}</td>
+                <td><span class="nx-pill nx-pill-{{ row.status|replace(' ', '-') }}">{{ row.status }}</span></td>
+                <td class="text-secondary text-nowrap">{{ row.created_at.strftime('%d %b %Y') if row.created_at else '' }}</td>
+                <td class="text-end"><a href="{{ url_for('admin.inquiry', inquiry_id=row.id) }}">Open</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-secondary p-4">No leads match this view.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

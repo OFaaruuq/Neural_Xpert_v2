@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename=item.hero_image or 'img/normal/features-benefits.jpg') }}">
+    <div class="container">
+        <div class="breadcumb-content">
+            <h1 class="breadcumb-title text-anime-style-3">{{ item.name }}</h1>
+            <ul class="breadcumb-menu">
+                <li><a href="{{ url_for('main.index') }}">Home</a></li>
+                <li>{{ item.name }}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<section class="space">
+    <div class="container">
+        {% if item.summary %}<p class="mb-4">{{ item.summary }}</p>{% endif %}
+        {% if item.challenges %}<h2>Challenges</h2><p>{{ item.challenges }}</p>{% endif %}
+        {% if item.capabilities %}<h2>Capabilities</h2><p>{{ item.capabilities }}</p>{% endif %}
+        {% if item.use_cases %}<h2>Use cases</h2><p>{{ item.use_cases }}</p>{% endif %}
+        {% if item.architecture %}<h2>Architecture</h2><p>{{ item.architecture }}</p>{% endif %}
+        {% if item.benefits %}<h2>Benefits</h2><p>{{ item.benefits }}</p>{% endif %}
+        {% if item.body %}<div>{{ item.body|sanitize_html|safe }}</div>{% endif %}
+        <a class="th-btn mt-4" href="{{ item.cta_url or url_for('contact.index') }}">{{ item.cta_label or 'Talk to an AI Expert' }}</a>
+    </div>
+</section>
+{% endblock %}

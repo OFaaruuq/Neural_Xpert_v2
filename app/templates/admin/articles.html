@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Insights</h1>
+    {% if g.staff.has_any(['content.edit']) %}
+    <a class="btn btn-primary" href="{{ url_for('admin.article_new') }}">New insight</a>
+    {% endif %}
+</div>
+<div class="card"><div class="table-responsive"><table class="table mb-0">
+    <thead><tr><th>Title</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>
+        <td>{% if g.staff.has_any(['content.view', 'content.edit']) %}<a href="{{ url_for('admin.article_edit', article_id=row.id) }}">{{ row.title }}</a>{% else %}{{ row.title }}{% endif %}</td>
+        <td>{{ row.status }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="2">No insights.</td></tr>
+    {% endfor %}
+    </tbody>
+</table></div></div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3 mb-3">Pages</h1>
+<p class="text-secondary">Edit the public page title, hero, call to action, and SEO. Empty fields keep the current website copy.</p>
+<div class="card"><div class="table-responsive"><table class="table mb-0">
+    <thead><tr><th>Page</th><th>URL</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>
+        <td><a href="{{ url_for('admin.page_edit', page_id=row.id) }}">{{ row.title }}</a></td>
+        <td>{{ row.slug }}</td>
+        <td>{{ row.status }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table></div></div>
+{% endblock %}

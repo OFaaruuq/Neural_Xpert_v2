@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Redirects</h1>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<form class="row g-2 mb-4" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="col-md-4"><input class="form-control" name="source" placeholder="/old-path" required></div>
+    <div class="col-md-4"><input class="form-control" name="target" placeholder="/new-path" required></div>
+    <div class="col-md-2"><button class="btn btn-primary" type="submit">Add</button></div>
+</form>
+<table class="table">{% for row in rows %}<tr><td>{{ row.source }}</td><td>{{ row.target }}</td><td>{{ row.status_code }}</td></tr>{% else %}<tr><td>No redirects.</td></tr>{% endfor %}</table>
+{% endblock %}

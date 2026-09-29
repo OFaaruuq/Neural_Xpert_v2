@@ -38,7 +38,7 @@
             <div class="widget footer-widget mb-0">
                 <div class="th-widget-about">
                     <div class="about-logo">
-                        <a href="{{ url_for('main.index') }}" aria-label="Neural Xpert"><img class="nx-logo" src="{{ url_for('static', filename='img/logo-neural-xpert.png') }}" alt="Neural Xpert"></a>
+                        <a href="{{ url_for('main.index') }}" aria-label="Neural Xpert"><img class="nx-logo" src="{{ brand.header }}" alt="Neural Xpert"></a>
                     </div>
                     <p class="about-text">Neural Xpert designs, builds, deploys, and supports secure, production-ready enterprise AI solutions across Generative AI, AI Agents, RAG, Machine Learning, Intelligent Automation, AI Security, and MLOps.</p>
                     <!-- Placeholder social profiles (facebook.com, twitter.com, youtube.com, linkedin.com homepages) stay unpublished until Neural Xpert profile URLs are set. -->
@@ -71,11 +71,14 @@
         <div class="th-menu-area text-center">
             <button class="th-menu-toggle"><i class="fal fa-times"></i></button>
             <div class="mobile-logo">
-                <a href="{{ url_for('main.index') }}" aria-label="Neural Xpert"><img class="nx-logo" src="{{ url_for('static', filename='img/logo-neural-xpert.png') }}" alt="Neural Xpert"></a>
+                <a href="{{ url_for('main.index') }}" aria-label="Neural Xpert"><img class="nx-logo" src="{{ brand.header }}" alt="Neural Xpert"></a>
             </div>
 
             <div class="th-mobile-menu">
                 <ul>
+                                        {% if header_nav %}
+                                        {% for item in header_nav %}<li><a href="{{ item.url }}" {% if item.new_tab %}target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a></li>{% endfor %}
+                                        {% else %}
                                         <li><a href="{{ url_for('main.index') }}">Home</a></li>
                                         <li><a href="{{ url_for('main.about') }}">About</a></li>
                                         <li class="menu-item-has-children">
@@ -105,6 +108,7 @@
                                         <li><a href="{{ url_for('blog.index') }}">Insights</a></li>
                                         <li><a href="{{ url_for('careers.index') }}">Careers</a></li>
                                         <li><a href="{{ url_for('contact.index') }}">Contact</a></li>
+                                        {% endif %}
                                     </ul>
             </div>
         </div>
@@ -120,12 +124,15 @@
                         <div class="row align-items-center justify-content-between">
                             <div class="col-auto">
                                 <div class="header-logo">
-                                    <a href="{{ url_for('main.index') }}" aria-label="Neural Xpert"><img class="nx-logo" src="{{ url_for('static', filename='img/logo-neural-xpert.png') }}" alt="Neural Xpert"></a>
+                                    <a href="{{ url_for('main.index') }}" aria-label="Neural Xpert"><img class="nx-logo" src="{{ brand.header }}" alt="Neural Xpert"></a>
                                 </div>
                             </div>
                             <div class="col-auto">
                                 <nav class="main-menu style2 d-none d-xl-inline-block">
                                     <ul>
+                                        {% if header_nav %}
+                                        {% for item in header_nav %}<li><a href="{{ item.url }}" {% if item.new_tab %}target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a></li>{% endfor %}
+                                        {% else %}
                                         <li><a href="{{ url_for('main.index') }}">Home</a></li>
                                         <li><a href="{{ url_for('main.about') }}">About</a></li>
                                         <li class="menu-item-has-children">
@@ -155,6 +162,7 @@
                                         <li><a href="{{ url_for('blog.index') }}">Insights</a></li>
                                         <li><a href="{{ url_for('careers.index') }}">Careers</a></li>
                                         <li><a href="{{ url_for('contact.index') }}">Contact</a></li>
+                                        {% endif %}
                                     </ul>
                                 </nav>
                             </div>

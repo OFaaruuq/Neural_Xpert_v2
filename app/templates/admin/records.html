@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">{{ title }}</h1>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+{% if title == 'Partners' %}
+<p class="text-secondary">A relationship can be displayed only after internal approval evidence is saved. Uploading a logo does not publish a partnership.</p>
+{% elif title == 'Testimonials' %}
+<p class="text-secondary">A testimonial can be published only when customer approval is recorded.</p>
+{% elif title == 'Credentials' %}
+<p class="text-secondary">Expiring credentials appear on site health.</p>
+{% endif %}
+<form class="card mb-4" method="post"><div class="card-body">
+    <h2 class="h5">Add</h2>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% for name, label, kind in fields %}
+        {% if kind == 'bool' %}
+        <div class="form-check mt-3"><input class="form-check-input" type="checkbox" name="{{ name }}" value="1" id="new-{{ name }}"><label class="form-check-label" for="new-{{ name }}">{{ label }}</label></div>
+        {% elif kind == 'area' %}
+        <label class="form-label mt-3">{{ label }}<textarea class="form-control" name="{{ name }}" rows="3"></textarea></label>
+        {% else %}
+        <label class="form-label mt-3">{{ label }}<input class="form-control" name="{{ name }}" {% if kind == 'date' %}type="date"{% endif %}></label>
+        {% endif %}
+    {% endfor %}
+    <button class="btn btn-primary mt-3" type="submit">Save</button>
+</div></form>
+<div class="card"><div class="table-responsive"><table class="table mb-0">
+    <thead><tr>{% for name, label, kind in fields %}<th>{{ label }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>{% for name, label, kind in fields %}<td>{{ row|attr(name) }}</td>{% endfor %}</tr>
+    {% else %}
+    <tr><td colspan="{{ fields|length }}">None yet.</td></tr>
+    {% endfor %}
+    </tbody>
+</table></div></div>
+{% endblock %}

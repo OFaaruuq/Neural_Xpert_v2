@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3 mb-3">Applications</h1>
+<div class="card"><div class="table-responsive"><table class="table mb-0 align-middle">
+    <thead><tr><th>Name</th><th>Opening</th><th>Email</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>
+        <td>{{ row.name }}</td>
+        <td>{{ row.job.title if row.job else '' }}</td>
+        <td>{{ row.email }}</td>
+        <td>
+            {% if g.staff.has_any(['careers.edit', 'crm.edit']) %}
+            <form class="d-flex gap-2" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="application_id" value="{{ row.id }}">
+                <select class="form-select form-select-sm" name="status">
+                    {% for item in statuses %}<option value="{{ item }}" {% if row.status == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+                </select>
+                <button class="btn btn-primary btn-sm" type="submit">Update</button>
+            </form>
+            {% else %}
+            {{ row.status }}
+            {% endif %}
+        </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">No applications.</td></tr>
+    {% endfor %}
+    </tbody>
+</table></div></div>
+{% endblock %}

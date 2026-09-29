@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Audit logs</h1>
+<div class="card"><div class="table-responsive"><table class="table mb-0">
+    <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Object</th><th>Detail</th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>
+        <td>{{ row.created_at.strftime('%Y-%m-%d %H:%M') if row.created_at else '' }}</td>
+        <td>{{ row.staff.email if row.staff else '' }}</td>
+        <td>{{ row.action }}</td>
+        <td>{{ row.object_type }} {{ row.object_id }}</td>
+        <td>{{ row.detail }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5">No audit events yet.</td></tr>
+    {% endfor %}
+    </tbody>
+</table></div></div>
+{% endblock %}

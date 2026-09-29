@@ -613,7 +613,6 @@
                     valid = false;
                 } else {
                     $(formInput).removeClass(invalidCls);
-                    valid = true;
                 }
             }
         }
@@ -629,7 +628,6 @@
             valid = false;
         } else {
             $($email).removeClass(invalidCls);
-            valid = true;
         }
         return valid;
     }

@@ -1,0 +1,21 @@
+{% extends "admin/base.html" %}
+{% block auth %}
+{% set step = 1 %}
+<form class="auth-card" method="post" action="{{ url_for('admin.login') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% include "admin/auth_head.html" %}
+    <h1>Sign in</h1>
+    <p class="auth-lead">Use your staff email and password. We will email a code, then ask for Google Authenticator.</p>
+    {% if error %}<p class="auth-alert" role="alert">{{ error }}</p>{% endif %}
+    <label>Email
+        <input type="email" name="email" autocomplete="username" placeholder="name@neuralxpert.com" required>
+    </label>
+    <label>Password
+        <span class="auth-field">
+            <input type="password" name="password" autocomplete="current-password" required>
+            <button class="auth-reveal" type="button" data-reveal>Show</button>
+        </span>
+    </label>
+    <button class="auth-submit" type="submit">Continue</button>
+</form>
+{% endblock %}

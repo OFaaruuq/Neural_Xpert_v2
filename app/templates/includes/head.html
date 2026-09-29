@@ -1,4 +1,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% if brand.favicon_custom %}
+    <link rel="icon" href="{{ brand.favicon }}">
+    <link rel="apple-touch-icon" href="{{ brand.favicon }}">
+    {% else %}
     <link rel="apple-touch-icon" sizes="57x57" href="{{ url_for('static', filename='img/favicons/apple-icon-57x57.png') }}">
     <link rel="apple-touch-icon" sizes="60x60" href="{{ url_for('static', filename='img/favicons/apple-icon-60x60.png') }}">
     <link rel="apple-touch-icon" sizes="72x72" href="{{ url_for('static', filename='img/favicons/apple-icon-72x72.png') }}">
@@ -15,6 +19,7 @@
     <link rel="manifest" href="{{ url_for('static', filename='img/favicons/manifest.json') }}">
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="{{ url_for('static', filename='img/favicons/ms-icon-144x144.png') }}">
+    {% endif %}
     <meta name="theme-color" content="#ffffff">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

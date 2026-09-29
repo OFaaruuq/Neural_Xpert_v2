@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<p class="mb-2"><a href="{{ back }}">Back</a></p>
+<h1 class="h3">{{ item.name or title }}</h1>
+<p class="text-secondary">SEO {{ grade }}</p>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<ul class="list-inline small">{% for name, ok in checks %}<li class="list-inline-item">{{ name }} {% if ok %}✓{% else %}needs work{% endif %}</li>{% endfor %}</ul>
+<form method="post" style="max-width:820px">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% for field, label, kind in fields %}
+    <label class="form-label mt-3">{{ label }}
+        {% if kind == 'area' %}<textarea class="form-control" name="{{ field }}" rows="4">{{ item|attr(field) or '' }}</textarea>
+        {% else %}<input class="form-control" name="{{ field }}" value="{{ item|attr(field) or '' }}">{% endif %}
+    </label>
+    {% endfor %}
+    <div class="form-check mt-3">
+        <input class="form-check-input" type="checkbox" name="featured" value="1" id="featured" {% if item.featured %}checked{% endif %}>
+        <label class="form-check-label" for="featured">Featured</label>
+    </div>
+    <label class="form-label mt-3">Status
+        <select class="form-select" name="status">{% for status in statuses %}<option value="{{ status }}" {% if item.status == status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select>
+    </label>
+    {% if g.staff.has_any(['content.edit']) %}<button class="btn btn-primary mt-3" type="submit">Save</button>{% endif %}
+    {% if preview %}<a class="btn btn-outline-secondary mt-3" href="{{ preview }}">Preview</a>{% endif %}
+</form>
+{% endblock %}

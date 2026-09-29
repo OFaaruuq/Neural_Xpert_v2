@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% block auth %}
+{% set step = 3 %}
+<form class="auth-card" method="post" action="{{ url_for('admin.enroll') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% include "admin/auth_head.html" %}
+    <h1>Set up Google Authenticator</h1>
+    <p class="auth-lead">Scan the code with Google Authenticator, then enter the 6-digit code from the app. The admin area stays closed until this is confirmed.</p>
+    {% if error %}<p class="auth-alert" role="alert">{{ error }}</p>{% endif %}
+    <img class="auth-qr" src="{{ qr }}" alt="Google Authenticator setup code">
+    <div class="auth-secret">
+        <span>{{ secret }}</span>
+        <button class="auth-reveal" type="button" data-copy="{{ secret }}">Copy key</button>
+    </div>
+    <label>Authenticator code
+        <span class="otp" data-otp>
+            {% for n in range(1, 7) %}
+            <input class="otp-digit" inputmode="numeric" maxlength="1" autocomplete="{% if n == 1 %}one-time-code{% else %}off{% endif %}" aria-label="Authenticator digit {{ n }}">
+            {% endfor %}
+            <input type="hidden" name="totp_code">
+        </span>
+    </label>
+    <button class="auth-submit" type="submit">Confirm and continue</button>
+</form>
+{% endblock %}

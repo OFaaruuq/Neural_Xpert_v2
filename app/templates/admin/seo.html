@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">SEO</h1>
+<p class="text-secondary">Titles, descriptions, canonical URLs, and social tags are edited on each page. The public sitemap is generated at <a href="{{ url_for('sitemap') }}">/sitemap.xml</a>.</p>
+<div class="card"><div class="table-responsive"><table class="table mb-0">
+    <thead><tr><th>Content</th><th>Health</th><th>Checks</th></tr></thead>
+    <tbody>
+    {% for title, grade, checks, href in rows %}
+    <tr>
+        <td><a href="{{ href }}">{{ title }}</a></td>
+        <td>{{ grade }}</td>
+        <td class="small">{% for name, ok in checks %}{{ name }} {% if ok %}✓{% else %}⚠{% endif %} {% endfor %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table></div></div>
+{% endblock %}

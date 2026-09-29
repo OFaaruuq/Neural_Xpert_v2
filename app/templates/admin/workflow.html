@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Publishing workflow</h1>
+<p>Draft, then review, then scheduled or published. Authors without publish permission cannot set an item to published. Archived items leave the public site.</p>
+<table class="table">
+    <thead><tr><th>Type</th><th>Title</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for kind, title, status, href in rows %}
+    <tr><td>{{ kind }}</td><td><a href="{{ href }}">{{ title }}</a></td><td>{{ status }}</td></tr>
+    {% else %}
+    <tr><td colspan="3">Nothing is waiting.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

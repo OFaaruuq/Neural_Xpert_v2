@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<p class="mb-2"><a href="{{ url_for('admin.articles') }}">Insights</a></p>
+<h1 class="h3">{{ article.title or "New insight" }}</h1>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<form method="post" style="max-width:820px">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="form-label">Title <input class="form-control" name="title" value="{{ request.form.get('title', article.title or '') }}" required></label>
+    <label class="form-label mt-3">Slug <input class="form-control" name="slug" value="{{ request.form.get('slug', article.slug or '') }}"></label>
+    <label class="form-label mt-3">Excerpt <textarea class="form-control" name="excerpt" rows="3" required>{{ request.form.get('excerpt', article.excerpt or '') }}</textarea></label>
+    <label class="form-label mt-3">Content <textarea class="form-control" name="content" rows="16">{{ request.form.get('content', article.content or '') }}</textarea></label>
+    <label class="form-label mt-3">Featured image <input class="form-control" name="featured_image" value="{{ request.form.get('featured_image', article.featured_image or '') }}"></label>
+    <label class="form-label mt-3">Category
+        <select class="form-select" name="category_id">
+            <option value="">None</option>
+            {% for category in categories %}
+            <option value="{{ category.id }}" {% if article.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label class="form-label mt-3">Status
+        <select class="form-select" name="status">
+            {% for item in statuses %}<option value="{{ item }}" {% if article.status == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+        </select>
+    </label>
+    <label class="form-label mt-3">SEO title <input class="form-control" name="seo_title" value="{{ request.form.get('seo_title', article.seo_title or '') }}"></label>
+    <label class="form-label mt-3">Meta description <textarea class="form-control" name="meta_description" rows="3">{{ request.form.get('meta_description', article.meta_description or '') }}</textarea></label>
+    <label class="form-label mt-3">Tags <input class="form-control" name="tags" value="{{ article.tags or '' }}"></label>
+    <label class="form-label mt-3">Focus keyword <input class="form-control" name="focus_keyword" value="{{ article.focus_keyword or '' }}"></label>
+    <label class="form-label mt-3">Canonical URL <input class="form-control" name="canonical_url" value="{{ article.canonical_url or '' }}"></label>
+    <label class="form-label mt-3">CTA label <input class="form-control" name="cta_label" value="{{ article.cta_label or '' }}"></label>
+    <label class="form-label mt-3">CTA link <input class="form-control" name="cta_url" value="{{ article.cta_url or '' }}"></label>
+    <p class="text-secondary mt-3">Saving here keeps this insight when the site is seeded again. Publishing requires the publish permission.</p>
+    {% if g.staff.has_any(['content.edit']) %}
+    <button class="btn btn-primary" type="submit">Save</button>
+    {% endif %}
+</form>
+{% endblock %}

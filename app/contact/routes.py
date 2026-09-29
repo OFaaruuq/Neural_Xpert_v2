@@ -49,7 +49,13 @@ def submit():
         subject=subject,
         message=message,
     )
+    submission.source_page = (request.referrer or "")[:300]
+    submission.utm_source = (request.form.get("utm_source") or request.args.get("utm_source") or "")[:160]
+    submission.interest = (request.form.get("interest") or subject)[:160]
     db.session.add(submission)
+    from app.admin.catalog import record_event
+
+    record_event("contact_submit", "/contact", subject)
     db.session.commit()
     notify_contact(submission)
     return "Thank You! Your message has been sent.", 200

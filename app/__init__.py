@@ -1,5 +1,6 @@
 import os
 
+import click
 from flask import Flask, abort, redirect, render_template, request, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -38,13 +39,25 @@ def create_app(config_name=None):
     app.jinja_env.filters["sanitize_html"] = sanitize_html
 
     from app import models  # noqa: F401
+    from app.admin.routes import bp as admin_bp
     from app.blog.routes import bp as blog_bp
     from app.careers.routes import bp as careers_bp
     from app.case_studies.routes import bp as case_studies_bp
     from app.contact.routes import bp as contact_bp
     from app.main.routes import bp as main_bp
+    from app.visitors import record_public_visit
 
+    if config_name != "production" and not app.config.get("MAIL_SERVER"):
+        app.config["ADMIN_OTP_ON_PAGE"] = True
+
+    app.register_blueprint(admin_bp)
     app.register_blueprint(main_bp)
+    @app.route("/brand/<path:name>")
+    def brand_file(name):
+        from app.brand import send_brand
+
+        return send_brand(name)
+
     app.register_blueprint(blog_bp)
     app.register_blueprint(case_studies_bp)
     app.register_blueprint(careers_bp)
@@ -67,6 +80,15 @@ def create_app(config_name=None):
             )
         except Exception:
             app.logger.debug("Sidebar articles are unavailable")
+        header_nav = []
+        footer_nav = []
+        try:
+            from app.models.platform import NavItem
+
+            header_nav = NavItem.query.filter_by(menu="header", enabled=True).order_by(NavItem.position, NavItem.id).all()
+            footer_nav = NavItem.query.filter_by(menu="footer", enabled=True).order_by(NavItem.position, NavItem.id).all()
+        except Exception:
+            app.logger.debug("Navigation records are unavailable")
         return {
             "footer_variant": "inner",
             "seo_title": "Neural Xpert",
@@ -79,7 +101,79 @@ def create_app(config_name=None):
             "og_type": "website",
             "seo_keywords": "",
             "sidebar_posts": sidebar_posts,
+            "header_nav": header_nav,
+            "footer_nav": footer_nav,
+            "brand": _brand(),
         }
+
+    @app.template_global()
+    def home_on(key):
+        sections = _home_sections()
+        row = sections.get(key)
+        return True if row is None else bool(row.enabled)
+
+    @app.template_global()
+    def home_order(key):
+        sections = _home_sections()
+        row = sections.get(key)
+        if row is not None:
+            return row.position
+        from app.admin.catalog import HOME_SECTIONS
+
+        order = {item: index for index, (item, _name) in enumerate(HOME_SECTIONS, start=1)}
+        return order.get(key, 50)
+
+    @app.template_global()
+    def home_text(key, field):
+        row = _home_sections().get(key)
+        if row is None:
+            return ""
+        return (getattr(row, field, "") or "").strip()
+
+    def _brand():
+        from flask import url_for
+
+        try:
+            from app.brand import brand_urls
+
+            return brand_urls()
+        except Exception:
+            app.logger.debug("Brand logos are unavailable")
+            logo = url_for("static", filename="img/logo-neural-xpert.png")
+            return {
+                "header": logo,
+                "footer": logo,
+                "icon": url_for("static", filename="img/logo-icon.svg"),
+                "admin": logo,
+                "favicon": url_for("static", filename="img/favicons/favicon-32x32.png"),
+                "favicon_custom": False,
+            }
+
+    def _home_sections():
+        from flask import g
+
+        if not hasattr(g, "home_section_map"):
+            try:
+                from app.models.platform import HomeSection
+
+                g.home_section_map = {row.key: row for row in HomeSection.query.all()}
+            except Exception:
+                g.home_section_map = {}
+        return g.home_section_map
+
+    @app.before_request
+    def apply_redirects():
+        if request.path.startswith(("/admin", "/static")):
+            return None
+        try:
+            from app.models.platform import RedirectRule
+
+            rule = RedirectRule.query.filter_by(source=request.path, enabled=True).first()
+        except Exception:
+            return None
+        if rule:
+            return redirect(rule.target, code=rule.status_code or 301)
+        return None
 
     @app.after_request
     def security_headers(response):
@@ -93,14 +187,14 @@ def create_app(config_name=None):
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
             "font-src 'self' https://fonts.gstatic.com data:; "
             "script-src 'self' 'unsafe-inline'; "
-            "frame-src 'none'; "
+            "frame-src 'self'; "
             "connect-src 'self'; "
             "base-uri 'self'; "
             "form-action 'self'"
         )
         if config_name == "production":
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-        return response
+        return record_public_visit(response)
 
     @app.errorhandler(404)
     def not_found(_error):
@@ -117,7 +211,10 @@ def create_app(config_name=None):
 
     @app.route("/robots.txt")
     def robots():
-        body = f"User-agent: *\nAllow: /\nSitemap: {app.config['SITE_URL'].rstrip('/')}/sitemap.xml\n"
+        body = (
+            "User-agent: *\nAllow: /\nDisallow: /admin\n"
+            f"Sitemap: {app.config['SITE_URL'].rstrip('/')}/sitemap.xml\n"
+        )
         return body, 200, {"Content-Type": "text/plain; charset=utf-8"}
 
     @app.route("/sitemap.xml")
@@ -142,7 +239,7 @@ def create_app(config_name=None):
             urls.append(url_for("blog.detail", slug=article.slug))
         for study in CaseStudy.query.filter_by(status="published").all():
             urls.append(url_for("case_studies.detail", slug=study.slug))
-        for job in Job.query.filter_by(status="published").all():
+        for job in Job.query.filter(Job.status.in_(("published", "open"))).all():
             urls.append(url_for("careers.detail", slug=job.slug))
         base = app.config["SITE_URL"].rstrip("/")
         items = "\n".join(f"  <url><loc>{base}{path}</loc></url>" for path in urls)
@@ -181,5 +278,19 @@ def create_app(config_name=None):
 
         seed()
         print("Seed data is ready.")
+
+    @app.cli.command("create-staff")
+    @click.argument("email")
+    def create_staff_command(email):
+        """Create an internal staff account and print a one-time password."""
+        from app.admin.security import create_staff
+
+        try:
+            staff, password = create_staff(email)
+        except ValueError as exc:
+            raise SystemExit(str(exc))
+        print(f"Staff account created for {staff.email}")
+        print(f"Temporary password: {password}")
+        print("Sign in at /admin/login. This password is shown only once.")
 
     return app

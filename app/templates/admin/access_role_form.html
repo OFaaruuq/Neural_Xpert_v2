@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<p class="mb-2"><a href="{{ url_for('admin.access_roles') }}">Roles and permissions</a></p>
+<h1 class="h3">{{ role.name }}</h1>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+{% if role.is_system %}
+<div class="alert alert-secondary">The administrator role always has every permission, including user management and CRM.</div>
+{% endif %}
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="form-label">Name <input class="form-control" name="name" value="{{ role.name }}" {% if role.is_system %}readonly{% endif %} style="max-width:420px"></label>
+    {% set owned = role.permission_set() %}
+    {% set ns = namespace(group='') %}
+    <div class="row g-2 mt-2" style="max-width:720px">
+    {% for code, label, group in permissions %}
+        {% if group != ns.group %}{% set ns.group = group %}<div class="col-12 mt-2"><strong>{{ group }}</strong></div>{% endif %}
+        <div class="col-md-6">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="perm_{{ code }}" id="perm-{{ code }}" {% if code in owned or role.is_system %}checked{% endif %} {% if role.is_system %}disabled{% endif %}>
+                <label class="form-check-label" for="perm-{{ code }}">{{ label }}</label>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+    {% if not role.is_system %}
+    <button class="btn btn-primary mt-3" type="submit">Save permissions</button>
+    </form>
+    <form class="mt-3" method="post" onsubmit="return confirm('Delete this role?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="delete" value="1">
+        <button class="btn btn-outline-danger" type="submit">Delete role</button>
+    </form>
+    {% else %}
+    </form>
+    {% endif %}
+{% endblock %}

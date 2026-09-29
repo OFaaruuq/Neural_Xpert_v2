@@ -1,0 +1,105 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<p class="mb-2"><a href="{{ url_for('admin.crm') }}">CRM</a></p>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-1">{{ row.name or "New lead" }}</h1>
+        {% if row.id %}
+        <p class="text-secondary mb-0">Received {{ row.created_at.strftime('%d %b %Y %H:%M') if row.created_at else 'just now' }}</p>
+        {% else %}
+        <p class="text-secondary mb-0">Add a lead that came in by phone, referral, or another channel.</p>
+        {% endif %}
+    </div>
+    {% if row.id and row.email %}
+    <a class="btn btn-outline-primary" href="mailto:{{ row.email }}?subject={{ row.subject|urlencode }}">Email {{ row.name }}</a>
+    {% endif %}
+</div>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+{% if g.staff.has_any(['crm.edit']) %}
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="manage" value="1">
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card mb-3"><div class="card-body">
+                <h2 class="h6">Contact</h2>
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6"><label class="form-label">Name <input class="form-control" name="name" value="{{ row.name or '' }}" required></label></div>
+                    <div class="col-md-6"><label class="form-label">Email <input class="form-control" type="email" name="email" value="{{ row.email or '' }}" required></label></div>
+                    <div class="col-md-6"><label class="form-label">Phone <input class="form-control" name="phone" value="{{ row.phone or '' }}"></label></div>
+                    <div class="col-md-6"><label class="form-label">Company <input class="form-control" name="company" value="{{ row.company or '' }}"></label></div>
+                    <div class="col-md-4"><label class="form-label">Job title <input class="form-control" name="job_title" value="{{ row.job_title or '' }}"></label></div>
+                    <div class="col-md-4"><label class="form-label">Country <input class="form-control" name="country" value="{{ row.country or '' }}"></label></div>
+                    <div class="col-md-4"><label class="form-label">Interest <input class="form-control" name="interest" value="{{ row.interest or '' }}"></label></div>
+                </div>
+            </div></div>
+            <div class="card mb-3"><div class="card-body">
+                <h2 class="h6">Request</h2>
+                <label class="form-label mt-2">Subject <input class="form-control" name="subject" value="{{ row.subject or '' }}" required></label>
+                <label class="form-label mt-3">Message <textarea class="form-control" name="message" rows="8" required>{{ row.message or '' }}</textarea></label>
+            </div></div>
+            <div class="card"><div class="card-body">
+                <h2 class="h6">Notes</h2>
+                <p class="small text-secondary">Internal only. This is not sent to the lead.</p>
+                <textarea class="form-control" name="notes" rows="5">{{ row.notes or '' }}</textarea>
+            </div></div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-3"><div class="card-body">
+                <h2 class="h6">Pipeline</h2>
+                <label class="form-label mt-2">Status
+                    <select class="form-select" name="status">{% for item in statuses %}<option value="{{ item }}" {% if row.status == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
+                </label>
+                <label class="form-label mt-3">Assigned to
+                    <select class="form-select" name="assigned_to_id">
+                        <option value="">Unassigned</option>
+                        {% for person in staff %}<option value="{{ person.id }}" {% if row.assigned_to_id == person.id %}selected{% endif %}>{{ person.display_name }}</option>{% endfor %}
+                    </select>
+                </label>
+                <label class="form-label mt-3">Follow-up <input class="form-control" type="date" name="follow_up_on" value="{{ row.follow_up_on.isoformat() if row.follow_up_on else '' }}"></label>
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" name="archived" value="1" id="archived" {% if row.archived %}checked{% endif %}>
+                    <label class="form-check-label" for="archived">Archive</label>
+                </div>
+                <button class="btn btn-primary" type="submit">Save lead</button>
+            </div></div>
+            <div class="card"><div class="card-body">
+                <h2 class="h6">Source</h2>
+                <label class="form-label mt-2">Page <input class="form-control" name="source_page" value="{{ row.source_page or '' }}" placeholder="/contact"></label>
+                <label class="form-label mt-3">Campaign / UTM <input class="form-control" name="utm_source" value="{{ row.utm_source or '' }}"></label>
+            </div></div>
+        </div>
+    </div>
+</form>
+{% if row.id %}
+<form class="mt-3" method="post" action="{{ url_for('admin.inquiry_delete', inquiry_id=row.id) }}" onsubmit="return confirm('Remove this lead?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-outline-danger" type="submit">Remove lead</button>
+</form>
+{% endif %}
+{% else %}
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card mb-3"><div class="card-body">
+            <h2 class="h6">Contact</h2>
+            <p class="mb-1">{{ row.email }}{% if row.phone %} · {{ row.phone }}{% endif %}</p>
+            <p class="mb-0 text-secondary">{{ row.company or 'No company' }}{% if row.job_title %} · {{ row.job_title }}{% endif %}{% if row.country %} · {{ row.country }}{% endif %}</p>
+        </div></div>
+        <div class="card mb-3"><div class="card-body">
+            <h2 class="h6">{{ row.subject }}</h2>
+            <p class="mb-0" style="white-space:pre-wrap">{{ row.message }}</p>
+        </div></div>
+        {% if row.notes %}
+        <div class="card"><div class="card-body"><h2 class="h6">Notes</h2><p class="mb-0" style="white-space:pre-wrap">{{ row.notes }}</p></div></div>
+        {% endif %}
+    </div>
+    <div class="col-lg-4">
+        <div class="card"><div class="card-body">
+            <p class="mb-1"><span class="nx-pill nx-pill-{{ row.status|replace(' ', '-') }}">{{ row.status }}</span></p>
+            <p class="mb-1">Owner: {{ row.assigned_to.display_name if row.assigned_to else 'Unassigned' }}</p>
+            <p class="mb-0">Follow-up: {{ row.follow_up_on.strftime('%d %b %Y') if row.follow_up_on else 'None' }}</p>
+        </div></div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,119 @@
+{% macro ico(name) %}
+<svg class="nx-ico" viewBox="0 0 24 24" aria-hidden="true">
+    {% if name == "home" %}<path d="M4 11.5 12 4l8 7.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-8.5z"/>
+    {% elif name == "pages" %}<path d="M7 3.5h7l5 5V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z"/><path d="M14 3.5V9h5"/>
+    {% elif name == "home2" %}<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9h16M9 9v11"/>
+    {% elif name == "spark" %}<path d="M12 3l1.6 5.2L19 10l-5.4 1.8L12 17l-1.6-5.2L5 10l5.4-1.8L12 3z"/>
+    {% elif name == "grid" %}<rect x="4" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.2"/>
+    {% elif name == "building" %}<path d="M5 20V6.5A1.5 1.5 0 0 1 6.5 5h6A1.5 1.5 0 0 1 14 6.5V20M14 10h3.5A1.5 1.5 0 0 1 19 11.5V20M3 20h18M8 8.5h2M8 12h2M8 15.5h2"/>
+    {% elif name == "case" %}<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7M3 12h18"/>
+    {% elif name == "book" %}<path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v16H7.5A2.5 2.5 0 0 0 5 21.5z"/><path d="M5 5.5A2.5 2.5 0 0 1 7.5 8H19"/>
+    {% elif name == "image" %}<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.4"/><path d="M4 16l4.5-4 3.2 3 2.2-2L20 16"/>
+    {% elif name == "users" %}<circle cx="9" cy="9" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="10" r="2.2"/><path d="M16 19a4.5 4.5 0 0 1 4.5-4"/>
+    {% elif name == "mail" %}<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/>
+    {% elif name == "flag" %}<path d="M6 20V4M6 5h11l-2 3.5L17 12H6"/>
+    {% elif name == "clip" %}<rect x="7" y="4" width="10" height="16" rx="1.5"/><path d="M9 4.5h6V7H9zM9 11h6M9 14.5h4"/>
+    {% elif name == "search" %}<circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/>
+    {% elif name == "chart" %}<path d="M4 19V5M4 19h16"/><path d="M8 15l3.2-4 2.6 2.2L18 7"/>
+    {% elif name == "target" %}<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/>
+    {% elif name == "link" %}<path d="M10 13a4 4 0 0 0 6 0l2-2a4 4 0 0 0-6-6l-1 1"/><path d="M14 11a4 4 0 0 0-6 0l-2 2a4 4 0 0 0 6 6l1-1"/>
+    {% elif name == "quote" %}<path d="M8 16c-2 0-3.5-1.5-3.5-3.5S6 9 8 9V7c-3 0-5.5 2.2-5.5 5.5S5 18 8 18zm9 0c-2 0-3.5-1.5-3.5-3.5S15 9 17 9V7c-3 0-5.5 2.2-5.5 5.5S14 18 17 18z"/>
+    {% elif name == "menu" %}<path d="M4 7h16M4 12h16M4 17h10"/>
+    {% elif name == "footer" %}<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 15h16"/>
+    {% elif name == "megaphone" %}<path d="M5 10v4l11 4V6L5 10zM16 9.5a3 3 0 0 1 0 5"/><path d="M7 14.5V18"/>
+    {% elif name == "gear" %}<circle cx="12" cy="12" r="3"/><path d="M12 3.5v2.2M12 18.3v2.2M4.8 6.2l1.6 1.6M17.6 16.2l1.6 1.6M3.5 12h2.2M18.3 12h2.2M4.8 17.8l1.6-1.6M17.6 7.8l1.6-1.6"/>
+    {% elif name == "user" %}<circle cx="12" cy="8.5" r="3.2"/><path d="M5 19.5a7 7 0 0 1 14 0"/>
+    {% elif name == "shield" %}<path d="M12 3.5 19 6.5v5.2c0 4.2-2.8 7.2-7 8.8-4.2-1.6-7-4.6-7-8.8V6.5L12 3.5z"/>
+    {% elif name == "check" %}<circle cx="12" cy="12" r="8"/><path d="M8.5 12.2 11 14.5 15.5 9.5"/>
+    {% elif name == "clock" %}<circle cx="12" cy="12" r="8"/><path d="M12 8v4.5l3 2"/>
+    {% elif name == "list" %}<path d="M8 7h12M8 12h12M8 17h12"/><circle cx="4.5" cy="7" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="17" r="1"/>
+    {% elif name == "pulse" %}<path d="M3 12h4l2-5 3 10 2-5h7"/>
+    {% elif name == "redirect" %}<path d="M7 17 17 7M10 7h7v7"/>
+    {% elif name == "db" %}<ellipse cx="12" cy="7" rx="6" ry="2.5"/><path d="M6 7v10c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5V7M6 12c0 1.4 2.7 2.5 6 2.5s6-1.1 6-2.5"/>
+    {% endif %}
+</svg>
+{% endmacro %}
+<nav class="nx-nav flex-column">
+    <a class="nav-link nx-dash {% if request.endpoint == 'admin.dashboard' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}">{{ ico('home') }} Dashboard</a>
+</nav>
+{% if g.staff.has_any(['content.view', 'content.edit']) %}
+<div class="nx-nav-label">Content</div>
+<nav class="nav flex-column">
+    <a class="nav-link {% if request.endpoint in ['admin.pages', 'admin.page_edit'] %}active{% endif %}" href="{{ url_for('admin.pages') }}">{{ ico('pages') }} Pages</a>
+    <a class="nav-link {% if request.endpoint == 'admin.homepage' and not request.args.get('focus') %}active{% endif %}" href="{{ url_for('admin.homepage') }}">{{ ico('home2') }} Homepage</a>
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.solutions') %}active{% endif %}" href="{{ url_for('admin.solutions') }}">{{ ico('spark') }} Solutions</a>
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.services') %}active{% endif %}" href="{{ url_for('admin.services') }}">{{ ico('grid') }} Services</a>
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.industries') %}active{% endif %}" href="{{ url_for('admin.industries') }}">{{ ico('building') }} Industries</a>
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.stud') %}active{% endif %}" href="{{ url_for('admin.studies') }}">{{ ico('case') }} Case Studies</a>
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.article') %}active{% endif %}" href="{{ url_for('admin.articles') }}">{{ ico('book') }} Insights (Blog)</a>
+    <a class="nav-link {% if request.endpoint == 'admin.media' %}active{% endif %}" href="{{ url_for('admin.media') }}">{{ ico('image') }} Media Library</a>
+</nav>
+{% endif %}
+{% if g.staff.has_any(['crm.view', 'careers.view']) %}
+<div class="nx-nav-label">Business</div>
+<nav class="nav flex-column">
+    {% if g.staff.has_any(['crm.view']) %}
+    <a class="nav-link {% if request.endpoint in ['admin.crm', 'admin.crm_new', 'admin.inquiry'] and not request.args.get('status') %}active{% endif %}" href="{{ url_for('admin.crm') }}">{{ ico('users') }} Leads{% if open_lead_count %}<span class="nx-badge">{{ open_lead_count }}</span>{% endif %}</a>
+    <a class="nav-link {% if request.endpoint == 'admin.crm' and request.args.get('status') == 'new' %}active{% endif %}" href="{{ url_for('admin.crm', status='new') }}">{{ ico('mail') }} Contact Requests{% if new_lead_count %}<span class="nx-badge nx-badge-hot">{{ new_lead_count }}</span>{% endif %}</a>
+    {% endif %}
+    {% if g.staff.has_any(['careers.view']) %}
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.career') %}active{% endif %}" href="{{ url_for('admin.careers') }}">{{ ico('flag') }} Careers</a>
+    <a class="nav-link {% if request.endpoint == 'admin.applications' %}active{% endif %}" href="{{ url_for('admin.applications') }}">{{ ico('clip') }} Applications</a>
+    {% endif %}
+</nav>
+{% endif %}
+{% if g.staff.has_any(['overview', 'seo.manage', 'content.view']) %}
+<div class="nx-nav-label">Marketing</div>
+<nav class="nav flex-column">
+    {% if g.staff.has_any(['seo.manage', 'content.view']) %}
+    <a class="nav-link {% if request.endpoint == 'admin.seo' %}active{% endif %}" href="{{ url_for('admin.seo') }}">{{ ico('search') }} SEO</a>
+    {% endif %}
+    <a class="nav-link {% if request.endpoint == 'admin.analytics' %}active{% endif %}" href="{{ url_for('admin.analytics') }}">{{ ico('chart') }} Analytics</a>
+    <a class="nav-link {% if request.endpoint == 'admin.conversions' %}active{% endif %}" href="{{ url_for('admin.conversions') }}">{{ ico('target') }} Conversions</a>
+    {% if g.staff.has_any(['content.view', 'content.edit']) %}
+    <a class="nav-link {% if request.endpoint in ['admin.partners', 'admin.credentials'] %}active{% endif %}" href="{{ url_for('admin.partners') }}">{{ ico('link') }} Partners &amp; Credentials</a>
+    <a class="nav-link {% if request.endpoint == 'admin.testimonials' %}active{% endif %}" href="{{ url_for('admin.testimonials') }}">{{ ico('quote') }} Testimonials</a>
+    {% endif %}
+</nav>
+{% endif %}
+{% if g.staff.has_any(['settings.manage', 'content.edit']) %}
+<div class="nx-nav-label">Website</div>
+<nav class="nav flex-column">
+    <a class="nav-link {% if request.endpoint == 'admin.navigation' %}active{% endif %}" href="{{ url_for('admin.navigation') }}">{{ ico('menu') }} Navigation</a>
+    <a class="nav-link" href="{{ url_for('admin.navigation') }}">{{ ico('footer') }} Footer</a>
+    <a class="nav-link {% if request.args.get('focus') == 'cta' %}active{% endif %}" href="{{ url_for('admin.homepage', focus='cta') }}">{{ ico('megaphone') }} CTAs</a>
+    {% if g.staff.has_any(['settings.manage']) %}
+    <a class="nav-link {% if request.endpoint == 'admin.email_settings' %}active{% endif %}" href="{{ url_for('admin.email_settings') }}">{{ ico('mail') }} Email</a>
+    <a class="nav-link {% if request.endpoint == 'admin.settings' %}active{% endif %}" href="{{ url_for('admin.settings') }}">{{ ico('gear') }} Global Settings</a>
+    {% endif %}
+</nav>
+{% endif %}
+<div class="nx-nav-label">Governance</div>
+<nav class="nav flex-column">
+    {% if g.staff.has_any(['users.manage']) %}
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.user') %}active{% endif %}" href="{{ url_for('admin.users') }}">{{ ico('user') }} Users</a>
+    {% endif %}
+    {% if g.staff.has_any(['roles.manage']) %}
+    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.access_role') %}active{% endif %}" href="{{ url_for('admin.access_roles') }}">{{ ico('shield') }} Roles and permissions</a>
+    {% endif %}
+    {% if g.staff.has_any(['content.view']) %}
+    <a class="nav-link {% if request.endpoint == 'admin.workflow' %}active{% endif %}" href="{{ url_for('admin.workflow') }}">{{ ico('check') }} Publishing Workflow</a>
+    <a class="nav-link {% if request.endpoint == 'admin.revisions' %}active{% endif %}" href="{{ url_for('admin.revisions') }}">{{ ico('clock') }} Revision History</a>
+    {% endif %}
+    {% if g.staff.has_any(['audit.view', 'users.manage']) %}
+    <a class="nav-link {% if request.endpoint == 'admin.audit_logs' %}active{% endif %}" href="{{ url_for('admin.audit_logs') }}">{{ ico('list') }} Audit Logs</a>
+    {% endif %}
+</nav>
+{% if g.staff.has_any(['overview', 'settings.manage']) %}
+<div class="nx-nav-label">System</div>
+<nav class="nav flex-column">
+    <a class="nav-link {% if request.endpoint == 'admin.health' %}active{% endif %}" href="{{ url_for('admin.health') }}">{{ ico('pulse') }} Site Health</a>
+    {% if g.staff.has_any(['settings.manage', 'content.edit']) %}
+    <a class="nav-link {% if request.endpoint == 'admin.redirects' %}active{% endif %}" href="{{ url_for('admin.redirects') }}">{{ ico('redirect') }} Redirects</a>
+    {% endif %}
+    {% if g.staff.has_any(['settings.manage']) %}
+    <a class="nav-link {% if request.endpoint == 'admin.backups' %}active{% endif %}" href="{{ url_for('admin.backups') }}">{{ ico('db') }} Backups</a>
+    <a class="nav-link {% if request.endpoint == 'admin.settings' %}active{% endif %}" href="{{ url_for('admin.settings') }}">{{ ico('gear') }} Settings</a>
+    {% endif %}
+</nav>
+{% endif %}

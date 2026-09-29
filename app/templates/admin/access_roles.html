@@ -1,0 +1,29 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3 mb-3">Roles and permissions</h1>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card"><div class="table-responsive"><table class="table mb-0">
+            <thead><tr><th>Role</th><th>People</th><th>Permissions</th></tr></thead>
+            <tbody>
+            {% for row in rows %}
+            <tr>
+                <td><a href="{{ url_for('admin.access_role_edit', role_id=row.id) }}">{{ row.name }}</a>{% if row.is_system %} <span class="badge text-bg-dark">System</span>{% endif %}</td>
+                <td>{{ row.users|length }}</td>
+                <td class="small">{{ row.permissions.replace(',', ', ') }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table></div></div>
+    </div>
+    <div class="col-lg-5">
+        <form class="card" method="post"><div class="card-body">
+            <h2 class="h5">New role</h2>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label class="form-label">Name <input class="form-control" name="name" required></label>
+            <button class="btn btn-primary mt-3" type="submit">Create role</button>
+        </div></form>
+    </div>
+</div>
+{% endblock %}

@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
+<style>.nx-home-sections{display:flex;flex-direction:column}.nx-home-sections>.nx-home-slot{width:100%}</style>
+<div class="nx-home-sections">
 <!--==============================
 Hero Area
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('hero') }}">
+{% if home_on('hero') %}
     <div class="th-hero-wrapper hero-1" id="hero">
         <div class="container-fluid p-0 pe-lg-4 ps-lg-4">
             <div class="row gy-4">
@@ -10,7 +14,7 @@ Hero Area
                     <div class="hero-style1">
                         <!-- <img src="{{ url_for('static', filename='img/hero/hero_bg_1.jpg') }}" alt="" width="940" height="654"> -->
                         <span class="sub-title text-anime-style-2">ENTERPRISE AI. ENGINEERED FOR PRODUCTION.</span>
-                        <h1 class="hero-title text-anime-style-3">Build Intelligence Into Your Enterprise</h1>
+                        <h1 class="hero-title text-anime-style-3">{{ home_text('hero', 'headline') or 'Build Intelligence Into Your Enterprise' }}</h1>
                         <p class="hero-text wow fadeInUp" data-wow-delay=".4s">Neural Xpert designs, builds, and deploys secure, production-ready AI solutions—from Generative AI and AI Agents to RAG, Machine Learning, and Intelligent Automation—integrated with your data, applications, and business workflows.</p>
                         <div class=" wow fadeInUp" data-wow-delay=".6s">
                             <a href="{{ url_for('contact.index') }}" class="th-btn">Talk to an AI Expert <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
@@ -19,7 +23,7 @@ Hero Area
 
                         <div class="discount-wrapp scroll-down">
                             <a href="#about-sec" class="spin">
-                                <div class="logo-img"> <img src="{{ url_for('static', filename='img/logo-icon.svg') }}" alt=""></div>
+                                <div class="logo-img"> <img src="{{ brand.icon }}" alt=""></div>
                             </a>
                             <div class="discount-tag">
                                 <span class="discount-anime">SCROLL DOWN FOR MOR *** SCROLL DOWN FOR MORE *** SCROLL DOWN**
@@ -65,15 +69,19 @@ Hero Area
         </div>
     </div>
     <!--======== / Hero Section ========--><!--==============================
+{% endif %}
+</div>
 About Area  
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('about') }}">
+{% if home_on('about') %}
     <div class="about-area overflow-hidden space" id="about-sec">
         <div class="container">
             <div class="row gy-4">
                 <div class="col-lg-8 mb-30 mb-xl-0">
                     <div class="title-area pe-xl-5">
                         <span class="sub-title text-anime-style-2">ABOUT NEURAL XPERT</span>
-                        <h2 class="sec-title text-anime-style-3">Enterprise AI Built for Real-World Impact</h2>
+                        <h2 class="sec-title text-anime-style-3">{{ home_text('about', 'headline') or 'Enterprise AI Built for Real-World Impact' }}</h2>
                     </div>
                 </div>
             </div>
@@ -108,15 +116,19 @@ About Area
         </div>
         <div class="shape-mockup jumpAni d-none d-xxl-block" data-top="25%" data-right="0%"><img src="{{ url_for('static', filename='img/shape/element-1.png') }}" alt=""></div>
     </div><!--==============================
+{% endif %}
+</div>
 Service Area  
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('capabilities') }}">
+{% if home_on('capabilities') %}
     <section class="service-area position-relative overflow-hidden space" id="features-sec">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="title-area text-center">
                         <span class="sub-title style2 text-anime-style-2">OUR CAPABILITIES</span>
-                        <h2 class="sec-title text-anime-style-3">Enterprise AI Capabilities</h2>
+                        <h2 class="sec-title text-anime-style-3">{{ home_text('capabilities', 'headline') or 'Enterprise AI Capabilities' }}</h2>
                         <p class="mb-0">From intelligent applications to production AI platforms, Neural Xpert helps enterprises design, build, integrate, secure, and scale AI across their business.</p>
                     </div>
                 </div>
@@ -192,15 +204,19 @@ Service Area
             </div>
         </div>
     </section><!--==============================
+{% endif %}
+</div>
 Services Area
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('services') }}">
+{% if home_on('services') %}
     <section class="service-area position-relative overflow-hidden space bg-smoke2" id="services-sec">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="title-area text-center">
                         <span class="sub-title style2 text-anime-style-2">OUR SERVICES</span>
-                        <h2 class="sec-title text-anime-style-3">Enterprise Technology Built Around AI</h2>
+                        <h2 class="sec-title text-anime-style-3">{{ home_text('services', 'headline') or 'Enterprise Technology Built Around AI' }}</h2>
                         <p class="mb-0">Neural Xpert combines Artificial Intelligence, cloud engineering, cybersecurity, and intelligent automation to help organizations build secure, scalable, and production-ready digital systems.</p>
                     </div>
                 </div>
@@ -293,13 +309,17 @@ Services Area
             </div>
         </div>
     </section><!--==============================
+{% endif %}
+</div>
 Process Area  
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('process') }}">
+{% if home_on('process') %}
     <section class="process-area th-panel-pin-area position-relative  space" data-overlay="black2" data-opacity="4" data-bg-src="{{ url_for('static', filename='img/bg/process-bg.jpg') }}">
         <div class="container">
             <div class="title-area text-center pe-xl-5 ps-xl-5">
                 <span class="sub-title text-anime-style-2 style2">WORK PROCESS</span>
-                <h2 class="sec-title text-white text-anime-style-3">How We Deliver AI</h2>
+                <h2 class="sec-title text-white text-anime-style-3">{{ home_text('process', 'headline') or 'How We Deliver AI' }}</h2>
             </div>
             <div class="row justify-content-center">
                 <div class="col-lg-10 col-xl-11">
@@ -460,16 +480,20 @@ Process Area
             </div>
         </div>
     </section>
+{% endif %}
+</div>
 <!--==============================
 Project Area  
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('studies') }}">
+{% if home_on('studies') %}
     <section class="project-area position-relative overflow-hidden space" id="case-studies-sec">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="title-area text-center">
                         <span class="sub-title style2 text-anime-style-2">CASE STUDIES</span>
-                        <h2 class="sec-title style2 text-anime-style-3">Enterprise AI in Action</h2>
+                        <h2 class="sec-title style2 text-anime-style-3">{{ home_text('studies', 'headline') or 'Enterprise AI in Action' }}</h2>
                         <p class="mb-0">Explore how Neural Xpert designs and delivers secure, production-ready AI solutions that connect enterprise data, applications, people, and workflows.</p>
                     </div>
                 </div>
@@ -543,20 +567,24 @@ Project Area
             <div class="text-center mt-80"><a href="{{ url_for('case_studies.index') }}" class="th-btn">Explore All Case Studies <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a></div>
         </div>
     </section><!--==============================
+{% endif %}
+</div>
 Counter Area  
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('ecosystem') }}">
+{% if home_on('ecosystem') %}
     <div class=" overflow-hidden">
         <div class="container">
             <div class="title-area text-center">
-                <h2 class="sec-title style2 text-anime-style-3">Trusted by Industry Leaders</h2>
-                <p class="wow fadeInUp" data-wow-delay=".3s">Join thousands of companies transforming their business with AI</p>
+                <h2 class="sec-title style2 text-anime-style-3">{{ home_text('ecosystem', 'headline') or 'How Neural Xpert Delivers' }}</h2>
+                <p class="wow fadeInUp" data-wow-delay=".3s">Production AI, designed around the systems, data, and controls the business already runs.</p>
             </div>
             <div class="counter-area bounce_animation">
                 <div class="counter-card_wrapp">
                     <div class="counter-card bounce__anim">
                         <div class="media-body">
-                            <h3 class="box-number"><span class="counter-number">10</span>M+</h3>
-                            <p class="box-text">API Calls Daily</p>
+                            <h3 class="box-number nx-label">Production</h3>
+                            <p class="box-text">AI designed for real workflows</p>
                         </div>
                     </div>
 
@@ -565,8 +593,8 @@ Counter Area
                 <div class="counter-card_wrapp">
                     <div class="counter-card bounce__anim">
                         <div class="media-body">
-                            <h3 class="box-number"><span class="counter-number">150</span>+</h3>
-                            <p class="box-text">Countries Served</p>
+                            <h3 class="box-number nx-label">Security</h3>
+                            <p class="box-text">Built into the architecture</p>
                         </div>
                     </div>
 
@@ -575,8 +603,8 @@ Counter Area
                 <div class="counter-card_wrapp">
                     <div class="counter-card bounce__anim">
                         <div class="media-body">
-                            <h3 class="box-number"><span class="counter-number">4.9</span>/5</h3>
-                            <p class="box-text">Customer Rating</p>
+                            <h3 class="box-number nx-label">Integration</h3>
+                            <p class="box-text">Connected to enterprise systems</p>
                         </div>
                     </div>
 
@@ -585,8 +613,8 @@ Counter Area
                 <div class="counter-card_wrapp">
                     <div class="counter-card bounce__anim">
                         <div class="media-body">
-                            <h3 class="box-number"><span class="counter-number">24</span>/7</h3>
-                            <p class="box-text">Expert Support</p>
+                            <h3 class="box-number nx-label">Operations</h3>
+                            <p class="box-text">Supported after go-live</p>
                         </div>
                     </div>
 
@@ -603,18 +631,14 @@ Counter Area
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
                             <div class="marquee-card">
-                                <a target="_blank" href="#">
-                                    Artificial Intelligence in Shaping the Future of
-                                    Technology. /  Artificial Intelligence in Shaping the
-                                    Future of Technology. </a>
+                                <a href="{{ url_for('main.solutions') }}">
+                                    Generative AI, AI agents, RAG, and machine learning for production. </a>
                             </div>
                         </div>
                         <div class="swiper-slide">
                             <div class="marquee-card">
-                                <a target="_blank" href="#">
-                                    Artificial Intelligence in Shaping the Future of
-                                    Technology. /  Artificial Intelligence in Shaping the
-                                    Future of Technology. </a>
+                                <a href="{{ url_for('main.solutions') }}">
+                                    Generative AI, AI agents, RAG, and machine learning for production. </a>
                             </div>
                         </div>
                     </div>
@@ -628,25 +652,28 @@ Counter Area
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
                             <div class="marquee-card style2 text-white">
-                                <a target="_blank" href="#">
-                                    Artificial Intelligence in Shaping the Future of
-                                    Technology. /  Artificial Intelligence in Shaping the
-                                    Future of Technology. </a>
+                                <a href="{{ url_for('main.solutions') }}">
+                                    Generative AI, AI agents, RAG, and machine learning for production. </a>
                             </div>
                         </div>
                         <div class="swiper-slide">
                             <div class="marquee-card style2 text-white">
-                                <a target="_blank" href="#">
-                                    AI Algorithms </a>
+                                <a href="{{ url_for('blog.index') }}">
+                                    Enterprise AI insights from Neural Xpert. </a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div><!--==============================
+    </div>
+{% endif %}
+</div>
+<!--==============================
 About Area  
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('why') }}">
+{% if home_on('why') %}
     <div class="position-relative space  overflow-hidden">
         <div class="container">
             <div class="row gy-4 gx-0 justify-content-end flex-row-reverse">
@@ -655,7 +682,7 @@ About Area
                         <div class="about-wrapper">
                             <div class="title-area">
                                 <span class="sub-title text-anime-style-2">FEATURES / BENEFITS</span>
-                                <h2 class="sec-title text-anime-style-3">Built for Intelligent, Secure &amp; Scalable Enterprises</h2>
+                                <h2 class="sec-title text-anime-style-3">{{ home_text('why', 'headline') or 'Built for Intelligent, Secure & Scalable Enterprises' }}</h2>
                             </div>
                             <div class="about-wrapp">
                                 <div>
@@ -691,15 +718,19 @@ About Area
             </div>
         </div>
     </div><!--==============================
+{% endif %}
+</div>
 Industries Area
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('industries') }}">
+{% if home_on('industries') %}
     <section class="space bg-smoke2 overflow-hidden" id="industries-sec">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="title-area text-center">
                         <span class="sub-title style2 text-anime-style-2">INDUSTRIES</span>
-                        <h2 class="sec-title text-anime-style-3">Industries We Serve</h2>
+                        <h2 class="sec-title text-anime-style-3">{{ home_text('industries', 'headline') or 'Industries We Serve' }}</h2>
                     </div>
                 </div>
             </div>
@@ -747,22 +778,21 @@ Industries Area
             </div>
         </div>
     </section><!--==============================
+{% endif %}
+</div>
 Download Area 1 
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('integrations') }}">
+{% if home_on('integrations') %}
     <section class="download-area overflow-hidden space-top">
         <div class="container">
             <div class="row gy-4 justify-content-center align-items-center">
                 <div class="col-xl-10">
                     <div class="title-area mb-80 text-center">
                         <span class="sub-title text-white text-anime-style-2">Integration</span>
-                        <h2 class="sec-title text-white text-anime-style-3">AI Agents Integration </h2>
+                        <h2 class="sec-title text-white text-anime-style-3">{{ home_text('integrations', 'headline') or 'AI Agents Integration' }}</h2>
                     </div>
-                    <div class="download-img-wrapp">
-                        <div class="download-image">
-                            <img src="{{ url_for('static', filename='img/normal/ai-agents-integration.png') }}" alt="Facebook, messaging, ChatGPT, phone, refresh, and Zapier">
-                        </div>
-                    </div>
-                    <div class="position-relative z-index-3 mt-60 text-center mb-80">
+                    <div class="position-relative z-index-3 text-center mb-80">
                         <a href="{{ url_for('contact.index') }}" class="th-btn">Contact Us <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
                     </div>
                 </div>
@@ -772,25 +802,22 @@ Download Area 1
                     <div class="integration-card">
                         <div class="box-content">
                             <div class="box-icon">
-                                <img src="{{ url_for('static', filename='img/icon/icon-1.png') }}" alt="">
+                                <img src="{{ url_for('static', filename='img/icon/service_1_5.svg') }}" alt="">
                             </div>
-                            <h3 class="box-title">Microsoft Team</h3>
+                            <h3 class="box-title">Business Systems</h3>
                         </div>
-                        <p class="box-text">Use the context from your contact like
-                            bio.title, location, and notes-in complex
-                            ChatGPT queries and workflows.</p>
+                        <p class="box-text">Connect agents to the applications, APIs, and databases the business already uses.</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-xl-3">
                     <div class="integration-card">
                         <div class="box-content">
                             <div class="box-icon">
-                                <img src="{{ url_for('static', filename='img/icon/icon-2.png') }}" alt="">
+                                <img src="{{ url_for('static', filename='img/icon/service_1_3.svg') }}" alt="">
                             </div>
-                            <h3 class="box-title">ChatGPT</h3>
+                            <h3 class="box-title">Enterprise Knowledge</h3>
                         </div>
-                        <p class="box-text">Use the context from your contact like bio title, location, and notes-in complex
-                            ChatGPT queries and workflows.</p>
+                        <p class="box-text">Ground answers in approved documents and show the source behind each result.</p>
                     </div>
 
                 </div>
@@ -798,12 +825,11 @@ Download Area 1
                     <div class="integration-card">
                         <div class="box-content">
                             <div class="box-icon">
-                                <img src="{{ url_for('static', filename='img/icon/icon-3.png') }}" alt="">
+                                <img src="{{ url_for('static', filename='img/icon/service_1_2.svg') }}" alt="">
                             </div>
-                            <h3 class="box-title">Ziper</h3>
+                            <h3 class="box-title">Workflow Automation</h3>
                         </div>
-                        <p class="box-text">Use the context from your contact like
-                            bio title, location, and notes-in complex ChatGPT queries and workflows.</p>
+                        <p class="box-text">Let an agent draft the next step, and keep a person in control of the commit.</p>
                     </div>
 
                 </div>
@@ -811,27 +837,29 @@ Download Area 1
                     <div class="integration-card">
                         <div class="box-content">
                             <div class="box-icon">
-                                <img src="{{ url_for('static', filename='img/icon/icon-4.png') }}" alt="">
+                                <img src="{{ url_for('static', filename='img/icon/service_1_1.svg') }}" alt="">
                             </div>
-                            <h3 class="box-title">Loom</h3>
+                            <h3 class="box-title">Security Controls</h3>
                         </div>
-                        <p class="box-text">Use the context from your contact like
-                            bio.title, location, and notes-in complex
-                            ChatGPT queries and workflows.</p>
+                        <p class="box-text">Carry identity, permissions, and monitoring into every AI workflow.</p>
                     </div>
                 </div>
             </div>
         </div>
     </section><!--==============================
+{% endif %}
+</div>
 Engagement Area
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('engagement') }}">
+{% if home_on('engagement') %}
     <section class="overflow-hidden space bg-smoke2" id="engagement-sec">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="title-area text-center">
                         <span class="sub-title style2 text-anime-style-2">ENGAGEMENT MODELS</span>
-                        <h2 class="sec-title text-anime-style-3">Flexible Ways to Work With Neural Xpert</h2>
+                        <h2 class="sec-title text-anime-style-3">{{ home_text('engagement', 'headline') or 'Flexible Ways to Work With Neural Xpert' }}</h2>
                     </div>
                 </div>
             </div>
@@ -867,10 +895,14 @@ Engagement Area
             </div>
         </div>
     </section>
+{% endif %}
+</div>
 <!-- Testimonials removed until verified customer testimonials, logos, or a Customer Success section are available. -->
 <!--==============================
 Cta Area  
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('cta') }}">
+{% if home_on('cta') %}
     <div class="space overflow-hidden">
         <div class="container">
             <div class="cta-area2 space" data-bg-src="{{ url_for('static', filename='img/bg/cta-ready-bg.jpg') }}">
@@ -878,7 +910,7 @@ Cta Area
                     <div class="col-lg-10">
                         <div class="title-area text-center">
                             <span class="sub-title text-anime-style-2 style2">READY TO BUILD WITH AI?</span>
-                            <h2 class="sec-title text-white text-anime-style-2">Turn Your AI Opportunity Into Production</h2>
+                            <h2 class="sec-title text-white text-anime-style-2">{{ home_text('cta', 'headline') or 'Turn Your AI Opportunity Into Production' }}</h2>
                             <span class="box-text text-anime-style-3">From strategy and architecture to implementation, security, deployment and optimization, Neural Xpert helps enterprises build AI systems designed for real-world operations.</span>
                         </div>
                         <div class="btn-group justify-content-center">
@@ -892,9 +924,14 @@ Cta Area
                 </div>
             </div>
         </div>
-    </div><!--==============================
+    </div>
+{% endif %}
+</div>
+<!--==============================
 Blog Area  
 ==============================-->
+<div class="nx-home-slot" style="order: {{ home_order('insights') }}">
+{% if home_on('insights') %}
     <section class="overflow-hidden space bg-smoke2 overflow-hidden" id="blog-sec">
         <div class="container">
             <div class="row">
@@ -903,7 +940,7 @@ Blog Area
                         <div class="col-lg-8 col-xxl-6">
                             <div class="title-area text-center text-lg-start">
                                 <span class="sub-title text-anime-style-2">News & Blog</span>
-                                <h2 class="sec-title text-anime-style-3">Insights on Enterprise AI</h2>
+                                <h2 class="sec-title text-anime-style-3">{{ home_text('insights', 'headline') or 'Insights on Enterprise AI' }}</h2>
                             </div>
                         </div>
                         <div class="col-auto">
@@ -1036,7 +1073,8 @@ Blog Area
                 </div>
             </div>
         </div>
-    </section><!--==============================
-	Footer Area
-==============================-->
+    </section>
+{% endif %}
+</div>
+</div>
 {% endblock %}

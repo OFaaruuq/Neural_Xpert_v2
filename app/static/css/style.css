@@ -34814,5 +34814,15 @@ span.select2-selection.select2-selection--single:focus {
     font-size: 26px;
   }
 }
+.counter-card .box-number.nx-label {
+  font-size: 32px;
+  line-height: 1.2;
+}
+.download-area .integration-card .box-icon {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /*# sourceMappingURL=style.css.map */

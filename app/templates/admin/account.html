@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Change password</h1>
+<p class="text-secondary">{{ g.staff.email }} · {{ g.staff.role.name if g.staff.role else "Staff" }}</p>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<form class="card" method="post"><div class="card-body" style="max-width:480px">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="form-label">Current password <input class="form-control" type="password" name="current_password" autocomplete="current-password" required></label>
+    <label class="form-label mt-3">New password <input class="form-control" type="password" name="new_password" autocomplete="new-password" minlength="12" required></label>
+    <label class="form-label mt-3">Google Authenticator code <input class="form-control" name="totp_code" inputmode="numeric" autocomplete="one-time-code" required></label>
+    <button class="btn btn-primary mt-3" type="submit">Update password</button>
+</div></form>
+{% endblock %}

@@ -31,22 +31,22 @@
                     </div>
                 </div>
                 {% else %}
-                <div class="col-12 text-center"><p class="box-text">Insights will be published here.</p></div>
+                <div class="col-12 text-center"><p class="box-text">{% if search %}No insights match that search.{% else %}Insights will be published here.{% endif %}</p></div>
                 {% endfor %}
             </div>
             {% if pagination.pages > 1 %}
             <div class="th-pagination text-center mt-30">
                 <ul>
                     {% if pagination.has_prev %}
-                    <li><a href="{{ url_for('blog.index', page=pagination.prev_num, category=request.args.get('category')) }}"><i class="fa-regular fa-arrow-left"></i></a></li>
+                    <li><a href="{{ url_for('blog.index', page=pagination.prev_num, category=active_category.slug if active_category else none, q=search or none) }}"><i class="fa-regular fa-arrow-left"></i></a></li>
                     {% endif %}
                     {% for number in pagination.iter_pages() %}
                         {% if number %}
-                        <li><a href="{{ url_for('blog.index', page=number, category=request.args.get('category')) }}">{{ number }}</a></li>
+                        <li><a href="{{ url_for('blog.index', page=number, category=active_category.slug if active_category else none, q=search or none) }}">{{ number }}</a></li>
                         {% endif %}
                     {% endfor %}
                     {% if pagination.has_next %}
-                    <li><a href="{{ url_for('blog.index', page=pagination.next_num, category=request.args.get('category')) }}"><i class="fa-regular fa-arrow-right"></i></a></li>
+                    <li><a href="{{ url_for('blog.index', page=pagination.next_num, category=active_category.slug if active_category else none, q=search or none) }}"><i class="fa-regular fa-arrow-right"></i></a></li>
                     {% endif %}
                 </ul>
             </div>

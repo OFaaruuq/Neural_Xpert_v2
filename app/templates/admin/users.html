@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Users</h1>
+</div>
+{% if provisioned %}
+<div class="alert alert-warning">Account created for {{ provisioned.email }}. Temporary password: <strong>{{ provisioned.password }}</strong>. It is shown only once. They still set up Google Authenticator on first sign-in.</div>
+{% endif %}
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card"><div class="table-responsive"><table class="table mb-0">
+            <thead><tr><th>User</th><th>Role</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for row in rows %}
+            <tr>
+                <td><a href="{{ url_for('admin.user_edit', user_id=row.id) }}">{{ row.display_name }}</a><div class="small text-secondary">{{ row.email }}</div></td>
+                <td>{{ row.role.name if row.role else "—" }}</td>
+                <td>{% if row.is_active %}Active{% else %}Inactive{% endif %}{% if row.totp_enabled %} · MFA{% else %} · MFA not set{% endif %}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table></div></div>
+    </div>
+    <div class="col-lg-5">
+        <form class="card" method="post"><div class="card-body">
+            <h2 class="h5">Add a user</h2>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label class="form-label">Name <input class="form-control" name="name"></label>
+            <label class="form-label mt-2">Email <input class="form-control" type="email" name="email" required></label>
+            <label class="form-label mt-2">Role <select class="form-select" name="role_id" required>{% for role in roles %}<option value="{{ role.id }}">{{ role.name }}</option>{% endfor %}</select></label>
+            <button class="btn btn-primary mt-3" type="submit">Create account</button>
+        </div></form>
+    </div>
+</div>
+{% endblock %}

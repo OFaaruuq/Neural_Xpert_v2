@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Conversions</h1>
+<p class="text-secondary">Contact submissions, article views, case-study views, and solution views recorded on this server.</p>
+<div class="row g-3 mb-4">
+    {% for name, count in counts.items() %}
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-secondary">{{ name }}</div><div class="fs-3">{{ count }}</div></div></div></div>
+    {% endfor %}
+</div>
+<table class="table"><thead><tr><th>Event</th><th>Path</th><th>Label</th></tr></thead>
+<tbody>{% for row in recent %}<tr><td>{{ row.name }}</td><td>{{ row.path }}</td><td>{{ row.label }}</td></tr>{% else %}<tr><td colspan="3">No events yet.</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

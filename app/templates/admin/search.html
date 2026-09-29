@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Search</h1>
+<form class="row g-2 mb-4" method="get"><div class="col-md-6"><input class="form-control" name="q" value="{{ term }}"></div><div class="col-auto"><button class="btn btn-primary" type="submit">Search</button></div></form>
+{% if term %}
+<h2 class="h5">Pages</h2>
+<ul>{% for row in pages %}<li><a href="{{ url_for('admin.page_edit', page_id=row.id) }}">{{ row.title }}</a></li>{% else %}<li>None</li>{% endfor %}</ul>
+<h2 class="h5">Insights</h2>
+<ul>{% for row in articles %}<li><a href="{{ url_for('admin.article_edit', article_id=row.id) }}">{{ row.title }}</a></li>{% else %}<li>None</li>{% endfor %}</ul>
+<h2 class="h5">Solutions, services, industries</h2>
+<ul>{% for row in offerings %}<li>{{ row.kind }}: {{ row.name }}</li>{% else %}<li>None</li>{% endfor %}</ul>
+<h2 class="h5">Leads</h2>
+<ul>{% for row in leads %}<li><a href="{{ url_for('admin.inquiry', inquiry_id=row.id) }}">{{ row.name }}</a></li>{% else %}<li>None</li>{% endfor %}</ul>
+{% endif %}
+{% endblock %}

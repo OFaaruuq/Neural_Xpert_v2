@@ -1,0 +1,82 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<p class="mb-2"><a href="{{ url_for('admin.studies') }}">Case studies</a></p>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">{{ study.title or "New case study" }}</h1>
+    {% if study.id and study.status == 'published' %}
+    <a class="btn btn-outline-primary" href="{{ url_for('case_studies.detail', slug=study.slug) }}" target="_blank" rel="noopener">View public page</a>
+    {% endif %}
+</div>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card mb-3"><div class="card-body">
+                <h2 class="h6">Story</h2>
+                <label class="form-label mt-2">Title <input class="form-control" name="title" value="{{ study.title or '' }}" required></label>
+                <label class="form-label mt-3">Summary <textarea class="form-control" name="summary" rows="3" required>{{ study.summary or '' }}</textarea></label>
+                <label class="form-label mt-3">Content <textarea class="form-control" name="content" rows="8">{{ study.content or '' }}</textarea></label>
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6"><label class="form-label">Challenge <textarea class="form-control" name="challenge" rows="4">{{ study.challenge or '' }}</textarea></label></div>
+                    <div class="col-md-6"><label class="form-label">Solution <textarea class="form-control" name="solution" rows="4">{{ study.solution or '' }}</textarea></label></div>
+                    <div class="col-md-6"><label class="form-label">Architecture <textarea class="form-control" name="architecture" rows="4">{{ study.architecture or '' }}</textarea></label></div>
+                    <div class="col-md-6"><label class="form-label">Results <textarea class="form-control" name="results" rows="4">{{ study.results or '' }}</textarea></label></div>
+                </div>
+                <label class="form-label mt-3">Implementation <textarea class="form-control" name="implementation" rows="3">{{ study.implementation or '' }}</textarea></label>
+            </div></div>
+            <div class="card mb-3"><div class="card-body">
+                <h2 class="h6">Delivery</h2>
+                <label class="form-label mt-2">Cloud / platform <input class="form-control" name="cloud_platform" value="{{ study.cloud_platform or '' }}"></label>
+                <label class="form-label mt-3">Data sources <textarea class="form-control" name="data_sources" rows="3">{{ study.data_sources or '' }}</textarea></label>
+                <label class="form-label mt-3">Integrations <textarea class="form-control" name="integrations" rows="3">{{ study.integrations or '' }}</textarea></label>
+                <label class="form-label mt-3">Security controls <textarea class="form-control" name="security_controls" rows="3">{{ study.security_controls or '' }}</textarea></label>
+            </div></div>
+            <div class="card"><div class="card-body">
+                <h2 class="h6">Proof</h2>
+                <p class="small text-secondary">Metrics are stored only when they are marked verified.</p>
+                <label class="form-label">Customer quote <textarea class="form-control" name="customer_quote" rows="3">{{ study.customer_quote or '' }}</textarea></label>
+                <label class="form-label mt-3">Verified metrics <textarea class="form-control" name="metrics" rows="3">{{ study.metrics or '' }}</textarea></label>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" name="metrics_verified" value="1" id="metrics-verified" {% if study.metrics_verified %}checked{% endif %}>
+                    <label class="form-check-label" for="metrics-verified">These metrics are verified and may be published</label>
+                </div>
+            </div></div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-3"><div class="card-body">
+                <h2 class="h6">Publishing</h2>
+                <label class="form-label mt-2">Status
+                    <select class="form-select" name="status">
+                        {% for item in statuses %}<option value="{{ item }}" {% if study.status == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+                    </select>
+                </label>
+                {% if study.slug and study.id %}
+                <p class="small text-secondary mt-3 mb-0">Public path /case-studies/{{ study.slug }}</p>
+                {% endif %}
+                {% if g.staff.has_any(['content.edit']) %}
+                <button class="btn btn-primary mt-3" type="submit">Save case study</button>
+                {% endif %}
+            </div></div>
+            <div class="card mb-3"><div class="card-body">
+                <h2 class="h6">Client</h2>
+                <label class="form-label mt-2">Public client name <input class="form-control" name="client_display_name" value="{{ study.client_display_name or '' }}"></label>
+                <label class="form-label mt-3">Internal client name <input class="form-control" name="client_name" value="{{ study.client_name or '' }}"></label>
+                <label class="form-label mt-3">Industry <input class="form-control" name="industry" value="{{ study.industry or '' }}"></label>
+                <label class="form-label mt-3">Category <input class="form-control" name="category" value="{{ study.category or '' }}"></label>
+                <label class="form-label mt-3">Technologies <input class="form-control" name="technologies" value="{{ study.technologies or '' }}" placeholder="Comma separated"></label>
+            </div></div>
+            <div class="card mb-3"><div class="card-body">
+                <h2 class="h6">Images</h2>
+                <label class="form-label mt-2">Featured image <input class="form-control" name="featured_image" value="{{ study.featured_image or '' }}" placeholder="img/project/example.jpg"></label>
+                <label class="form-label mt-3">Architecture image <input class="form-control" name="architecture_image" value="{{ study.architecture_image or '' }}" placeholder="img/project/architecture.png"></label>
+            </div></div>
+            <div class="card"><div class="card-body">
+                <h2 class="h6">SEO</h2>
+                <label class="form-label mt-2">SEO title <input class="form-control" name="seo_title" value="{{ study.seo_title or '' }}"></label>
+                <label class="form-label mt-3">Meta description <textarea class="form-control" name="meta_description" rows="3">{{ study.meta_description or '' }}</textarea></label>
+            </div></div>
+        </div>
+    </div>
+</form>
+{% endblock %}

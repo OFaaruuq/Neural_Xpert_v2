@@ -1,0 +1,34 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Homepage</h1>
+<p class="text-secondary">Hide a section, move it, or replace its headline. Blank copy keeps the designed text. The public page uses this order.</p>
+{% for row in rows %}
+<form class="card mb-3" method="post">
+    <div class="card-body">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="section_id" value="{{ row.id }}">
+        <div class="d-flex justify-content-between flex-wrap gap-2">
+            <h2 class="h5 mb-0">{{ row.position }}. {{ row.name }}</h2>
+            <span class="badge text-bg-light">{% if row.enabled %}Visible{% else %}Hidden{% endif %}</span>
+        </div>
+        <div class="row g-2 mt-2">
+            <div class="col-md-4"><input class="form-control" name="eyebrow" value="{{ row.eyebrow }}" placeholder="Eyebrow"></div>
+            <div class="col-md-8"><input class="form-control" name="headline" value="{{ row.headline }}" placeholder="Headline override"></div>
+            <div class="col-12"><textarea class="form-control" name="summary" rows="2" placeholder="Summary override">{{ row.summary }}</textarea></div>
+            <div class="col-md-4"><input class="form-control" name="cta_label" value="{{ row.cta_label }}" placeholder="CTA label"></div>
+            <div class="col-md-8"><input class="form-control" name="cta_url" value="{{ row.cta_url }}" placeholder="CTA link"></div>
+        </div>
+        {% if g.staff.has_any(['content.edit']) %}
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <button class="btn btn-primary btn-sm" name="action" value="save" type="submit">Edit</button>
+            <button class="btn btn-outline-secondary btn-sm" name="action" value="toggle" type="submit">{% if row.enabled %}Hide{% else %}Show{% endif %}</button>
+            <button class="btn btn-outline-secondary btn-sm" name="action" value="up" type="submit">Move up</button>
+            <button class="btn btn-outline-secondary btn-sm" name="action" value="down" type="submit">Move down</button>
+            <button class="btn btn-outline-secondary btn-sm" name="action" value="duplicate" type="submit">Duplicate</button>
+        </div>
+        {% endif %}
+    </div>
+</form>
+{% endfor %}
+<p><a href="{{ url_for('main.index') }}" target="_blank" rel="noopener">Preview the public homepage</a></p>
+{% endblock %}

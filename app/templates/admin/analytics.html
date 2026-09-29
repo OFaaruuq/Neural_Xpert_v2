@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Analytics</h1>
+<p class="text-secondary">These figures come from first-party visits on this site. Campaign analytics IDs can be stored in settings and connected later.</p>
+<div class="row g-3">
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-secondary">Visitors today</div><div class="fs-3">{{ traffic.today_visitors }}</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-secondary">Views, 30 days</div><div class="fs-3">{{ traffic.month_views }}</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-secondary">All page views</div><div class="fs-3">{{ total_views }}</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-secondary">Contact leads</div><div class="fs-3">{{ leads }}</div></div></div></div>
+</div>
+<div class="card mt-4"><div class="card-body">
+    <h2 class="h5">Top pages this week</h2>
+    <table class="table mb-0">{% for path, views in traffic.top_pages %}<tr><td>{{ path }}</td><td class="text-end">{{ views }}</td></tr>{% else %}<tr><td>No visits yet.</td></tr>{% endfor %}</table>
+</div></div>
+{% endblock %}

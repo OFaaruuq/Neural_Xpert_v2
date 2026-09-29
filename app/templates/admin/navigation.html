@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Navigation</h1>
+<p class="text-secondary">The designed public menu stays in place until you enable a replacement item. Footer items are managed here too.</p>
+{% if g.staff.has_any(['settings.manage', 'content.edit']) %}
+<form class="card mb-4" method="post"><div class="card-body row g-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="create" value="1">
+    <div class="col-md-3"><select class="form-select" name="menu"><option value="header">Header</option><option value="footer">Footer</option></select></div>
+    <div class="col-md-3"><input class="form-control" name="label" placeholder="Label" required></div>
+    <div class="col-md-4"><input class="form-control" name="url" placeholder="/about" required></div>
+    <div class="col-md-2"><button class="btn btn-primary" type="submit">Add</button></div>
+</div></form>
+{% endif %}
+{% for row in rows %}
+<form class="card mb-2" method="post"><div class="card-body row g-2 align-items-center">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="item_id" value="{{ row.id }}">
+    <div class="col-md-2"><select class="form-select" name="menu"><option value="header" {% if row.menu == 'header' %}selected{% endif %}>Header</option><option value="footer" {% if row.menu == 'footer' %}selected{% endif %}>Footer</option></select></div>
+    <div class="col-md-3"><input class="form-control" name="label" value="{{ row.label }}"></div>
+    <div class="col-md-3"><input class="form-control" name="url" value="{{ row.url }}"></div>
+    <div class="col-md-2"><div class="form-check"><input class="form-check-input" type="checkbox" name="enabled" value="1" {% if row.enabled %}checked{% endif %}><label class="form-check-label">Enabled</label></div></div>
+    <div class="col-md-2">{% if g.staff.has_any(['settings.manage', 'content.edit']) %}<button class="btn btn-primary btn-sm" type="submit">Save</button>{% endif %}</div>
+</div></form>
+{% endfor %}
+{% endblock %}

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, abort, render_template
 
 from app.services import seo_for
 
@@ -47,6 +47,15 @@ def about():
     )
 
 
+def published_offerings(kind):
+    try:
+        from app.models.platform import Offering
+
+        return Offering.query.filter_by(kind=kind, status="published").order_by(Offering.position, Offering.name).all()
+    except Exception:
+        return []
+
+
 @bp.route("/solutions")
 def solutions():
     return render_page(
@@ -54,7 +63,13 @@ def solutions():
         "solutions",
         "AI Solutions | Neural Xpert",
         "Enterprise AI capabilities from Neural Xpert, including Generative AI, AI agents, RAG, machine learning, automation, and AI security.",
+        published_solutions=published_offerings("solution"),
     )
+
+
+@bp.route("/solutions/<slug>")
+def solution_detail(slug):
+    return _offering_detail("solution", slug)
 
 
 @bp.route("/services")
@@ -64,7 +79,13 @@ def services():
         "services",
         "AI Services | Neural Xpert",
         "AI strategy, engineering, cloud infrastructure, cybersecurity, data integration, and MLOps services from Neural Xpert.",
+        published_services=published_offerings("service"),
     )
+
+
+@bp.route("/services/<slug>")
+def service_detail(slug):
+    return _offering_detail("service", slug)
 
 
 @bp.route("/industries")
@@ -74,7 +95,28 @@ def industries():
         "industries",
         "Industries | Neural Xpert",
         "Neural Xpert delivers production-ready enterprise AI across industries.",
+        published_industries=published_offerings("industry"),
     )
+
+
+@bp.route("/industries/<slug>")
+def industry_detail(slug):
+    return _offering_detail("industry", slug)
+
+
+def _offering_detail(kind, slug):
+    from app.admin.catalog import record_event
+    from app.extensions import db
+    from app.models.platform import Offering
+
+    item = Offering.query.filter_by(kind=kind, slug=slug, status="published").first()
+    if item is None:
+        abort(404)
+    public_path = {"solution": "solutions", "service": "services", "industry": "industries"}.get(kind, kind)
+    record_event("offering_view", f"/{public_path}/{slug}", item.name)
+    db.session.commit()
+    context = seo_for(kind, item.seo_title or f"{item.name} | Neural Xpert", item.meta_description or item.summary, item.hero_image)
+    return render_template("main/offering.html", item=item, **context)
 
 
 @bp.route("/privacy-policy")

@@ -1,0 +1,33 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Media library</h1>
+<p class="text-secondary">Every image needs ALT text. Partnership logos stay unpublished until the partner record has approval evidence.</p>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+{% if g.staff.has_any(['media.manage', 'content.edit']) %}
+<form class="card mb-4" method="post" enctype="multipart/form-data"><div class="card-body">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="row g-2">
+        <div class="col-md-4"><input class="form-control" type="file" name="file" required></div>
+        <div class="col-md-3"><input class="form-control" name="alt_text" placeholder="ALT text" required></div>
+        <div class="col-md-2"><input class="form-control" name="title" placeholder="Title"></div>
+        <div class="col-md-2"><select class="form-select" name="folder"><option>general</option><option>logos</option><option>heroes</option><option>case-studies</option><option>blog</option><option>team</option><option>icons</option><option>documents</option></select></div>
+        <div class="col-md-1"><button class="btn btn-primary" type="submit">Add</button></div>
+    </div>
+</div></form>
+{% endif %}
+<div class="card"><div class="table-responsive"><table class="table mb-0">
+    <thead><tr><th>File</th><th>ALT</th><th>Folder</th><th>Size</th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>
+        <td><a href="{{ url_for('admin.media_file', asset_id=row.id, filename=row.filename) }}">{{ row.original_name or row.filename }}</a></td>
+        <td>{{ row.alt_text }}</td>
+        <td>{{ row.folder }}</td>
+        <td>{{ row.size }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">No files yet.</td></tr>
+    {% endfor %}
+    </tbody>
+</table></div></div>
+{% endblock %}

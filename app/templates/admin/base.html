@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{{ title }} | Neural Xpert</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    {% if g.staff is defined %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap5.min.css') }}">
+    {% endif %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <script>
+        try {
+            if (localStorage.getItem("nx-side") === "collapsed" && window.matchMedia("(min-width: 768px)").matches) {
+                document.documentElement.classList.add("nx-collapsed");
+            }
+        } catch (e) {}
+    </script>
+</head>
+<body class="{% if g.staff is defined %}admin-app{% else %}auth-body{% endif %}">
+    {% if g.staff is defined %}
+    <div class="nx-app" id="nxApp">
+        <header class="navbar navbar-expand bg-white border-bottom sticky-top nx-topbar flex-nowrap px-0">
+            <a class="nx-brand" href="{{ url_for('admin.dashboard') }}"><img src="{{ brand.admin }}" alt="Neural Xpert"></a>
+            <button class="nx-iconbtn" id="nxMenu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="adminNav">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+            <form class="nx-search" method="get" action="{{ url_for('admin.search') }}" role="search">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 16l4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                <input class="form-control" id="nxSearch" name="q" type="search" placeholder="Search pages, blog posts, leads, media, etc..." aria-label="Search pages, blog posts, leads, media">
+                <kbd>⌘K</kbd>
+            </form>
+            <div class="nx-top-end">
+                <div class="dropdown">
+                    <button class="nx-iconbtn" type="button" data-bs-toggle="dropdown" aria-label="Notifications">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V10a6 6 0 1 1 12 0v6l1.5 2H4.5L6 16z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10 19a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                        {% if new_lead_count %}<span class="nx-dot-alert"></span>{% endif %}
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end nx-menu">
+                        <div class="nx-menu-title">Notifications</div>
+                        {% for row in lead_notices|default([]) %}
+                        <a class="dropdown-item" href="{{ url_for('admin.inquiry', inquiry_id=row.id) }}">{{ row.name }} <span>{{ row.subject }}</span></a>
+                        {% else %}
+                        <div class="dropdown-item-text text-secondary">No new inquiries.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="nx-iconbtn" type="button" data-bs-toggle="dropdown" aria-label="Help">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.2 2.4c-.7.3-1.2.8-1.2 1.6V14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="17" r="0.8" fill="currentColor"/></svg>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end nx-menu">
+                        <a class="dropdown-item" href="{{ url_for('admin.health') }}">Site health</a>
+                        {% if g.staff.has_any(['content.view']) %}
+                        <a class="dropdown-item" href="{{ url_for('admin.workflow') }}">Publishing workflow</a>
+                        {% endif %}
+                        <a class="dropdown-item" href="{{ url_for('admin.account') }}">Change password</a>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="nx-profile" type="button" data-bs-toggle="dropdown" title="{{ g.staff.display_name }}">
+                        <span class="nx-avatar">{{ g.staff.display_name[:1]|upper }}</span>
+                        <span class="nx-profile-copy">
+                            <strong class="text-truncate">{{ g.staff.display_name }}</strong>
+                            <small>{{ g.staff.role.name if g.staff.role else "Staff" }}</small>
+                        </span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end nx-menu">
+                        <a class="dropdown-item" href="{{ url_for('admin.account') }}">Change password</a>
+                        <form method="post" action="{{ url_for('admin.logout') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="dropdown-item" type="submit">Sign out</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="nx-frame">
+            {% include "admin/sidebar.html" %}
+            <main class="nx-main admin-main">
+                {% include "admin/flashes.html" %}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    {% else %}
+    <main class="auth-screen">
+        <div class="auth-wrap">
+            {% include "admin/flashes.html" %}
+            {% block auth %}{% endblock %}
+            <p class="auth-legal">Authorized Neural Xpert staff only.</p>
+        </div>
+    </main>
+    <script src="{{ url_for('static', filename='js/admin-auth.js') }}"></script>
+    {% endif %}
+</body>
+</html>

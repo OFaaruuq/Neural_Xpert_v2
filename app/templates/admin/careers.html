@@ -1,0 +1,22 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Careers</h1>
+    {% if g.staff.has_any(['careers.edit']) %}
+    <a class="btn btn-primary" href="{{ url_for('admin.career_new') }}">New opening</a>
+    {% endif %}
+</div>
+<div class="card"><div class="table-responsive"><table class="table mb-0">
+    <thead><tr><th>Title</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>
+        <td><a href="{{ url_for('admin.career_edit', job_id=row.id) }}">{{ row.title }}</a></td>
+        <td>{{ row.status }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="2">No openings.</td></tr>
+    {% endfor %}
+    </tbody>
+</table></div></div>
+{% endblock %}

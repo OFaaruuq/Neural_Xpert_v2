@@ -1,0 +1,6 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Access denied</h1>
+<p>Your role does not include this part of the admin.</p>
+<a class="btn btn-primary" href="{{ url_for('admin.dashboard') }}">Back to overview</a>
+{% endblock %}

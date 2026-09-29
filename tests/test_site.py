@@ -1,29 +1,7 @@
 import io
 
-import pytest
-
-from app import create_app
 from app.extensions import db
 from app.models import Job
-from app.seed import seed
-
-
-@pytest.fixture
-def app():
-    application = create_app("testing")
-    with application.app_context():
-        db.create_all()
-        seed()
-        db.session.commit()
-    yield application
-    with application.app_context():
-        db.session.remove()
-        db.drop_all()
-
-
-@pytest.fixture
-def client(app):
-    return app.test_client()
 
 
 def test_home_keeps_frontend_assets(client):
@@ -109,9 +87,11 @@ def test_contact_submission(client, app):
     assert rejected.status_code == 400
 
 
-def test_admin_is_not_available(client):
-    assert client.get("/admin").status_code == 404
-    assert client.get("/admin/login").status_code == 404
+def test_admin_is_not_public(client):
+    home = client.get("/")
+    assert b'href="/admin"' not in home.data
+    assert client.get("/admin").status_code == 302
+    assert client.get("/admin/login").status_code == 200
 
 
 def test_job_application_rejects_bad_files(client, app):
@@ -148,8 +128,9 @@ def test_job_application_rejects_bad_files(client, app):
 def test_sitemap_and_robots(client):
     robots = client.get("/robots.txt")
     assert b"Sitemap:" in robots.data
-    assert b"/admin" not in robots.data
+    assert b"Disallow: /admin" in robots.data
     sitemap = client.get("/sitemap.xml")
+    assert b"/admin" not in sitemap.data
     assert b"/insights/rathat-android-trojan-uses-ai-for-automation" in sitemap.data
 
 
@@ -158,3 +139,52 @@ def test_production_config_is_not_debug():
 
     assert ProductionConfig.DEBUG is False
     assert ProductionConfig.SESSION_COOKIE_SECURE is True
+
+
+def test_saved_mail_settings_override_smtp_and_keep_a_blank_password(app):
+    from app.extensions import db
+    from app.mailer import apply_mail_settings, save_mail_settings, send_test_to
+
+    app.config["MAIL_SERVER"] = "smtp.env.example"
+    app.config["MAIL_PASSWORD"] = "env-secret"
+    app.config["MAIL_SUPPRESS_SEND"] = True
+    app.config["MAIL_USERNAME"] = "neuralxperts@gmail.com"
+    app.config["MAIL_DEFAULT_SENDER"] = "Neural Xpert"
+    fields = {
+        "mail_server": "smtp.saved.example",
+        "mail_port": "2525",
+        "mail_use_tls": "0",
+        "mail_use_ssl": "0",
+        "mail_username": "desk@example.com",
+        "mail_password": "",
+        "mail_sender": "Desk",
+        "mail_recipient": "inbox@example.com",
+        "mail_contact_subject": "Thanks {name}",
+        "mail_contact_body": "Hello {name} about {subject}",
+        "mail_career_subject": "",
+        "mail_career_body": "",
+    }
+    with app.app_context():
+        assert save_mail_settings(fields) == ""
+        db.session.commit()
+        apply_mail_settings()
+        assert app.config["MAIL_SERVER"] == "smtp.saved.example"
+        assert app.config["MAIL_PORT"] == 2525
+        assert app.config["MAIL_PASSWORD"] == "env-secret"
+        fields["mail_password"] = "admin-secret"
+        fields["mail_use_tls"] = "1"
+        assert save_mail_settings(fields) == ""
+        db.session.commit()
+        apply_mail_settings()
+        assert app.config["MAIL_PASSWORD"] == "admin-secret"
+        assert app.config["MAIL_USE_TLS"] is True
+        fields["mail_password"] = ""
+        assert save_mail_settings(fields) == ""
+        db.session.commit()
+        apply_mail_settings()
+        assert app.config["MAIL_PASSWORD"] == "admin-secret"
+        ok, notice = send_test_to("ops@example.com")
+        assert ok is True
+        assert "ops@example.com" in notice
+        fields["mail_use_ssl"] = "1"
+        assert "not both" in save_mail_settings(fields)

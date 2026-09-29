@@ -1,0 +1,12 @@
+<aside class="nx-side d-none d-md-flex flex-column">
+    {% include "admin/sidebar_nav.html" %}
+</aside>
+<div class="offcanvas offcanvas-start nx-side" tabindex="-1" id="adminNav">
+    <div class="offcanvas-header border-bottom">
+        <img src="{{ brand.admin }}" alt="Neural Xpert" height="28">
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column">
+        {% include "admin/sidebar_nav.html" %}
+    </div>
+</div>

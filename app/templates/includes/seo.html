@@ -21,3 +21,7 @@
     {% if og_image %}
     <meta name="twitter:image" content="{{ og_image }}">
     {% endif %}
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Neural Xpert","url":"{{ request.url_root }}"}</script>
+    {% if og_type == 'article' %}
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"{{ seo_title }}","description":"{{ meta_description }}"}</script>
+    {% endif %}

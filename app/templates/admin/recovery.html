@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+{% block auth %}
+{% set step = 4 %}
+<form class="auth-card" method="post" action="{{ url_for('admin.recovery') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% include "admin/auth_head.html" %}
+    <h1>Save your recovery codes</h1>
+    <p class="auth-lead">Store these somewhere safe. Each code works once if you lose access to Google Authenticator. They will not be shown again.</p>
+    <div class="auth-codes">{% for code in codes %}<span>{{ code }}</span>{% endfor %}</div>
+    <button class="auth-submit" type="submit">I have saved these codes</button>
+</form>
+{% endblock %}

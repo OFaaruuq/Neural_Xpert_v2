@@ -44,7 +44,9 @@
                 <div class="col-lg-8">
                     <div class="th-blog blog-single mb-0">
                         <div class="blog-content">
+                            {% if study.content and study.content|trim != '<p>' ~ study.summary ~ '</p>' %}
                             {{ study.content|sanitize_html|safe }}
+                            {% endif %}
                             {% if study.challenge %}<h3 class="blog-title h4">Challenge</h3><p class="blog-desc">{{ study.challenge }}</p>{% endif %}
                             {% if study.solution %}<h3 class="blog-title h4">Solution</h3><p class="blog-desc">{{ study.solution }}</p>{% endif %}
                             {% if study.architecture %}<h3 class="blog-title h4">Architecture</h3><p class="blog-desc">{{ study.architecture }}</p>{% endif %}

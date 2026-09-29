@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<p class="mb-2"><a href="{{ url_for('admin.careers') }}">Careers</a></p>
+<h1 class="h3">{{ job.title or "New opening" }}</h1>
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<form method="post" style="max-width:820px">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="form-label">Title <input class="form-control" name="title" value="{{ request.form.get('title', job.title or '') }}" required></label>
+    <label class="form-label mt-3">Slug <input class="form-control" name="slug" value="{{ request.form.get('slug', job.slug or '') }}"></label>
+    <label class="form-label mt-3">Department <input class="form-control" name="department" value="{{ request.form.get('department', job.department or '') }}"></label>
+    <label class="form-label mt-3">Location <input class="form-control" name="location" value="{{ request.form.get('location', job.location or '') }}"></label>
+    <label class="form-label mt-3">Type <input class="form-control" name="employment_type" value="{{ request.form.get('employment_type', job.employment_type or '') }}"></label>
+    <label class="form-label mt-3">Description <textarea class="form-control" name="description" rows="6">{{ request.form.get('description', job.description or '') }}</textarea></label>
+    <label class="form-label mt-3">Requirements <textarea class="form-control" name="requirements" rows="6">{{ request.form.get('requirements', job.requirements or '') }}</textarea></label>
+    <label class="form-label mt-3">Responsibilities <textarea class="form-control" name="responsibilities" rows="4">{{ job.responsibilities or '' }}</textarea></label>
+    <label class="form-label mt-3">Experience <textarea class="form-control" name="experience" rows="3">{{ job.experience or '' }}</textarea></label>
+    <label class="form-label mt-3">Workplace
+        <select class="form-select" name="workplace">
+            {% for item in ['', 'Remote', 'Hybrid', 'On-site'] %}<option value="{{ item }}" {% if job.workplace == item %}selected{% endif %}>{{ item or 'Select' }}</option>{% endfor %}
+        </select>
+    </label>
+    <label class="form-label mt-3">Status
+        <select class="form-select" name="status">
+            {% for item in statuses %}<option value="{{ item }}" {% if job.status == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+        </select>
+    </label>
+    {% if g.staff.has_any(['careers.edit']) %}
+    <button class="btn btn-primary mt-3" type="submit">Save</button>
+    {% endif %}
+</form>
+{% endblock %}

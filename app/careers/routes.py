@@ -14,7 +14,7 @@ bp = Blueprint("careers", __name__)
 
 @bp.route("/careers")
 def index():
-    jobs = Job.query.filter_by(status="published").order_by(Job.published_at.desc(), Job.id.desc()).all()
+    jobs = Job.query.filter(Job.status.in_(("published", "open"))).order_by(Job.published_at.desc(), Job.id.desc()).all()
     context = seo_for(
         "careers",
         "Neural Xpert | Careers",
@@ -26,7 +26,7 @@ def index():
 @bp.route("/careers/<slug>", methods=["GET", "POST"])
 @limiter.limit("8 per hour", methods=["POST"])
 def detail(slug):
-    job = Job.query.filter_by(slug=slug, status="published").first()
+    job = Job.query.filter(Job.slug == slug, Job.status.in_(("published", "open"))).first()
     if job is None:
         abort(404)
     errors = []
