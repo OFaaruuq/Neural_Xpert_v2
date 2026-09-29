@@ -8920,6 +8920,25 @@ ol.widget_recent_comments,
   height: 64px;
   object-fit: contain;
 }
+@media (hover: hover) and (min-width: 1200px) {
+  .header-logo a {
+    display: block;
+    width: 48px;
+    height: 48px;
+    overflow: hidden;
+    transition: width 0.35s ease;
+  }
+  .header-logo img.nx-logo {
+    width: auto;
+    height: 48px;
+    max-width: none;
+    max-height: none;
+  }
+  .header-logo a:hover,
+  .header-logo a:focus-visible {
+    width: 246px;
+  }
+}
 @media (max-width: 575px) {
   .header-logo img.nx-logo {
     max-width: min(156px, 48vw);
