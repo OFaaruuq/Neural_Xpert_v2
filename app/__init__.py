@@ -5,7 +5,7 @@ from flask import Flask, abort, redirect, render_template, request, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.extensions import csrf, db, limiter, mail, migrate
-from app.services import configure_logging, sanitize_html, seo_for
+from app.services import configure_logging, plain_excerpt, sanitize_html, seo_for
 from config import CONFIGS
 
 
@@ -37,6 +37,7 @@ def create_app(config_name=None):
     mail.init_app(app)
     configure_logging(app)
     app.jinja_env.filters["sanitize_html"] = sanitize_html
+    app.jinja_env.filters["plain_excerpt"] = plain_excerpt
 
     from app import models  # noqa: F401
     from app.admin.routes import bp as admin_bp

@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from app.extensions import db, limiter
 from app.mailer import notify_application
 from app.models import Job, JobApplication
-from app.services import seo_for
+from app.services import plain_excerpt, seo_for
 
 bp = Blueprint("careers", __name__)
 
@@ -18,7 +18,7 @@ def index():
     context = seo_for(
         "careers",
         "Neural Xpert | Careers",
-        "Build enterprise AI with Neural Xpert. Open roles are published here and shared with candidates.",
+        "Open roles at Neural Xpert for engineers, architects, and consultants who build production enterprise AI. Apply with a CV or write to the team.",
     )
     return render_template("main/careers.html", jobs=jobs, **context)
 
@@ -35,9 +35,64 @@ def detail(slug):
         if not errors:
             flash("Thank you. Your application has been received.", "success")
             return redirect(url_for("careers.detail", slug=job.slug))
-    context = seo_for("career", f"{job.title} | Neural Xpert Careers", job.description[:300])
+    summary = plain_excerpt(job.description, 160)
+    context = seo_for("career", f"{job.title} | Neural Xpert Careers", summary or f"Apply for {job.title} at Neural Xpert.")
     context["robots"] = "index, follow"
-    return render_template("careers/detail.html", job=job, errors=errors, **context)
+    return render_template(
+        "careers/detail.html",
+        job=job,
+        errors=errors,
+        posting=_job_posting(job, plain_excerpt(job.description, 4000) or summary),
+        **context,
+    )
+
+
+def _job_posting(job, summary):
+    posted = job.published_at or job.created_at
+    data = {
+        "@context": "https://schema.org",
+        "@type": "JobPosting",
+        "title": job.title,
+        "description": summary or job.title,
+        "hiringOrganization": {
+            "@type": "Organization",
+            "name": "Neural Xpert",
+            "sameAs": current_app.config["SITE_URL"].rstrip("/"),
+        },
+        "directApply": True,
+        "url": request.base_url,
+    }
+    if posted is not None:
+        data["datePosted"] = posted.date().isoformat()
+    employment = _employment_type(job.employment_type)
+    if employment:
+        data["employmentType"] = employment
+    place = (job.location or "").strip()
+    remote = (job.workplace or "").lower() == "remote" or place.lower() == "remote"
+    if remote:
+        data["jobLocationType"] = "TELECOMMUTE"
+    if place and place.lower() != "remote":
+        data["jobLocation"] = {
+            "@type": "Place",
+            "address": {"@type": "PostalAddress", "addressLocality": place},
+        }
+    if job.closing_on:
+        data["validThrough"] = job.closing_on.isoformat()
+    return data
+
+
+def _employment_type(value):
+    key = (value or "").strip().lower().replace("_", "-")
+    return {
+        "full-time": "FULL_TIME",
+        "full time": "FULL_TIME",
+        "part-time": "PART_TIME",
+        "part time": "PART_TIME",
+        "contract": "CONTRACTOR",
+        "contractor": "CONTRACTOR",
+        "internship": "INTERN",
+        "temporary": "TEMPORARY",
+    }.get(key)
 
 
 def _save_application(job):

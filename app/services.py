@@ -22,6 +22,16 @@ _JS_URLS = re.compile(
 )
 
 
+def plain_excerpt(value, limit=220):
+    text = re.sub(r"<[^>]+>", " ", value or "")
+    text = text.replace("&nbsp;", " ")
+    text = re.sub(r"\s+", " ", text).strip()
+    if len(text) <= limit:
+        return text
+    cut = text[:limit].rsplit(" ", 1)[0]
+    return (cut or text[:limit]).rstrip(".,;:") + "…"
+
+
 def sanitize_html(value):
     text = value or ""
     text = _BLOCK_TAGS.sub("", text)

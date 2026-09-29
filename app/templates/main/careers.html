@@ -1,9 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<!--==============================
-    Breadcumb
-============================== -->
-    <div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename='img/normal/about-neural-xpert.jpg') }}">
+    <div class="breadcumb-wrapper nx-hero nx-career" data-bg-src="{{ url_for('static', filename='img/normal/about-neural-xpert.jpg') }}">
         <div class="container">
             <div class="breadcumb-content">
                 <h1 class="breadcumb-title text-anime-style-3">Careers</h1>
@@ -16,42 +13,74 @@
     </div>
     <section class="space overflow-hidden">
         <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-xl-8 text-center">
-                    <div class="title-area">
-                        <span class="sub-title style2">Careers</span>
-                        <h2 class="sec-title">Build Enterprise AI With Neural Xpert</h2>
+            <div class="row gy-4 align-items-end">
+                <div class="col-xl-8">
+                    <div class="title-area mb-20">
+                        <span class="sub-title style2">Join the team</span>
+                        <h2 class="sec-title">Build enterprise AI with Neural Xpert</h2>
                     </div>
-                    <p class="box-text">Neural Xpert works with engineers, architects, and consultants who design, build, secure, and operate production AI for enterprises.</p>
-                    <p class="box-text">Open roles are shared directly with candidates. To talk with the team about joining Neural Xpert, write to <a href="mailto:partnerships@neuralxpert.com">partnerships@neuralxpert.com</a>.</p>
-                    <div class="btn-group mt-40">
-                        <a href="{{ url_for('contact.index') }}" class="th-btn">Contact the Team <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                    <p class="box-text mb-0">Neural Xpert works with engineers, architects, and consultants who design, build, secure, and operate production AI for enterprises. Open roles are listed on this page. Apply from the role, or write to the team if the fit is not listed yet.</p>
+                </div>
+                <div class="col-xl-4">
+                    <div class="btn-group">
+                        {% if jobs %}
+                        <a href="#open-roles" class="th-btn">View open roles <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                        {% else %}
+                        <a href="mailto:partnerships@neuralxpert.com" class="th-btn">Write to the team <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                        {% endif %}
                     </div>
+                </div>
+            </div>
+            <div class="row gy-4 mt-10">
+                <div class="col-md-4">
+                    <article class="nx-note">
+                        <h3>The work</h3>
+                        <p>Generative AI, AI agents, enterprise RAG, machine learning, intelligent automation, and the security and operations required to run them in production.</p>
+                    </article>
+                </div>
+                <div class="col-md-4">
+                    <article class="nx-note">
+                        <h3>How to apply</h3>
+                        <p>Open a role and send your name, email, and a CV in PDF, DOC, or DOCX. The team reviews applications sent from the role page.</p>
+                    </article>
+                </div>
+                <div class="col-md-4">
+                    <article class="nx-note">
+                        <h3>Not listed yet</h3>
+                        <p>Write to <a href="mailto:partnerships@neuralxpert.com">partnerships@neuralxpert.com</a> with the kind of work you want to do. The team will reply when a relevant role opens.</p>
+                    </article>
                 </div>
             </div>
         </div>
     </section>
-    {% if jobs %}
-    <section class="space-bottom overflow-hidden">
+    <section class="space-bottom overflow-hidden" id="open-roles">
         <div class="container">
-            <div class="row gy-4 justify-content-center">
+            <div class="title-area">
+                <span class="sub-title style2">Openings</span>
+                <h2 class="sec-title">{% if jobs %}Open roles{% else %}No open roles right now{% endif %}</h2>
+            </div>
+            {% if jobs %}
+            <div class="row gy-4">
                 {% for job in jobs %}
                 <div class="col-lg-6">
-                    <div class="service-card h-100">
-                        <div class="box-content">
-                            <div class="blog-meta">
-                                <a href="{{ url_for('careers.detail', slug=job.slug) }}">{{ job.department }}</a>
-                                <a href="{{ url_for('careers.detail', slug=job.slug) }}">{{ job.location }}</a>
-                            </div>
-                            <h3 class="box-title"><a href="{{ url_for('careers.detail', slug=job.slug) }}">{{ job.title }}</a></h3>
-                            <p class="box-text">{{ job.employment_type }}</p>
-                            <a href="{{ url_for('careers.detail', slug=job.slug) }}" class="th-btn th-border">View Role <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
-                        </div>
-                    </div>
+                    <article class="nx-role">
+                        <ul class="nx-role-meta">
+                            {% if job.department %}<li>{{ job.department }}</li>{% endif %}
+                            {% if job.location %}<li>{{ job.location }}</li>{% endif %}
+                            {% if job.workplace and job.workplace != job.location %}<li>{{ job.workplace }}</li>{% endif %}
+                            {% if job.employment_type %}<li>{{ job.employment_type }}</li>{% endif %}
+                        </ul>
+                        <h3><a href="{{ url_for('careers.detail', slug=job.slug) }}">{{ job.title }}</a></h3>
+                        {% set summary = job.description|plain_excerpt(220) %}
+                        {% if summary %}<p>{{ summary }}</p>{% endif %}
+                        <a href="{{ url_for('careers.detail', slug=job.slug) }}" class="th-btn th-border">View role <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></a>
+                    </article>
                 </div>
                 {% endfor %}
             </div>
+            {% else %}
+            <p class="box-text mb-0">There are no open roles on this page right now. Write to <a href="mailto:partnerships@neuralxpert.com">partnerships@neuralxpert.com</a> and the team will keep your note for a relevant opening.</p>
+            {% endif %}
         </div>
     </section>
-    {% endif %}
 {% endblock %}

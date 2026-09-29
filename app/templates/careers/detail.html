@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
+{% block structured_data %}
+<script type="application/ld+json">{{ posting|tojson }}</script>
+{% endblock %}
 {% block content %}
-    <div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename='img/normal/about-neural-xpert.jpg') }}">
+    <div class="breadcumb-wrapper nx-hero nx-career" data-bg-src="{{ url_for('static', filename='img/normal/about-neural-xpert.jpg') }}">
         <div class="container">
             <div class="breadcumb-content">
                 <h1 class="breadcumb-title text-anime-style-3">{{ job.title }}</h1>
@@ -16,31 +19,65 @@
         <div class="container">
             <div class="row gy-40">
                 <div class="col-xl-7">
-                    <div class="title-area">
-                        <span class="sub-title style2">{{ job.department }} · {{ job.location }} · {{ job.employment_type }}</span>
-                        <h2 class="sec-title">{{ job.title }}</h2>
+                    <ul class="nx-role-meta mb-30">
+                        {% if job.department %}<li>{{ job.department }}</li>{% endif %}
+                        {% if job.location %}<li>{{ job.location }}</li>{% endif %}
+                        {% if job.workplace and job.workplace != job.location %}<li>{{ job.workplace }}</li>{% endif %}
+                        {% if job.employment_type %}<li>{{ job.employment_type }}</li>{% endif %}
+                        {% if job.closing_on %}<li>Apply by {{ job.closing_on.strftime('%B %d, %Y') }}</li>{% endif %}
+                    </ul>
+                    <div class="nx-role-copy">
+                        <h2>About this role</h2>
+                        <div class="box-text">{{ job.description|sanitize_html|safe }}</div>
+                        {% if job.responsibilities %}
+                        <h2>What you will do</h2>
+                        <div class="box-text">{{ job.responsibilities|sanitize_html|safe }}</div>
+                        {% endif %}
+                        {% if job.requirements %}
+                        <h2>Requirements</h2>
+                        <div class="box-text">{{ job.requirements|sanitize_html|safe }}</div>
+                        {% endif %}
+                        {% if job.experience %}
+                        <h2>Experience</h2>
+                        <div class="box-text">{{ job.experience|sanitize_html|safe }}</div>
+                        {% endif %}
                     </div>
-                    <div class="box-text">{{ job.description|sanitize_html|safe }}</div>
-                    {% if job.requirements %}
-                    <h3 class="h4 mt-40">Requirements</h3>
-                    <div class="box-text">{{ job.requirements|sanitize_html|safe }}</div>
-                    {% endif %}
+                    <p class="box-text mt-40 mb-0"><a href="{{ url_for('careers.index') }}">Back to open roles</a></p>
                 </div>
                 <div class="col-xl-5">
-                    <form action="{{ url_for('careers.detail', slug=job.slug) }}" method="POST" enctype="multipart/form-data" class="contact-form">
+                    <form action="{{ url_for('careers.detail', slug=job.slug) }}" method="POST" enctype="multipart/form-data" class="contact-form nx-apply">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <h3 class="title">Apply for this role</h3>
+                        <h2>Apply for this role</h2>
+                        <p class="box-text">Send your details and a CV. PDF, DOC, and DOCX files up to 5 MB are accepted.</p>
                         {% with messages = get_flashed_messages(with_categories=true) %}
                         {% for category, message in messages %}<p class="form-messages success">{{ message }}</p>{% endfor %}
                         {% endwith %}
                         {% for error in errors %}<p class="form-messages error">{{ error }}</p>{% endfor %}
                         <div class="row">
-                            <div class="form-group col-12"><input type="text" class="form-control" name="name" placeholder="Full Name" required></div>
-                            <div class="form-group col-12"><input type="email" class="form-control" name="email" placeholder="Email" required></div>
-                            <div class="form-group col-12"><input type="tel" class="form-control" name="phone" placeholder="Phone Number"></div>
-                            <div class="form-group col-12"><textarea name="cover_letter" rows="4" class="form-control" placeholder="Cover letter"></textarea></div>
-                            <div class="form-group col-12"><input type="file" class="form-control" name="cv" accept=".pdf,.doc,.docx" required></div>
-                            <div class="form-btn col-12"><button class="th-btn" type="submit">Submit Application <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></button></div>
+                            <div class="form-group col-12">
+                                <label for="applicant-name">Full name</label>
+                                <input id="applicant-name" type="text" class="form-control" name="name" value="{{ request.form.get('name', '') }}" autocomplete="name" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="applicant-email">Email</label>
+                                <input id="applicant-email" type="email" class="form-control" name="email" value="{{ request.form.get('email', '') }}" autocomplete="email" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="applicant-phone">Phone</label>
+                                <input id="applicant-phone" type="tel" class="form-control" name="phone" value="{{ request.form.get('phone', '') }}" autocomplete="tel">
+                            </div>
+                            <div class="form-group col-12">
+                                <label for="applicant-letter">Cover letter</label>
+                                <textarea id="applicant-letter" name="cover_letter" rows="5" class="form-control">{{ request.form.get('cover_letter', '') }}</textarea>
+                            </div>
+                            <div class="form-group col-12">
+                                <label for="applicant-cv">CV</label>
+                                <input id="applicant-cv" type="file" class="form-control" name="cv" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
+                                <p class="nx-file-hint">PDF, DOC, or DOCX. 5 MB maximum.</p>
+                            </div>
+                            <div class="form-btn col-12">
+                                <button class="th-btn" type="submit">Submit application <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></button>
+                            </div>
                         </div>
                     </form>
                 </div>

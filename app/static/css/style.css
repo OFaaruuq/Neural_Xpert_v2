@@ -34881,4 +34881,132 @@ span.select2-selection.select2-selection--single:focus {
   justify-content: center;
 }
 
+.nx-note,
+.nx-role,
+.nx-apply {
+  height: 100%;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 28px 24px;
+}
+.nx-note h3,
+.nx-role h3,
+.nx-apply h2,
+.nx-role-copy h2 {
+  margin: 0 0 10px;
+  color: #0b1220;
+  font-size: 22px;
+  line-height: 1.3;
+}
+.nx-role-copy h2 {
+  margin-top: 36px;
+  font-size: 28px;
+}
+.nx-role-copy h2:first-child {
+  margin-top: 0;
+}
+.nx-note p,
+.nx-role p,
+.nx-apply .box-text {
+  margin: 0;
+  color: #3d4b63;
+  line-height: 1.6;
+}
+.nx-role {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.nx-role p {
+  flex: 1;
+}
+.nx-role h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+.nx-role .th-btn {
+  align-self: flex-start;
+  margin-top: 6px;
+}
+.nx-role-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nx-role-meta li {
+  border: 1px solid #d7e3f5;
+  border-radius: 999px;
+  padding: 4px 12px;
+  color: #3d4b63;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.nx-apply h2 {
+  font-size: 28px;
+}
+.nx-apply .box-text {
+  margin-bottom: 18px;
+}
+.nx-apply label {
+  display: block;
+  margin-bottom: 6px;
+  color: #0b1220;
+  font-size: 14px;
+  font-weight: 650;
+}
+.nx-apply .form-control,
+.nx-apply textarea.form-control {
+  height: auto;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid #d7e3f5;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.nx-apply textarea.form-control {
+  min-height: 140px;
+}
+.nx-apply input[type="file"].form-control {
+  padding: 10px 12px;
+}
+.nx-file-hint {
+  margin: 8px 0 0;
+  color: #5b6b86;
+  font-size: 13px;
+  line-height: 1.4;
+}
+@media (min-width: 1200px) {
+  .nx-apply {
+    position: sticky;
+    top: 110px;
+  }
+}
+@media (max-width: 767px) {
+  .nx-note,
+  .nx-role,
+  .nx-apply {
+    padding: 22px 18px;
+  }
+  .nx-role h3,
+  .nx-apply h2,
+  .nx-role-copy h2 {
+    font-size: 26px;
+  }
+  .nx-career .breadcumb-title {
+    font-size: 32px;
+    overflow-wrap: anywhere;
+  }
+  .nx-role .th-btn,
+  .nx-apply .th-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /*# sourceMappingURL=style.css.map */
