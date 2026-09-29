@@ -14,7 +14,7 @@ MAX_BYTES = 2_000_000
 LOGO_SLOTS = (
     ("logo_public", "Public header and mobile menu", "Shown in the navbar on every public page.", "img/logo-neural-xpert.png"),
     ("logo_footer", "Public footer", "Leave empty to use the public header logo.", "img/logo-neural-xpert.png"),
-    ("logo_icon", "Homepage mark", "The small mark in the homepage scroll badge.", "img/logo-icon.svg"),
+    ("logo_icon", "Homepage mark", "The small mark in the homepage scroll badge.", "img/logo-icon.png"),
     ("logo_favicon", "Browser icon", "Replaces the favicon in the browser tab.", "img/favicons/favicon-32x32.png"),
     ("logo_admin", "Admin logo", "Shown on the admin bar and the sign-in page. Leave empty to use the public header logo.", "img/logo-neural-xpert.png"),
 )
@@ -31,7 +31,7 @@ def brand_urls():
     return {
         "header": _url(public, "img/logo-neural-xpert.png"),
         "footer": _url(footer, "img/logo-neural-xpert.png"),
-        "icon": _url(icon, "img/logo-icon.svg"),
+        "icon": _url(icon, "img/logo-icon.png"),
         "admin": _url(admin, "img/logo-neural-xpert.png"),
         "favicon": _url(favicon, "img/favicons/favicon-32x32.png"),
         "favicon_custom": bool(favicon and STORED.fullmatch(favicon)),

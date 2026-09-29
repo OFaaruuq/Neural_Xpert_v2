@@ -100,7 +100,8 @@ html.nx-collapsed .nx-app,
   padding: 0 18px 0 22px;
   border-right: 1px solid #E0E0E0;
 }
-.nx-brand img { height: 36px; width: auto; display: block; }
+.nx-brand img.nx-wordmark { display: block; width: auto; height: auto; max-height: 36px; max-width: min(168px, 42vw); object-fit: contain; }
+.nx-brand img.nx-mark { display: none; width: 32px; height: 32px; object-fit: contain; }
 @media (min-width: 1280px) {
   .nx-brand { width: var(--nx-side); flex-basis: var(--nx-side); }
 }
@@ -206,8 +207,10 @@ html.nx-collapsed .nx-brand,
   padding-left: 12px;
   padding-right: 12px;
 }
-html.nx-collapsed .nx-brand img,
-.nx-app.is-collapsed .nx-brand img { height: 28px; }
+html.nx-collapsed .nx-brand img.nx-wordmark,
+.nx-app.is-collapsed .nx-brand img.nx-wordmark { display: none; }
+html.nx-collapsed .nx-brand img.nx-mark,
+.nx-app.is-collapsed .nx-brand img.nx-mark { display: block; }
 html.nx-collapsed aside.nx-side .nx-nav-label,
 .nx-app.is-collapsed aside.nx-side .nx-nav-label { display: none; }
 html.nx-collapsed aside.nx-side .nav-link,
@@ -447,9 +450,13 @@ a.card.nx-kpi:hover { border-color: #7B5DFF; color: inherit; }
     padding-right: 8px;
     border-right: 0;
   }
-  .nx-brand img,
-  html.nx-collapsed .nx-brand img,
-  .nx-app.is-collapsed .nx-brand img { height: 28px; }
+  .nx-brand img.nx-wordmark,
+  html.nx-collapsed .nx-brand img.nx-wordmark,
+  .nx-app.is-collapsed .nx-brand img.nx-wordmark { display: block; max-height: 28px; height: auto; }
+  .nx-brand img.nx-mark,
+  html.nx-collapsed .nx-brand img.nx-mark,
+  .nx-app.is-collapsed .nx-brand img.nx-mark { display: none; }
+  .offcanvas-header img { max-width: calc(100% - 48px); height: auto; max-height: 28px; }
   .nx-search kbd, .nx-profile-copy { display: none; }
   .nx-main { padding: 16px; }
   html.nx-collapsed .nx-app,
@@ -505,7 +512,7 @@ a.card.nx-kpi:hover { border-color: #7B5DFF; color: inherit; }
   color: var(--ink);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
 }
-.auth-logo { display: block; height: 36px; width: auto; }
+.auth-logo { display: block; height: 36px; width: auto; max-width: 100%; object-fit: contain; }
 .auth-kicker {
   margin: 0;
   color: var(--accent);

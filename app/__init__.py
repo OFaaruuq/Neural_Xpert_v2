@@ -143,7 +143,7 @@ def create_app(config_name=None):
             return {
                 "header": logo,
                 "footer": logo,
-                "icon": url_for("static", filename="img/logo-icon.svg"),
+                "icon": url_for("static", filename="img/logo-icon.png"),
                 "admin": logo,
                 "favicon": url_for("static", filename="img/favicons/favicon-32x32.png"),
                 "favicon_custom": False,

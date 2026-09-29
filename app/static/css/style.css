@@ -8889,35 +8889,49 @@ ol.widget_recent_comments,
 .header-logo {
   padding-top: 12px;
   padding-bottom: 12px;
-  /* Extra small devices */
 }
 .header-logo img.nx-logo,
 .mobile-logo img.nx-logo,
 .about-logo img.nx-logo {
   display: block;
-  height: 48px;
   width: auto;
-  max-width: 240px;
+  height: auto;
+  max-width: min(240px, 52vw);
+  max-height: 48px;
+  object-fit: contain;
 }
 .about-logo img.nx-logo {
-  height: 36px;
+  max-width: min(210px, 100%);
+  max-height: 40px;
   background: #fff;
   border-radius: 8px;
   padding: 6px 10px;
-  box-sizing: content-box;
+  box-sizing: border-box;
 }
 .th-menu-wrapper .mobile-logo img.nx-logo {
-  height: 44px;
+  max-width: min(210px, 68vw);
+  max-height: 44px;
   margin-left: auto;
   margin-right: auto;
 }
+.hero-1 .discount-wrapp .logo-img img {
+  display: block;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
 @media (max-width: 575px) {
-  .header-logo {
-    max-width: 150px;
+  .header-logo img.nx-logo {
+    max-width: min(156px, 48vw);
+    max-height: 36px;
   }
   .header-logo .icon-masking .mask-icon {
     -webkit-mask-size: cover;
             mask-size: cover;
+  }
+  .hero-1 .discount-wrapp .logo-img img {
+    width: 52px;
+    height: 52px;
   }
 }
 
@@ -34725,15 +34739,21 @@ span.select2-selection.select2-selection--single:focus {
 }
 
 #blog-sec .blog-image {
-  width: 387px;
-  max-width: none;
+  width: 100%;
+  max-width: 387px;
 }
 #blog-sec .blog-image img {
-  width: 387px;
-  max-width: none;
-  height: 734px;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 734px;
   object-fit: cover;
   object-position: center;
+}
+@media (max-width: 1399px) {
+  #blog-sec .blog-image {
+    display: none;
+  }
 }
 
 .footer-layout1 .footer-top .box-title,
@@ -34817,6 +34837,42 @@ span.select2-selection.select2-selection--single:focus {
 .counter-card .box-number.nx-label {
   font-size: 32px;
   line-height: 1.2;
+}
+@media (max-width: 767px) {
+  .hero-style1 {
+    padding: 48px 20px 32px;
+  }
+  .hero-style1 .hero-text {
+    margin-bottom: 28px;
+  }
+  .hero-style1 .th-btn {
+    margin: 6px 4px;
+  }
+}
+@media (max-width: 575px) {
+  .footer-layout1 .footer-top .box-title {
+    font-size: 32px;
+    line-height: 1.2;
+  }
+  .header-button .th-menu-toggle {
+    margin-left: 0;
+  }
+}
+@media (max-width: 1599px) {
+  .hero-1 .discount-wrapp {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    margin: 12px 0 0;
+  }
+}
+@media (max-width: 1199px) {
+  .header-layout1 .menu-area .row {
+    flex-wrap: nowrap;
+  }
+  .header-layout1 .menu-area .row > .col-auto:nth-child(2) {
+    display: none;
+  }
 }
 .download-area .integration-card .box-icon {
   background: #fff;
