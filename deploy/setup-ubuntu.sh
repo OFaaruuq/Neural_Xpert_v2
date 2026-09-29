@@ -57,6 +57,8 @@ if [[ ! -f "${SOURCE_DIR}/migrations/env.py" || ! -d "${SOURCE_DIR}/migrations/v
   exit 1
 fi
 
+COMMIT="$(git -C "${SOURCE_DIR}" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+echo "Deploying commit ${COMMIT} from ${SOURCE_DIR}"
 echo "Copying the application to ${APP_DIR}..."
 install -d -m 755 "${APP_DIR}"
 rsync -a --delete \
@@ -69,6 +71,13 @@ rsync -a --delete \
   --exclude '.pytest_cache/' \
   --exclude '.env' \
   "${SOURCE_DIR}/" "${APP_DIR}/"
+
+if [[ ! -f "${APP_DIR}/app/static/img/logo-neural-xpert.png" ]] || ! grep -q "logo-neural-xpert.png" "${APP_DIR}/app/templates/includes/navbar.html"; then
+  echo "The new logo was not copied into ${APP_DIR}."
+  echo "The script copied ${SOURCE_DIR}, and that checkout is not the latest main."
+  echo "Run: cd ${SOURCE_DIR} && git pull origin main && git log -1 --oneline"
+  exit 1
+fi
 
 install -d -o www-data -g www-data -m 750 "${APP_DIR}/instance"
 install -d -o www-data -g www-data -m 750 "${APP_DIR}/instance/uploads"
