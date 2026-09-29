@@ -9,7 +9,7 @@ from flask import current_app, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.extensions import db
-from app.mailer import send_email
+from app.mailer import send_sign_in_code
 from app.models import LoginChallenge, StaffUser
 
 LOGIN_ERROR = "Email or password is incorrect."
@@ -129,16 +129,7 @@ def start_email_otp(staff):
     )
     db.session.add(challenge)
     db.session.commit()
-    sent = send_email(
-        subject="Your Neural Xpert sign-in code",
-        recipients=[staff.email],
-        body=(
-            "Your Neural Xpert admin sign-in code is "
-            f"{code}. It expires in {OTP_MINUTES} minutes.\n\n"
-            "After this code, sign-in asks for Google Authenticator.\n\n"
-            "If you did not try to sign in, ignore this email.\n"
-        ),
-    )
+    sent = send_sign_in_code(staff.email, code, OTP_MINUTES)
     if not sent and not current_app.config.get("ADMIN_OTP_ON_PAGE"):
         challenge.used = True
         db.session.commit()

@@ -1,8 +1,10 @@
 import os
 import re
+from html import escape
 
 from flask import current_app
 from flask_mail import Message
+from markupsafe import Markup
 
 from app.extensions import mail
 
@@ -17,17 +19,15 @@ CONTACT_SUBJECT = "We received your message"
 CONTACT_BODY = (
     "Hello {name},\n\n"
     "Thank you for contacting Neural Xpert. We have received your message "
-    "about {subject} and will reply to this email address.\n\n"
-    "Neural Xpert\n"
-    "https://www.neuralxpert.com\n"
+    "about {subject}, and a member of the team will reply to this email address.\n\n"
+    "Neural Xpert"
 )
 CAREER_SUBJECT = "We received your application for {job}"
 CAREER_BODY = (
     "Hello {name},\n\n"
     "Thank you for applying for {job} at Neural Xpert. "
     "We have received your application and will be in touch if your experience matches the role.\n\n"
-    "Neural Xpert\n"
-    "https://www.neuralxpert.com\n"
+    "Neural Xpert"
 )
 _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -164,6 +164,14 @@ def send_test_to(address):
         "Neural Xpert email test",
         [address],
         "This is a test from the Neural Xpert admin. Sign-in codes, contact messages, and career applications use this mailbox.\n",
+        html=_email_html(
+            "Email test",
+            "Neural Xpert can send mail from this mailbox.",
+            _paragraphs(
+                "This is a test from the Neural Xpert admin.\n\n"
+                "Sign-in codes, contact messages, and career applications use this mailbox."
+            ),
+        ),
     )
     if sent:
         return True, f"Test email sent to {address}."
@@ -205,7 +213,39 @@ def mail_recipient():
     )
 
 
-def send_email(subject, recipients, body, reply_to=None, attachments=None):
+def _site_url():
+    return (current_app.config.get("SITE_URL") or "https://www.neuralxpert.com").rstrip("/")
+
+
+def _paragraphs(text):
+    chunks = [part.strip() for part in re.split(r"\n\s*\n", text or "") if part.strip()]
+    style = "margin:0 0 14px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:1.55;color:#484848;"
+    return "".join(f'<p style="{style}">{escape(part).replace(chr(10), "<br>")}</p>' for part in chunks)
+
+
+def _details(rows):
+    cells = []
+    for label, value in rows:
+        cells.append(
+            "<tr>"
+            f'<td width="108" style="width:108px;padding:8px 16px 8px 0;font-family:Arial, Helvetica, sans-serif;font-size:13px;line-height:1.4;color:#8B8B8B;vertical-align:top;">{escape(label)}</td>'
+            f'<td style="padding:8px 0;font-family:Arial, Helvetica, sans-serif;font-size:15px;line-height:1.45;color:#06050B;">{escape(value or "—")}</td>'
+            "</tr>"
+        )
+    return f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">{"".join(cells)}</table>'
+
+
+def _email_html(title, preheader, inner):
+    template = current_app.jinja_env.get_template("email/message.html")
+    return template.render(
+        title=title,
+        preheader=preheader,
+        inner=Markup(inner),
+        site_url=_site_url(),
+    )
+
+
+def send_email(subject, recipients, body, reply_to=None, attachments=None, html=None):
     apply_mail_settings()
     current_app.extensions.pop("mail_last_error", None)
     if not current_app.config.get("MAIL_SERVER"):
@@ -219,6 +259,7 @@ def send_email(subject, recipients, body, reply_to=None, attachments=None):
         subject=subject,
         recipients=inbox,
         body=body,
+        html=html,
         sender=mail_sender(),
         reply_to=reply_to,
     )
@@ -233,6 +274,34 @@ def send_email(subject, recipients, body, reply_to=None, attachments=None):
         return False
 
 
+def send_sign_in_code(email, code, minutes):
+    plain = (
+        f"Your Neural Xpert admin sign-in code is {code}.\n"
+        f"It expires in {minutes} minutes.\n\n"
+        "After this code, sign-in asks for Google Authenticator.\n\n"
+        "If you did not try to sign in, you can ignore this email.\n"
+    )
+    code_style = (
+        "margin:8px 0 18px;padding:16px 12px;background:#F5F5F5;border-radius:12px;"
+        "font-family:Arial, Helvetica, sans-serif;font-size:32px;line-height:1.2;"
+        "letter-spacing:8px;font-weight:700;color:#06050B;text-align:center;"
+    )
+    inner = (
+        _paragraphs("Use this code to continue signing in to the Neural Xpert admin.")
+        + f'<p style="{code_style}">{escape(code)}</p>'
+        + _paragraphs(
+            f"It expires in {minutes} minutes. After this code, sign-in asks for Google Authenticator.\n\n"
+            "If you did not try to sign in, you can ignore this email."
+        )
+    )
+    return send_email(
+        subject="Your Neural Xpert sign-in code",
+        recipients=[email],
+        body=plain,
+        html=_email_html("Your sign-in code", f"Your Neural Xpert sign-in code is {code}.", inner),
+    )
+
+
 def notify_contact(submission):
     staff = (
         f"Name: {submission.name}\n"
@@ -242,20 +311,34 @@ def notify_contact(submission):
         f"Subject: {submission.subject}\n\n"
         f"{submission.message}\n"
     )
+    notice = (
+        _paragraphs("A new message arrived from the website contact form.")
+        + _details([
+            ("Name", submission.name),
+            ("Company", submission.company),
+            ("Email", submission.email),
+            ("Phone", submission.phone),
+            ("Subject", submission.subject),
+        ])
+        + _paragraphs(submission.message)
+    )
     send_email(
         subject=f"Neural Xpert contact: {submission.subject}",
         recipients=[mail_recipient()],
         body=staff,
         reply_to=submission.email,
+        html=_email_html("New contact request", f"{submission.name} wrote about {submission.subject}.", notice),
+    )
+    reply = _fill(
+        _saved("mail_contact_body") or CONTACT_BODY,
+        name=submission.name,
+        subject=submission.subject,
     )
     send_email(
         subject=_fill(_saved("mail_contact_subject") or CONTACT_SUBJECT, name=submission.name, subject=submission.subject),
         recipients=[submission.email],
-        body=_fill(
-            _saved("mail_contact_body") or CONTACT_BODY,
-            name=submission.name,
-            subject=submission.subject,
-        ),
+        body=reply,
+        html=_email_html("We received your message", "Thank you for contacting Neural Xpert.", _paragraphs(reply)),
     )
 
 
@@ -279,19 +362,33 @@ def notify_application(job, application):
                     handle.read(),
                 )
             )
+    notice = (
+        _paragraphs("A new application arrived from the careers page.")
+        + _details([
+            ("Role", job.title),
+            ("Name", application.name),
+            ("Email", application.email),
+            ("Phone", application.phone),
+            ("CV", "Attached" if attachments else "Not attached"),
+        ])
+        + _paragraphs(application.cover_letter or "")
+    )
     send_email(
         subject=f"Career application: {job.title}",
         recipients=[mail_recipient()],
         body=staff,
         reply_to=application.email,
         attachments=attachments,
+        html=_email_html("New career application", f"{application.name} applied for {job.title}.", notice),
+    )
+    reply = _fill(
+        _saved("mail_career_body") or CAREER_BODY,
+        name=application.name,
+        job=job.title,
     )
     send_email(
         subject=_fill(_saved("mail_career_subject") or CAREER_SUBJECT, name=application.name, job=job.title),
         recipients=[application.email],
-        body=_fill(
-            _saved("mail_career_body") or CAREER_BODY,
-            name=application.name,
-            job=job.title,
-        ),
+        body=reply,
+        html=_email_html("Application received", f"We received your application for {job.title}.", _paragraphs(reply)),
     )
