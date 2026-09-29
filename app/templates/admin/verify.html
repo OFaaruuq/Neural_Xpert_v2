@@ -4,20 +4,21 @@
 <form class="auth-card" method="post" action="{{ url_for('admin.verify') }}">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     {% include "admin/auth_head.html" %}
-    <h1>Enter the email code</h1>
-    <p class="auth-lead">We sent a 6-digit code to your staff inbox. It expires in 10 minutes.{% if not totp_enabled %} Google Authenticator is the next step.{% endif %}</p>
-    {% if dev_code %}<p class="auth-alert" role="status">Mail is not configured on this server. Your code is {{ dev_code }}.</p>{% endif %}
+    <h1>Check your email</h1>
+    <p class="auth-lead">A 6-digit code was sent to {{ inbox }}. It expires in 10 minutes.{% if totp_enabled %} Then enter the code from Google Authenticator.{% else %} Google Authenticator is set up on the next screen.{% endif %}</p>
+    {% if dev_code %}<p class="auth-note" role="status">Mail is not configured on this server. Your code is {{ dev_code }}.</p>{% endif %}
     {% if error %}<p class="auth-alert" role="alert">{{ error }}</p>{% endif %}
-    <label>Email code
+    <p class="auth-form-error" data-form-error hidden></p>
+    <label class="auth-label">Email code
         <span class="otp" data-otp>
             {% for n in range(1, 7) %}
-            <input class="otp-digit" inputmode="numeric" maxlength="1" autocomplete="{% if n == 1 %}one-time-code{% else %}off{% endif %}" aria-label="Email code digit {{ n }}">
+            <input class="otp-digit" inputmode="numeric" maxlength="1" autocomplete="{% if n == 1 %}one-time-code{% else %}off{% endif %}" aria-label="Email code digit {{ n }}" {% if n == 1 %}autofocus{% endif %}>
             {% endfor %}
             <input type="hidden" name="email_code">
         </span>
     </label>
     {% if totp_enabled %}
-    <label>Google Authenticator
+    <label class="auth-label">Google Authenticator
         <span class="otp" data-otp>
             {% for n in range(1, 7) %}
             <input class="otp-digit" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="Authenticator digit {{ n }}">
@@ -27,7 +28,7 @@
     </label>
     <details class="auth-details">
         <summary>Use a recovery code instead</summary>
-        <label>Recovery code <input name="recovery_code" autocomplete="off" spellcheck="false"></label>
+        <label class="auth-label">Recovery code <input name="recovery_code" autocomplete="off" spellcheck="false" placeholder="Enter one saved code"></label>
     </details>
     {% endif %}
     <button class="auth-submit" type="submit">Verify</button>

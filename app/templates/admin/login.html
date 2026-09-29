@@ -5,15 +5,15 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     {% include "admin/auth_head.html" %}
     <h1>Sign in</h1>
-    <p class="auth-lead">Use your staff email and password. We will email a code, then ask for Google Authenticator.</p>
+    <p class="auth-lead">Enter the staff email and password. The next screen asks for the email code.</p>
     {% if error %}<p class="auth-alert" role="alert">{{ error }}</p>{% endif %}
-    <label>Email
-        <input type="email" name="email" autocomplete="username" placeholder="name@neuralxpert.com" required>
+    <label class="auth-label">Email
+        <input type="email" name="email" autocomplete="username" placeholder="name@neuralxpert.com" value="{{ email or '' }}" required autofocus {% if error %}aria-invalid="true"{% endif %}>
     </label>
-    <label>Password
+    <label class="auth-label">Password
         <span class="auth-field">
-            <input type="password" name="password" autocomplete="current-password" required>
-            <button class="auth-reveal" type="button" data-reveal>Show</button>
+            <input type="password" name="password" autocomplete="current-password" required {% if error %}aria-invalid="true"{% endif %}>
+            <button class="auth-reveal" type="button" data-reveal aria-pressed="false">Show</button>
         </span>
     </label>
     <button class="auth-submit" type="submit">Continue</button>

@@ -117,14 +117,24 @@ def dashboard():
     return _render("admin/dashboard.html", title="Dashboard", board=load_board())
 
 
+def _mask_email(email):
+    name, _, domain = (email or "").partition("@")
+    if not name or not domain:
+        return email or ""
+    visible = name[:2] if len(name) > 2 else name[:1]
+    return f"{visible}{'•' * max(1, len(name) - len(visible))}@{domain}"
+
+
 @bp.route("/login", methods=["GET", "POST"])
 @limiter.limit("8 per minute", methods=["POST"])
 def login():
     if current_staff():
         return redirect(url_for("admin.dashboard"))
     error = ""
+    entered = ""
     if request.method == "POST":
-        email = normalize_email(request.form.get("email"))
+        entered = (request.form.get("email") or "").strip()
+        email = normalize_email(entered)
         password = request.form.get("password") or ""
         staff = StaffUser.query.filter_by(email=email).first() if email else None
         if staff is None or not staff.is_active or account_is_locked(staff) or not check_password(staff, password):
@@ -136,7 +146,7 @@ def login():
                 error = "The sign-in code could not be emailed. Try again in a moment."
             else:
                 return redirect(url_for("admin.verify"))
-    return _render("admin/login.html", title="Sign in", error=error)
+    return _render("admin/login.html", title="Sign in", error=error, email=entered)
 
 
 @bp.route("/verify", methods=["GET", "POST"])
@@ -171,6 +181,7 @@ def verify():
         title="Verify sign-in",
         error=error,
         totp_enabled=staff.totp_enabled,
+        inbox=_mask_email(staff.email),
         dev_code=session.get("login_dev_code", ""),
     )
 

@@ -266,6 +266,55 @@ systemctl enable neuralxpert
 systemctl restart neuralxpert
 
 echo "Installing the Nginx site..."
+CERT_DIR="/etc/letsencrypt/live/${DOMAIN}"
+if [[ -f "${CERT_DIR}/fullchain.pem" && -f "${CERT_DIR}/privkey.pem" ]]; then
+cat > /etc/nginx/sites-available/neuralxpert <<NGINX
+server {
+    listen 80;
+    server_name ${DOMAIN} www.${DOMAIN};
+    server_tokens off;
+    client_max_body_size 8m;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+
+    location / {
+        return 301 https://\$host\$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    server_name ${DOMAIN} www.${DOMAIN};
+    server_tokens off;
+    ssl_certificate ${CERT_DIR}/fullchain.pem;
+    ssl_certificate_key ${CERT_DIR}/privkey.pem;
+    client_max_body_size 8m;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+
+    location /static/ {
+        alias ${APP_DIR}/app/static/;
+        expires 7d;
+        add_header Cache-Control "public" always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options SAMEORIGIN always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_redirect off;
+    }
+}
+NGINX
+else
 cat > /etc/nginx/sites-available/neuralxpert <<NGINX
 server {
     listen 80;
@@ -295,6 +344,7 @@ server {
     }
 }
 NGINX
+fi
 
 ln -sfn /etc/nginx/sites-available/neuralxpert /etc/nginx/sites-enabled/neuralxpert
 rm -f /etc/nginx/sites-enabled/default

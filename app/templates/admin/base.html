@@ -90,10 +90,17 @@
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
     {% else %}
     <main class="auth-screen">
-        <div class="auth-wrap">
-            {% include "admin/flashes.html" %}
-            {% block auth %}{% endblock %}
-            <p class="auth-legal">Authorized Neural Xpert staff only.</p>
+        <div class="auth-shell">
+            <aside class="auth-aside">
+                <p class="auth-kicker">Neural Xpert</p>
+                <h2>Staff sign-in</h2>
+                <p>Use your password, the code sent to your inbox, and Google Authenticator.</p>
+            </aside>
+            <div class="auth-wrap">
+                {% include "admin/flashes.html" %}
+                {% block auth %}{% endblock %}
+                <p class="auth-legal">Authorized Neural Xpert staff only.</p>
+            </div>
         </div>
     </main>
     <script src="{{ url_for('static', filename='js/admin-auth.js') }}"></script>
