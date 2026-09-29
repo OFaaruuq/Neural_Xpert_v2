@@ -31,8 +31,9 @@ def main():
     app = create_app(config_name)
     with app.app_context():
         staff, password, created = issue_staff_password(email)
+        account = staff.email
     action = "created" if created else "updated"
-    print(f"Staff account {action} for {staff.email}")
+    print(f"Staff account {action} for {account}")
     print(f"Temporary password: {password}")
     print("Sign in at /admin/login. This password is shown only once.")
     print("The email code and Google Authenticator are still required.")
