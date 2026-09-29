@@ -19,7 +19,7 @@
                         <span class="sub-title style2">Join the team</span>
                         <h2 class="sec-title">Build enterprise AI with Neural Xpert</h2>
                     </div>
-                    <p class="box-text mb-0">Neural Xpert works with engineers, architects, and consultants who design, build, secure, and operate production AI for enterprises. Open roles are listed on this page. Apply from the role, or write to the team if the fit is not listed yet.</p>
+                    <p class="box-text mb-0">Neural Xpert works with engineers, architects, and consultants who design, build, secure, and operate production AI for enterprises.{% if jobs %} Open roles are listed below. Apply from the role, or write to the team if the fit is not listed yet.{% else %} There are no open roles listed right now. Write to the team and they will reply when a relevant opening is posted.{% endif %}</p>
                 </div>
                 <div class="col-xl-4">
                     <div class="btn-group">
@@ -41,7 +41,11 @@
                 <div class="col-md-4">
                     <article class="nx-note">
                         <h3>How to apply</h3>
+                        {% if jobs %}
                         <p>Open a role and send your name, email, and a CV in PDF, DOC, or DOCX. The team reviews applications sent from the role page.</p>
+                        {% else %}
+                        <p>When a role is open, apply on its page with your name, email, and a CV in PDF, DOC, or DOCX.</p>
+                        {% endif %}
                     </article>
                 </div>
                 <div class="col-md-4">
