@@ -1,14 +1,14 @@
-import os
 from datetime import datetime, timezone
 
 from app.extensions import db
 from app.models import Article, CaseStudy, Category, PageSeo
 
 PUBLISHED = datetime(2025, 1, 15, tzinfo=timezone.utc)
-CONTENT_DIR = os.path.join(os.path.dirname(__file__), "content")
 
 
 def seed():
+    if Article.query.first():
+        return
     categories = {
         "Security": _category("Security", "security"),
         "Generative AI": _category("Generative AI", "generative-ai"),
@@ -73,11 +73,11 @@ def seed():
         dict(
             title="Moving Machine Learning from Pilots into Operations",
             slug="moving-machine-learning-from-pilots-into-operations",
-            excerpt="Machine learning pilots are relatively easy to demonstrate. Turning them into reliable systems that continuously support real business operations is much harder.",
-            content="",
+            excerpt="What it takes to move machine learning from ideation and pilots into production operations.",
+            content="<p>Most machine learning programs stall between a successful pilot and an operating service. Production needs evaluation, deployment, monitoring, and a team that can keep the system current.</p>",
             category="Machine Learning",
             featured_image="img/blog/mlops-blog.jpg",
-            published_at=datetime(2026, 9, 28, tzinfo=timezone.utc),
+            published_at=datetime(2025, 1, 25, tzinfo=timezone.utc),
         ),
         dict(
             title="Integrating AI with Enterprise Applications and Data",
@@ -91,26 +91,8 @@ def seed():
     ]
     for row in articles:
         category = categories[row.pop("category")]
-        content_file = os.path.join(CONTENT_DIR, f"{row['slug']}.html")
-        if os.path.isfile(content_file):
-            with open(content_file, encoding="utf-8") as handle:
-                row["content"] = handle.read()
-        article = Article.query.filter_by(slug=row["slug"]).first()
-        fields = dict(category=category, author="Neural Xpert", status="published", seo_title=row["title"], meta_description=row["excerpt"], **row)
-        if article is None:
-            db.session.add(Article(**fields))
-        else:
-            for key, value in fields.items():
-                setattr(article, key, value)
+        db.session.add(Article(category=category, author="Neural Xpert", status="published", seo_title=row["title"], meta_description=row["excerpt"], **row))
 
-    if CaseStudy.query.first() is None:
-        _seed_case_studies()
-    if PageSeo.query.first() is None:
-        _seed_pages()
-    db.session.commit()
-
-
-def _seed_case_studies():
     studies = [
         ("Enterprise AI Knowledge Assistant", "enterprise-ai-knowledge-assistant", "Generative AI, Enterprise RAG, Knowledge Intelligence", "Designed an intelligent knowledge solution that enables teams to securely search, retrieve, and interact with information across enterprise documents and internal knowledge sources.", "img/project/knowledge-assistant.jpg", "ENTERPRISE KNOWLEDGE"),
         ("AI-Powered Customer Service Automation", "ai-powered-customer-service-automation", "AI Agents, Generative AI, RAG, Automation", "Built an intelligent customer operations solution combining conversational AI, enterprise knowledge retrieval, workflow automation, and human escalation to improve service delivery.", "img/project/customer-service.jpg", "CUSTOMER OPERATIONS"),
@@ -137,9 +119,6 @@ def _seed_case_studies():
                 meta_description=summary,
             )
         )
-
-
-def _seed_pages():
     pages = {
         "home": ("Neural Xpert | Enterprise AI, Generative AI & AI Solutions", "Neural Xpert builds secure enterprise AI solutions, including Generative AI, AI agents, RAG, machine learning, intelligent automation, AI integration and AI security."),
         "about": ("About Neural Xpert | Enterprise AI", "Neural Xpert is an enterprise technology company focused on Artificial Intelligence, Cloud Engineering, and Cybersecurity."),
@@ -154,8 +133,6 @@ def _seed_pages():
 
 
 def _category(name, slug):
-    category = Category.query.filter_by(slug=slug).first()
-    if category is None:
-        category = Category(name=name, slug=slug, kind="article")
-        db.session.add(category)
+    category = Category(name=name, slug=slug, kind="article")
+    db.session.add(category)
     return category

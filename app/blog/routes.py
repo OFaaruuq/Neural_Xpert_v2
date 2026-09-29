@@ -1,3 +1,5 @@
+import re
+
 from flask import Blueprint, abort, render_template, request
 
 from app.models import Article, Category
@@ -6,12 +8,22 @@ from app.services import absolute_static, canonical_url, seo_for
 bp = Blueprint("blog", __name__)
 
 
+def reading_minutes(article):
+    text = re.sub(r"<[^>]+>", " ", f"{article.excerpt or ''} {article.content or ''}")
+    words = len(text.split())
+    return max(1, -(-words // 200))
+
+
 @bp.route("/insights")
 def index():
     page = request.args.get("page", 1, type=int)
     category_slug = request.args.get("category", "")
+    search = (request.args.get("q") or "").strip()
     query = Article.query.filter_by(status="published")
     active_category = None
+    if search:
+        like = f"%{search}%"
+        query = query.filter(Article.title.ilike(like) | Article.excerpt.ilike(like))
     if category_slug:
         active_category = Category.query.filter_by(slug=category_slug, kind="article").first()
         if active_category:
@@ -29,6 +41,7 @@ def index():
         pagination=pagination,
         categories=categories,
         active_category=active_category,
+        search=search,
         **context,
     )
 
@@ -57,5 +70,6 @@ def detail(slug):
         article=article,
         recent_articles=recent,
         categories=categories,
+        reading_minutes=reading_minutes(article),
         **context,
     )

@@ -12,14 +12,13 @@
 </script>
 {% endblock %}
 {% block content %}
-    <div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename=article.featured_image) if article.featured_image else url_for('static', filename='img/bg/process-bg.jpg') }}">
+    <div class="breadcumb-wrapper" data-bg-src="{{ url_for('static', filename=article.featured_image) if article.featured_image else url_for('static', filename='img/bg/process-bg.jpg') }}">
         <div class="container">
             <div class="breadcumb-content">
                 <h1 class="breadcumb-title text-anime-style-3">{{ article.title }}</h1>
                 <ul class="breadcumb-menu wow fadeInUp">
                     <li><a href="{{ url_for('main.index') }}">Home</a></li>
-                    <li><a href="{{ url_for('blog.index') }}">Blog</a></li>
-                    <li>{{ article.category.name if article.category else 'Insight' }}</li>
+                    <li>Blog Details</li>
                 </ul>
             </div>
         </div>
@@ -32,12 +31,17 @@
                         <div class="blog-content">
                             <p class="blog-desc mb-60">{{ article.excerpt }}</p>
                             <div class="blog-meta">
-                                {% if article.category %}<a href="{{ url_for('blog.index', category=article.category.slug) }}">{{ article.category.name }}</a>{% endif %}
+                                {% if article.category %}
+                                <a href="{{ url_for('blog.index', category=article.category.slug) }}">{{ article.category.name }}</a>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="right-text">
+                            <div class="blog-meta">
+                                <a href="{{ url_for('blog.detail', slug=article.slug) }}">{{ reading_minutes }} min read</a>
+                            </div>
                             <div class="box-profile">
-                                <div class="box-author"><img src="{{ url_for('static', filename='img/blog/author.jpg') }}" alt=""></div>
+                                <div class="box-author"><img src="{{ url_for('static', filename='img/normal/about-neural-xpert.jpg') }}" alt="{{ article.author }}"></div>
                                 <div class="box-info">
                                     <h2 class="h3 box-title">{{ article.author }}</h2>
                                     <span class="box-desig">{{ article.category.name if article.category else 'Neural Xpert' }}</span>
@@ -58,15 +62,55 @@
                         <div class="blog-content">
                             <div class="blog-meta">
                                 <a class="author" href="{{ url_for('blog.index') }}"><i class="fa-solid fa-user"></i>by {{ article.author }}</a>
-                                <a href="{{ url_for('blog.index') }}"><i class="fa-solid fa-calendar-days"></i>{{ article.published_at.strftime('%b %d, %Y') if article.published_at else '' }}</a>
+                                <a href="#comments"><i class="fa-solid fa-comments"></i>(0) Comments</a>
                             </div>
                             <h2 class="h3 blog-title">{{ article.title }}</h2>
                             {{ article.content|sanitize_html|safe }}
                         </div>
                     </div>
+                    <div class="th-comments-wrap" id="comments">
+                        <h2 class="blog-inner-title h4 fw-semibold"><i class="fa-solid fa-comments"></i>Comments (0)</h2>
+                    </div>
+                    <div class="th-comment-form">
+                        <div class="form-title mb-25">
+                            <h3 class="blog-inner-title h4"><i class="fa-solid fa-reply"></i>Leave a Reply</h3>
+                            <p class="blog-text">Your email address will not be published. Required fields are marked</p>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <input type="text" placeholder="Full Name:" class="form-control">
+                                <i class="fal fa-user"></i>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <input type="text" placeholder="Email:" class="form-control">
+                                <i class="fal fa-envelope"></i>
+                            </div>
+                            <div class="col-12 form-group">
+                                <input type="text" placeholder="Website" class="form-control">
+                                <i class="fal fa-globe"></i>
+                            </div>
+                            <div class="col-12 form-group">
+                                <textarea placeholder="Write a Comment*" class="form-control"></textarea>
+                                <i class="fa-regular fa-pencil"></i>
+                            </div>
+                            <div class="col-12 form-group">
+                                <input type="checkbox" id="html">
+                                <label for="html">Save my name, email, and website in this browser for the next time I comment.</label>
+                            </div>
+                            <div class="col-12 form-group mb-0">
+                                <button class="th-btn" type="button">Submit Now <span class="icon"><img src="{{ url_for('static', filename='img/icon/arrow-right.svg') }}" alt=""></span></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-xxl-4 col-lg-5">
                     <aside class="sidebar-area style2">
+                        <div class="widget widget_search">
+                            <form class="search-form" action="{{ url_for('blog.index') }}" method="get">
+                                <input type="text" name="q" placeholder="Enter Keyword">
+                                <button type="submit"><i class="far fa-search"></i></button>
+                            </form>
+                        </div>
                         <div class="widget">
                             <h3 class="widget_title">Recent Posts</h3>
                             <div class="recent-post-wrap">
@@ -77,7 +121,7 @@
                                     </div>
                                     <div class="media-body">
                                         <div class="recent-post-meta">
-                                            <a href="{{ url_for('blog.index') }}"><i class="fa-sharp fa-solid fa-calendar-days"></i>{{ recent.published_at.strftime('%B %d, %Y') if recent.published_at else '' }}</a>
+                                            <a href="{{ url_for('blog.detail', slug=recent.slug) }}"><i class="fa-sharp fa-solid fa-calendar-days"></i>{{ recent.published_at.strftime('%B %d, %Y') if recent.published_at else '' }}</a>
                                         </div>
                                         <h4 class="post-title"><a class="text-inherit" href="{{ url_for('blog.detail', slug=recent.slug) }}">{{ recent.title }}</a></h4>
                                     </div>
@@ -92,6 +136,14 @@
                                 <li><a href="{{ url_for('blog.index', category=category.slug) }}">{{ category.name }}</a></li>
                                 {% endfor %}
                             </ul>
+                        </div>
+                        <div class="widget widget_tag_cloud">
+                            <h3 class="widget_title style2">Tags</h3>
+                            <div class="tagcloud">
+                                {% for category in categories %}
+                                <a href="{{ url_for('blog.index', category=category.slug) }}">{{ category.name }}</a>
+                                {% endfor %}
+                            </div>
                         </div>
                     </aside>
                 </div>

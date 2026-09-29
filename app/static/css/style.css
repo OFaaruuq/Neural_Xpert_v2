@@ -8891,6 +8891,26 @@ ol.widget_recent_comments,
   padding-bottom: 12px;
   /* Extra small devices */
 }
+.header-logo img.nx-logo,
+.mobile-logo img.nx-logo,
+.about-logo img.nx-logo {
+  display: block;
+  height: 48px;
+  width: auto;
+  max-width: 240px;
+}
+.about-logo img.nx-logo {
+  height: 36px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  box-sizing: content-box;
+}
+.th-menu-wrapper .mobile-logo img.nx-logo {
+  height: 44px;
+  margin-left: auto;
+  margin-right: auto;
+}
 @media (max-width: 575px) {
   .header-logo {
     max-width: 150px;
@@ -34759,6 +34779,35 @@ span.select2-selection.select2-selection--single:focus {
 .breadcumb-wrapper.nx-hero .breadcumb-menu a,
 .breadcumb-wrapper.nx-hero .breadcumb-menu li {
   color: #fff;
+}
+
+.blog-details .blog-single .blog-content > p {
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 32px;
+  color: #484848;
+}
+.blog-details .box-profile .box-author img {
+  width: 51px;
+  height: 51px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.blog-details .box-profile .box-title {
+  font-size: 48px;
+  line-height: 1.25;
+  font-weight: 600;
+  text-transform: none;
+}
+@media (max-width: 1199px) {
+  .blog-details .box-profile .box-title {
+    font-size: 30px;
+  }
+}
+@media (max-width: 767px) {
+  .blog-details .box-profile .box-title {
+    font-size: 26px;
+  }
 }
 
 /*# sourceMappingURL=style.css.map */
