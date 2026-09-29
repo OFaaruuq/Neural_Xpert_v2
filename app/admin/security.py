@@ -38,26 +38,55 @@ def normalize_email(value):
         return ""
 
 
+def _administrator_role():
+    from app.admin.access import ensure_roles
+    from app.models import StaffRole
+
+    ensure_roles()
+    return StaffRole.query.filter_by(slug="administrator").one()
+
+
 def create_staff(email):
     normalized = normalize_email(email)
     if not normalized:
         raise ValueError("Enter a valid staff email address.")
     if StaffUser.query.filter_by(email=normalized).first():
         raise ValueError("That staff account already exists.")
-    from app.admin.access import ensure_roles
-    from app.models import StaffRole
-
-    ensure_roles()
     password = secrets.token_urlsafe(18)
     staff = StaffUser(
         email=normalized,
         password_hash=generate_password_hash(password),
         is_active=True,
-        role=StaffRole.query.filter_by(slug="administrator").one(),
+        role=_administrator_role(),
     )
     db.session.add(staff)
     db.session.commit()
     return staff, password
+
+
+def issue_staff_password(email):
+    """Create the administrator, or replace the password of an existing account."""
+    normalized = normalize_email(email)
+    if not normalized:
+        raise ValueError("Enter a valid staff email address.")
+    password = secrets.token_urlsafe(18)
+    staff = StaffUser.query.filter_by(email=normalized).first()
+    created = staff is None
+    if created:
+        staff = StaffUser(
+            email=normalized,
+            password_hash=generate_password_hash(password),
+            is_active=True,
+            role=_administrator_role(),
+        )
+        db.session.add(staff)
+    else:
+        staff.password_hash = generate_password_hash(password)
+        staff.failed_attempts = 0
+        staff.locked_until = None
+        staff.is_active = True
+    db.session.commit()
+    return staff, password, created
 
 
 def _dummy_hash():
