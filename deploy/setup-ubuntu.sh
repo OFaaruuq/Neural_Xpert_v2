@@ -72,9 +72,11 @@ rsync -a --delete \
   --exclude '.env' \
   "${SOURCE_DIR}/" "${APP_DIR}/"
 
-if [[ ! -f "${APP_DIR}/app/static/img/logo-neural-xpert.png" ]] || ! grep -q "logo-neural-xpert.png" "${APP_DIR}/app/templates/includes/navbar.html"; then
-  echo "The new logo was not copied into ${APP_DIR}."
-  echo "The script copied ${SOURCE_DIR}, and that checkout is not the latest main."
+if [[ ! -f "${APP_DIR}/app/static/img/logo-neural-xpert.png" ]] \
+  || ! grep -q "brand.header" "${APP_DIR}/app/templates/includes/navbar.html" \
+  || ! grep -q "logo-neural-xpert.png" "${APP_DIR}/app/brand.py"; then
+  echo "The public logo was not copied into ${APP_DIR}."
+  echo "The navbar must use brand.header, and brand.py must keep img/logo-neural-xpert.png."
   echo "Run: cd ${SOURCE_DIR} && git pull origin main && git log -1 --oneline"
   exit 1
 fi
