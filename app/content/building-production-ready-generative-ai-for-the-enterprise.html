@@ -1,0 +1,52 @@
+<p><strong>Generative AI · Enterprise AI · MLOps</strong></p>
+<p>Most generative AI programs start with a convincing demo. A person pastes a policy into a chat window and gets a fluent summary. Leadership sees the summary and asks for the same thing on company data, for every team, next quarter.</p>
+<p>That request is reasonable. The demo does not answer it. Production generative AI has to work with the data the company already has, the applications people already use, the permissions those people already hold, and a way to tell when the answer is wrong.</p>
+
+<h3 class="h4">What “production-ready” actually means</h3>
+<p>A system is production-ready when a named business workflow can depend on it on a normal Tuesday, not when a model answers well in a workshop. That usually requires all of the following:</p>
+<ul>
+<li>A specific job to be done, with a user and a success measure.</li>
+<li>Knowledge the model is allowed to see, and a way to keep everything else out.</li>
+<li>Answers that can be checked against a source, not only admired for tone.</li>
+<li>A path into the application where the work already happens.</li>
+<li>Someone who owns quality, cost, and incidents after launch.</li>
+</ul>
+<p>If any of those are missing, the honest status is still a pilot, even if the interface looks finished.</p>
+
+<h3 class="h4">Pick the job before the model</h3>
+<p>Generative AI is a poor fit for “make the company smarter.” It is a good fit for a repeated language task with a visible input and a visible output. Examples that hold up in enterprises:</p>
+<ul>
+<li>Draft a response from an approved knowledge base, then let an agent send it.</li>
+<li>Extract fields from a contract or invoice into the system of record.</li>
+<li>Summarize a case for a reviewer who still makes the decision.</li>
+<li>Help an employee find the policy clause that applies, with the clause attached.</li>
+</ul>
+<p>Each of these has a human, a source, and a way to count success. A general chat box pointed at the whole file share has none of those, and it will be judged on its worst answer.</p>
+
+<h3 class="h4">Ground the model in company knowledge</h3>
+<p>A general model does not know this quarter’s pricing, this client’s contract, or yesterday’s incident note. Teams close that gap with retrieval: find the relevant passages, give them to the model, and require the answer to stay inside them.</p>
+<p>Retrieval only works if three things are true. The documents are current. The search respects the reader’s permissions. The answer shows where it came from. Without those, the system sounds confident while quoting a draft, a different client, or a folder the user should never have opened.</p>
+<p>Neural Xpert treats that layer as part of the product, not as a later integration. The article on secure RAG covers the access and evaluation questions in more detail.</p>
+
+<h3 class="h4">Evaluate before anyone depends on it</h3>
+<p>Fluency is not a test. Before a workflow goes live, write a set of real questions from the people who will use it, including questions the system should refuse. Score each answer on whether it is supported, whether it leaks something, and whether a reviewer would accept it.</p>
+<p>Keep that set. Run it again when the model changes, when the document corpus changes, and when a prompt is edited to “make it more helpful.” Most production regressions are quiet. The chat still replies. The replies are just less faithful.</p>
+
+<h3 class="h4">Put a boundary around what it can do</h3>
+<p>A copilot that only drafts is a different risk from a copilot that can send email, change a record, or call an internal API. Start with draft and cite. Add an action only when the action has an owner, a permission check, and a way to undo it.</p>
+<p>Log the request, the sources used, and the action taken. Security and audit teams will ask for that record the first time an answer is disputed. Building it later means the dispute has no evidence.</p>
+
+<h3 class="h4">Operate it like a service</h3>
+<p>After launch, someone has to watch cost per task, refusal rate, latency, and the tickets users file when an answer was wrong. Model providers change prices and behavior. Document collections go stale. A production system needs an owner who can roll back a prompt or a model the same week, not in the next planning cycle.</p>
+<p>That operating loop is the same discipline Neural Xpert applies to machine learning: evaluate, release, monitor, and recover. Generative AI does not get an exception because the output is prose.</p>
+
+<h3 class="h4">A practical sequence</h3>
+<p><strong>1. Name one workflow and the number that should move.</strong> Cycle time, handle time, or review effort are better than “adoption.”</p>
+<p><strong>2. Inventory the knowledge and who may see it.</strong> If permissions are unclear, fix that before connecting a model.</p>
+<p><strong>3. Build a small evaluation set from real work.</strong> Include cases the system must refuse.</p>
+<p><strong>4. Ship inside the existing application, as a draft.</strong> Do not ask people to live in a separate chat tool.</p>
+<p><strong>5. Assign an operator.</strong> Quality, cost, and rollback need a name.</p>
+
+<h3 class="h4">How Neural Xpert helps</h3>
+<p>Neural Xpert designs and builds generative AI that can be deployed: grounded in enterprise knowledge, integrated with the applications teams already use, evaluated before release, and monitored after it. The aim is a system the business can run, not a demo that has to be explained every time it is wrong.</p>
+<p><a href="/contact">Talk to a Neural Xpert AI Expert</a></p>

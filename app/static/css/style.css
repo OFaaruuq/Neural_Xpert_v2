@@ -34781,6 +34781,11 @@ span.select2-selection.select2-selection--single:focus {
   color: #fff;
 }
 
+.breadcumb-wrapper {
+  border-radius: 12px;
+  margin: 16px 16px 0;
+}
+
 .blog-details .blog-single .blog-content > p {
   font-weight: 400;
   font-size: 18px;

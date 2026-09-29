@@ -1,0 +1,39 @@
+<p><strong>Enterprise RAG · Knowledge AI · Security</strong></p>
+<p>A language model will answer even when it does not know. Retrieval-augmented generation, or RAG, is how enterprises stop that habit: find the passages that apply, give those passages to the model, and ask it to answer from them. The answer is only as safe as the search behind it. If search can see a folder the user cannot, the model can quote it.</p>
+
+<h3 class="h4">When RAG is the right pattern</h3>
+<p>Use RAG when the answer depends on company knowledge that changes and that not everyone should see. Policies, contracts, product documentation, case history, engineering runbooks, and internal procedures fit. A fixed script or a form is still better when the task is a known transaction with no judgment in the wording.</p>
+<p>RAG is not a copy of the intranet with a chat box on top. It is a permissioned lookup plus a writing step, with a way for the reader to open the source.</p>
+
+<h3 class="h4">What usually goes wrong</h3>
+<p>Teams connect a model to “all the documents” and then discover the failure modes in production:</p>
+<ul>
+<li><strong>Stale knowledge.</strong> The index still contains last year’s policy, a draft, and the final version. The model prefers whichever passage is worded more confidently.</li>
+<li><strong>Wrong permissions.</strong> Search runs as a service account that can see every site. Users receive answers from files they could not open themselves.</li>
+<li><strong>Untrusted text inside documents.</strong> A retrieved page can contain instructions aimed at the model. If the system obeys that text, a document becomes a way to change the assistant’s behavior.</li>
+<li><strong>No citation.</strong> The answer sounds specific and cannot be checked. People either trust it blindly or stop using it.</li>
+<li><strong>No evaluation.</strong> The demo used five friendly questions. Real users ask about exceptions, old product names, and topics the corpus does not cover.</li>
+</ul>
+
+<h3 class="h4">Build the knowledge set on purpose</h3>
+<p>List the sources that are allowed to answer, who owns each source, and how often it changes. Leave out inboxes, personal drives, and working drafts unless a person has explicitly published them as guidance.</p>
+<p>Chunk documents so a retrieved passage is understandable on its own, and keep the title, owner, date, and link with every chunk. When two versions exist, the index should prefer the one marked current. If currency cannot be determined, the assistant should say so instead of blending both.</p>
+
+<h3 class="h4">Enforce the reader’s permissions</h3>
+<p>The retrieval query must run with the identity of the person asking, or with a filter that matches what that person is allowed to open. A shared index is acceptable. A shared view of every document is not.</p>
+<p>Test this with two accounts before launch. The same question should return different sources, or a refusal, when the second account cannot see the file. If both accounts get the same confidential paragraph, the system is not ready.</p>
+
+<h3 class="h4">Treat retrieved text as data, not as instructions</h3>
+<p>The model should use retrieved passages as evidence for the answer. It should not follow orders embedded in those passages, such as requests to ignore policy, reveal other documents, or change its role. Separate the system instructions from the retrieved content, and keep tool use unavailable unless the workflow explicitly needs it.</p>
+<p>This is a design constraint, not a claim that any filter is perfect. High-risk assistants should still cite the passage and leave the action to a person.</p>
+
+<h3 class="h4">Show the source and know when to refuse</h3>
+<p>Every substantive answer should point at the document, section, and date. If retrieval finds nothing relevant, the assistant should say it does not have a source. A fluent guess is the failure users remember.</p>
+<p>Build an evaluation set from real questions, including questions whose answer is not in the corpus and questions each test user is not allowed to ask. Run it when documents are reindexed and when the model or prompt changes.</p>
+
+<h3 class="h4">Operate the index</h3>
+<p>Someone must own refresh, deletion, and access reviews. When a policy is retired, it has to leave the index, not only the website. When a person changes teams, their entitlements have to change the search results the same day. Log which documents were retrieved for a question so a bad answer can be traced.</p>
+
+<h3 class="h4">How Neural Xpert helps</h3>
+<p>Neural Xpert builds enterprise RAG that stays inside real permissions: source selection, identity-aware retrieval, citations, evaluation, and the operating routine that keeps the knowledge current. The result is an assistant people can check, not a search box that invents a policy.</p>
+<p><a href="/contact">Talk to a Neural Xpert AI Expert</a></p>

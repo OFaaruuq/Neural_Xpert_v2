@@ -1,0 +1,51 @@
+<p><strong>Security · Mobile Threats · AI Security</strong></p>
+<p>Mobile security company Zimperium reports that RatHat uses generative AI to navigate and control an infected Android device in real time. That is a meaningful change. Older mobile malware followed a script. RatHat can adapt what it does on the screen in front of it.</p>
+<p>For an enterprise, the practical question is not how the malware is built. It is whether company phones, contractor devices, and the business apps on them can still be trusted after a message, an ad, or a sideloaded package gets through.</p>
+
+<h3 class="h4">What has been reported</h3>
+<p>Zimperium describes RatHat as an Android trojan distributed through smishing and malvertising. The infection chain is multi-stage. It is designed to break out of Android’s application sandbox and reach shell-level execution.</p>
+<p>Once running, the reported behavior matches a remote-access trojan aimed at money and credentials:</p>
+<ul>
+<li>It steals credentials.</li>
+<li>It mimics banking and payment applications.</li>
+<li>It keeps a covert channel to its command-and-control server.</li>
+<li>It uses generative AI to navigate and operate the device interface in real time.</li>
+<li>It watches input at the hardware level so it can reconstruct PIN codes, passwords, and unlock patterns.</li>
+</ul>
+<p>The last two points are why this report matters beyond a single malware family. A trojan that can read the screen and decide the next tap is harder to signature, and a lock screen is no longer a reliable boundary if the input itself is observed.</p>
+
+<h3 class="h4">Why AI navigation changes the risk</h3>
+<p>Scripted malware breaks when a bank changes a button or a phone vendor changes a screen. An attacker then has to ship a new build. A model that can look at the current screen and choose the next action can keep working across app versions and device layouts.</p>
+<p>That does not make every phone instantly compromised. It does mean defenses that only look for a known package name or a fixed sequence of screens will age faster. Detection has to include behavior: unexpected accessibility use, overlay windows, sideloaded installers, and outbound connections that do not match the app the user thinks they opened.</p>
+
+<h3 class="h4">How it reaches a device</h3>
+<p>The reported paths are familiar, which is useful. Smishing and malvertising succeed because they look like ordinary work: a delivery notice, an invoice, a bank alert, or an ad for a utility the person already uses.</p>
+<p>Enterprises should assume the first click will sometimes happen. The control is what that click is allowed to install, which accounts it can reach, and how fast the device is isolated after something looks wrong.</p>
+
+<h3 class="h4">What to change in the enterprise mobile program</h3>
+<h4>1. Shrink what a phone is allowed to install</h4>
+<p>Managed devices should install software from an approved store or an enterprise catalog. Sideloading, unknown sources, and “just this once” installers are how a trojan gets a foothold. Personal devices that open company mail or banking apps need the same expectation, written down and enforced with mobile device management where the company can require it.</p>
+<h4>2. Treat banking and payment apps as high risk</h4>
+<p>RatHat is reported to mimic those apps. Users should open them from the icon they already trust, not from a link in a message. Security teams should know which payment apps are in use, and finance teams should have a callback rule for any payment change that arrives by SMS or email.</p>
+<h4>3. Assume the lock screen can be observed</h4>
+<p>Hardware-level input monitoring means a PIN entered on a compromised phone can be reconstructed. Phishing-resistant sign-in for company accounts, device encryption, and the ability to wipe a lost or suspected phone matter more than a longer PIN. High-risk roles should not rely on SMS codes.</p>
+<h4>4. Watch for control of the screen</h4>
+<p>Remote navigation depends on capabilities such as accessibility services, overlays, and background execution. Mobile threat defense and MDM policies should flag those grants, especially when they appear right after a new install. A user prompt that asks for accessibility access to “update a document” is a reason to stop, not to continue.</p>
+<h4>5. Prepare the response before the alert</h4>
+<p>When a device is suspected, the sequence should already be known: isolate it from company mail and VPN, revoke sessions, reset credentials that were used on that phone, preserve the device for investigation, and tell the user what not to type next. Waiting to invent that process during the incident is how a single phone becomes an account takeover.</p>
+
+<h3 class="h4">What this is not</h3>
+<p>A report about one trojan is not a reason to block generative AI inside the business. The same class of model that helps an attacker read a screen is also what enterprises use for document work and support. The control boundary is different. Company AI systems should not receive device-level control, and mobile devices should not grant that control to untrusted apps.</p>
+
+<h3 class="h4">Questions worth asking this week</h3>
+<ul>
+<li>Which phones can reach company email, VPN, or finance systems, and which of those phones are unmanaged?</li>
+<li>Can a user sideload an app without an administrator noticing?</li>
+<li>Do payment changes requested by message require a second channel?</li>
+<li>How fast can security revoke a session and wipe a device?</li>
+<li>Does anyone review accessibility and overlay permissions on managed fleets?</li>
+</ul>
+
+<h3 class="h4">How Neural Xpert helps</h3>
+<p>Neural Xpert designs AI security and governance for systems that actually run: identity, data access, monitoring, and the line between automation and human approval. A mobile trojan and an enterprise copilot fail in different ways, but both need an owner, a detection path, and a response that was written before the incident.</p>
+<p><a href="/contact">Talk to a Neural Xpert AI Expert</a></p>

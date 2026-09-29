@@ -22,7 +22,7 @@ def seed():
         dict(
             title="RatHat Android Trojan Uses AI for Automation",
             slug="rathat-android-trojan-uses-ai-for-automation",
-            excerpt="The malware relies on AI for real-time device navigation and control, increasing adaptability and evasion.",
+            excerpt="RatHat is an Android trojan that uses generative AI to navigate infected devices in real time. Zimperium's report shows why mobile threats are shifting from fixed scripts to adaptive automation, and what enterprises should change in response.",
             content=(
                 "<p>A newly discovered Android trojan relies on generative AI to more intelligently navigate and control infected devices, mobile security company Zimperium reports.</p>"
                 "<p>Dubbed RatHat, the malware has been distributed through smishing and malvertising, relying on an automated multi-stage infection pipeline to break out of Android’s application sandbox and gain shell-level execution.</p>"
@@ -37,7 +37,7 @@ def seed():
         dict(
             title="Building Production-Ready Generative AI for the Enterprise",
             slug="building-production-ready-generative-ai-for-the-enterprise",
-            excerpt="How enterprise teams design generative AI that works with existing data and applications.",
+            excerpt="A generative AI demo is not a production system. Enterprise teams need grounding, evaluation, security, and an operating model before a copilot touches real data and workflows.",
             content="<p>Production generative AI has to work with enterprise data, applications, security controls, and the way teams already operate. Neural Xpert designs those systems so they can be deployed, monitored, and improved after the pilot.</p>",
             category="Generative AI",
             featured_image="img/blog/generative-ai-blog.jpg",
@@ -46,7 +46,7 @@ def seed():
         dict(
             title="Designing AI Agents That Run Enterprise Workflows",
             slug="designing-ai-agents-that-run-enterprise-workflows",
-            excerpt="AI agents that operate across Microsoft 365, SAP, and Salesforce with human oversight.",
+            excerpt="An AI agent is useful when it can complete a multi-step workflow across systems such as Microsoft 365, SAP, or Salesforce and still leave people in control of the decisions that matter.",
             content="<p>Enterprise AI agents are useful when they can take a multi-step workflow across business systems and still leave people in control of the decisions that matter.</p>",
             category="AI Agents",
             featured_image="img/blog/ai-agents-blog.jpg",
@@ -55,7 +55,7 @@ def seed():
         dict(
             title="Connecting Enterprise Knowledge with Secure RAG",
             slug="connecting-enterprise-knowledge-with-secure-rag",
-            excerpt="Secure retrieval that grounds answers in enterprise documents, databases, and knowledge.",
+            excerpt="Retrieval-augmented generation is only as trustworthy as the knowledge it can reach. Secure RAG keeps answers grounded in documents and data the organization is allowed to use.",
             content="<p>Secure RAG connects documents, databases, and internal knowledge to answers that stay grounded in sources the organization already trusts.</p>",
             category="Enterprise RAG",
             featured_image="img/blog/secure-rag-blog.jpg",
@@ -64,7 +64,7 @@ def seed():
         dict(
             title="Securing AI Systems from Design Through Production",
             slug="securing-ai-systems-from-design-through-production",
-            excerpt="Security controls for AI systems from design and testing through deployment and monitoring.",
+            excerpt="A model that works in a demo still needs security once it reaches production. AI security has to cover design, data, prompts, tools, deployment, and monitoring.",
             content="<p>AI security has to cover design, testing, deployment, and monitoring. A model that works in a demo still needs governance once it reaches production.</p>",
             category="AI Security",
             featured_image="img/blog/ai-security-blog.jpg",
@@ -82,7 +82,7 @@ def seed():
         dict(
             title="Integrating AI with Enterprise Applications and Data",
             slug="integrating-ai-with-enterprise-applications-and-data",
-            excerpt="Integrating AI with the applications, data, and business outcomes enterprises already run.",
+            excerpt="AI creates value when it is connected to the applications and data the business already runs, and when the result can be measured in the workflow it supports.",
             content="<p>AI creates value when it is connected to the applications and data the business already uses, and when the outcome can be measured in the workflow it supports.</p>",
             category="Integration",
             featured_image="img/blog/integration-blog.jpg",

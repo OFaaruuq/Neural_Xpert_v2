@@ -1,0 +1,45 @@
+<p><strong>Integration · Enterprise Applications · Intelligent Automation</strong></p>
+<p>A model that cannot see the live record, and cannot hand its result back to the system where work happens, stays a side project. Integration is how AI becomes part of the business: it reads the applications and data people already trust, and it returns an outcome those applications can store, route, or measure.</p>
+
+<h3 class="h4">Name the outcome in the system of record</h3>
+<p>Start from the transaction, not the model. What should be different in the CRM, the case tool, the ERP, or the data warehouse when the AI step works? Examples:</p>
+<ul>
+<li>A case is classified and routed with the fields filled from the source document.</li>
+<li>A forecast is written to the planning system on a schedule.</li>
+<li>A draft reply is attached to the customer record for an agent to send.</li>
+<li>An exception is opened for a person because confidence was too low.</li>
+</ul>
+<p>If the result only appears in a chat log, the business cannot manage it. Put the result where the existing process already looks.</p>
+
+<h3 class="h4">Integrate through contracts, not screen scraping</h3>
+<p>Prefer the API, event, or data product the application owner already supports. A stable contract says which fields exist, what they mean, who may call them, and what happens when a call is repeated. Screen scraping and shared database passwords break on the next release and hide the dependency from the team that owns the system.</p>
+<p>When an API does not exist, the integration work includes getting one. That is slower than a shortcut and much cheaper than an automation that fails silently after an interface change.</p>
+
+<h3 class="h4">Use the caller’s identity</h3>
+<p>The AI step should act as the user it assists or as a service account with a narrow role. It should not reuse an integration account that can see every customer. Map the company identity provider through to the target application so a permission change for the person also limits the automation.</p>
+<p>Secrets belong in a vault, rotated, and absent from notebooks and prompt logs. An API key pasted into a prompt will leave in the log.</p>
+
+<h3 class="h4">Make every write safe to repeat</h3>
+<p>Networks fail and jobs retry. A write that creates a second order, a second email, or a second case on retry is a defect. Design updates to be idempotent: the same request, sent twice, leaves the system of record in the same state. Store an identifier for the AI run on the record so operators can see which automation touched it.</p>
+
+<h3 class="h4">Separate suggest from commit</h3>
+<p>Reading data to prepare a recommendation is a different integration from posting a change. Ship the read path and the draft first. Add the write when the error rate is known and the write can be reversed or reviewed. For high-impact fields, the integration should open a task for a person rather than update the field directly.</p>
+
+<h3 class="h4">Agree the data, then the model</h3>
+<p>AI quality follows data quality. Before tuning a model, confirm that the fields it needs are present, current, and mean the same thing in each source. Document the grain: one row per customer, per order, or per day. A model trained on a joined extract that production cannot reproduce will look accurate in a notebook and useless in the application.</p>
+<p>Lineage matters when someone asks why a record was classified a certain way. Keep the source identifiers with the prediction.</p>
+
+<h3 class="h4">Measure the workflow after the handoff</h3>
+<p>Count the business result, not the number of API calls. Useful measures are cycle time, the share of cases completed without rework, the rate of human override, and the cost of a wrong commit. If those numbers do not move, the integration may be technically healthy and still the wrong place to apply AI.</p>
+<p>Give application owners a dashboard they recognize: failures, latency, and the records the automation changed. An AI platform that only the data science team can see will not survive the first incident.</p>
+
+<h3 class="h4">A sequence that respects the systems already running</h3>
+<p><strong>1. Write the outcome as a change in the system of record.</strong></p>
+<p><strong>2. Use a supported API and the caller’s identity.</strong></p>
+<p><strong>3. Read and draft before anything is committed.</strong></p>
+<p><strong>4. Make writes idempotent and traceable.</strong></p>
+<p><strong>5. Report override rate and cycle time to the team that owns the process.</strong></p>
+
+<h3 class="h4">How Neural Xpert helps</h3>
+<p>Neural Xpert integrates AI with the applications, APIs, and data enterprises already run. The work covers the workflow outcome, identity, safe writes, and the measures that show whether the automation helped. The point is a change in the system of record, not another disconnected assistant.</p>
+<p><a href="/contact">Talk to a Neural Xpert AI Expert</a></p>

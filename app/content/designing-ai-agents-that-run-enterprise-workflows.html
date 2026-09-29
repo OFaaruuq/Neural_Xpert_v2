@@ -1,0 +1,49 @@
+<p><strong>AI Agents · Workflow Automation · Enterprise Integration</strong></p>
+<p>A chatbot answers a question. An agent is asked to finish a piece of work: gather the record, check the policy, draft the update, and stop where a person must decide. That difference is why agents fail in enterprises even when the underlying model is strong. The model is not the hard part. The workflow, the permissions, and the stop condition are.</p>
+
+<h3 class="h4">Start from the workflow, not the agent</h3>
+<p>Write the task the way an operations lead would hand it to a new hire. What arrives? Which systems are opened? What is copied, checked, or updated? Where does a person have to approve? What does “done” look like, and what does a mistake cost?</p>
+<p>If that description is vague, an agent will improvise. Improvisation is acceptable in a demo and expensive in SAP, Salesforce, or a customer’s account.</p>
+<p>Good first workflows are narrow and frequent:</p>
+<ul>
+<li>Triage an incoming request, attach the matching record, and propose a next step.</li>
+<li>Collect the documents for a case and flag what is missing.</li>
+<li>Draft an update in Microsoft 365 from data that already lives in the system of record.</li>
+<li>Prepare a handoff when a rule says a person must take over.</li>
+</ul>
+
+<h3 class="h4">Give the agent tools, not a login to everything</h3>
+<p>An agent acts by calling tools: search this knowledge set, read this case, create this draft, post this note. Each tool should do one thing, check the caller’s permission, and return a result the agent can verify.</p>
+<p>Do not hand the agent a shared administrator account “so it can get its work done.” The agent should act as the user it is helping, or as a service identity with a short list of allowed operations. If the user cannot approve a payment, the agent must not be able to approve it either.</p>
+
+<h3 class="h4">Decide where a person stays in the loop</h3>
+<p>Not every step deserves the same oversight. Split the workflow into three kinds of action:</p>
+<ul>
+<li><strong>Read.</strong> The agent may look up policy, status, and history on its own.</li>
+<li><strong>Draft.</strong> The agent may prepare a message or a record change for someone to send.</li>
+<li><strong>Commit.</strong> A person, or a tested business rule, confirms the change before it lands in the system of record.</li>
+</ul>
+<p>High-impact commits — money, access, customer commitments, legal language — stay with a person until there is evidence the agent is right often enough, and a way to undo the cases where it is not.</p>
+
+<h3 class="h4">Design for the steps that go wrong</h3>
+<p>Agents fail in ordinary ways. A tool times out. A record is locked. The retrieved policy is outdated. The model picks a plausible but wrong customer. A production design names those cases in advance.</p>
+<p>Each failed step needs a behavior: retry once, ask the user, or stop and open a task for a person. Silent retries that eventually write the wrong record are worse than a visible stop. Log the tool calls and the final action so support can see what the agent believed it was doing.</p>
+
+<h3 class="h4">Keep the agent inside systems people already use</h3>
+<p>An agent that lives in a separate website will be abandoned. Put it where the work already is: the CRM, the case tool, the Microsoft 365 document, the internal portal. The user should see the draft in context and accept or reject it there.</p>
+<p>Integration is part of the agent, not a follow-up project. If the agent cannot read the real record and cannot write back through an approved API, it is still a chat window with extra steps.</p>
+
+<h3 class="h4">Measure the workflow, not the conversation</h3>
+<p>Track how often the task finishes, how often a person has to repair it, how long the path takes, and what the mistakes cost. A long, polite transcript with a wrong update is a failure. A short run that prepares an accurate draft is a success.</p>
+<p>Review a sample of completed and abandoned runs every week at the start. The failures are the specification for the next tool, the next permission, or the next place a person must confirm.</p>
+
+<h3 class="h4">A build sequence that stays controllable</h3>
+<p><strong>1. Document one workflow and its stop points.</strong></p>
+<p><strong>2. Expose only the read tools required for that workflow.</strong></p>
+<p><strong>3. Let the agent draft, and let a person commit.</strong></p>
+<p><strong>4. Log every tool call.</strong></p>
+<p><strong>5. Add a commit action only after the error rate is understood and reversible.</strong></p>
+
+<h3 class="h4">How Neural Xpert helps</h3>
+<p>Neural Xpert designs agents that operate across enterprise applications without taking ownership away from the business. The work covers the workflow, the tool permissions, the human approval points, and the integration into Microsoft 365, SAP, Salesforce, and the systems around them.</p>
+<p><a href="/contact">Talk to a Neural Xpert AI Expert</a></p>

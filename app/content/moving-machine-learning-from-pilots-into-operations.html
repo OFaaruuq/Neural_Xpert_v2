@@ -6,7 +6,7 @@
 <p>The objective is to build an <strong>operational AI system around the model</strong>.</p>
 <p>For enterprises investing in machine learning, the transition from experimentation to production requires engineering discipline, strong architecture, MLOps, continuous evaluation, security, and clear business ownership.</p>
 
-<h2>The Gap Between an ML Pilot and Production</h2>
+<h3 class="h4">The Gap Between an ML Pilot and Production</h3>
 <p>During a pilot, teams are usually trying to answer a relatively simple question:</p>
 <p><strong>Can machine learning solve this problem?</strong></p>
 <p>They may train several models, evaluate them against historical data, demonstrate predictions through a dashboard, and prove that the idea has potential.</p>
@@ -31,22 +31,22 @@
 </ul>
 <p>The machine learning model becomes only one component within a much larger production architecture.</p>
 
-<h2>Why Promising ML Pilots Struggle in Production</h2>
+<h3 class="h4">Why Promising ML Pilots Struggle in Production</h3>
 <p>Several recurring problems prevent organizations from moving successfully from experimentation into operations.</p>
 
-<h3>1. The Model Was Built Without the Production Environment in Mind</h3>
+<h4>1. The Model Was Built Without the Production Environment in Mind</h4>
 <p>A data science team may create an accurate model using historical datasets without fully considering how the model will receive the same information in production.</p>
 <p>This can create a gap between training and inference.</p>
 <p>Production architecture should therefore be considered early.</p>
 <p>Teams need to understand where data originates, how frequently it changes, how predictions will be consumed, what latency is acceptable, and which applications need integration.</p>
 
-<h3>2. Data Changes After Deployment</h3>
+<h4>2. Data Changes After Deployment</h4>
 <p>Machine learning depends heavily on data.</p>
 <p>Customer behavior changes. Products change. Transactions change. Business processes change. External conditions change.</p>
 <p>As production data begins to differ from the data used during development, model performance can deteriorate.</p>
 <p>Organizations therefore need visibility into both <strong>data quality and model behavior</strong>, not simply whether an API is online.</p>
 
-<h3>3. Models Are Deployed Without Sufficient Observability</h3>
+<h4>3. Models Are Deployed Without Sufficient Observability</h4>
 <p>Traditional application monitoring asks questions such as:</p>
 <p><strong>Is the service running?</strong></p>
 <p><strong>What is the response time?</strong></p>
@@ -59,7 +59,7 @@
 <p><strong>Are certain segments behaving differently?</strong></p>
 <p>Production ML requires infrastructure observability and model observability together.</p>
 
-<h3>4. Integration Is Treated as an Afterthought</h3>
+<h4>4. Integration Is Treated as an Afterthought</h4>
 <p>A prediction has little business value if nothing can act on it.</p>
 <p>A fraud model may need to interact with transaction systems.</p>
 <p>A churn model may need to connect with CRM and customer engagement platforms.</p>
@@ -67,10 +67,10 @@
 <p>A risk model may need to trigger a human review process.</p>
 <p>The value of machine learning is realized when predictions become part of <strong>real operational workflows</strong>.</p>
 
-<h2>The Production ML Architecture</h2>
+<h3 class="h4">The Production ML Architecture</h3>
 <p>A mature machine learning environment typically contains several connected layers.</p>
 
-<h3>Data Layer</h3>
+<h4>Data Layer</h4>
 <p>Production models require reliable access to the data they depend on.</p>
 <p>This can include:</p>
 <ul>
@@ -85,13 +85,13 @@
 </ul>
 <p>Data pipelines must ingest, validate, transform, and prepare this information consistently.</p>
 
-<h3>Model Development and Evaluation</h3>
+<h4>Model Development and Evaluation</h4>
 <p>Data scientists and machine learning engineers need controlled environments for experimentation.</p>
 <p>This includes model training, feature engineering, experiment tracking, validation, comparison, and evaluation.</p>
 <p>The goal should not simply be selecting the model with the highest experimental score.</p>
 <p>Teams must also consider factors such as operational cost, latency, explainability, maintainability, scalability, and risk.</p>
 
-<h3>Model Registry and Versioning</h3>
+<h4>Model Registry and Versioning</h4>
 <p>Production teams need to know exactly which model is deployed.</p>
 <p>A model registry can help maintain:</p>
 <ul>
@@ -104,7 +104,7 @@
 </ul>
 <p>This creates traceability between experimentation and production.</p>
 
-<h3>Deployment and Serving</h3>
+<h4>Deployment and Serving</h4>
 <p>Once approved, models need a controlled path into production.</p>
 <p>Depending on the use case, predictions might be delivered through:</p>
 <ul>
@@ -116,7 +116,7 @@
 </ul>
 <p>Containerization, automated deployment pipelines, infrastructure automation, and controlled release strategies can make deployment more repeatable.</p>
 
-<h2>MLOps Connects Development and Operations</h2>
+<h3 class="h4">MLOps Connects Development and Operations</h3>
 <p>MLOps applies software engineering and operational practices to the machine learning lifecycle.</p>
 <p>A mature workflow may look like:</p>
 <p><strong>Data → Train → Evaluate → Approve → Deploy → Monitor → Improve</strong></p>
@@ -125,7 +125,7 @@
 <p>The goal is not automation for its own sake.</p>
 <p>The goal is to make machine learning delivery <strong>repeatable, observable, governed, and recoverable</strong>.</p>
 
-<h2>Evaluation Must Continue After Deployment</h2>
+<h3 class="h4">Evaluation Must Continue After Deployment</h3>
 <p>Model evaluation should not end when the model reaches production.</p>
 <p>Organizations should establish baseline performance before deployment and then continuously compare production behavior against expected results.</p>
 <p>Depending on the application, monitoring may include:</p>
@@ -144,7 +144,7 @@
 <p>For example, monitoring a recommendation model is different from monitoring a fraud-detection system or demand-forecasting model.</p>
 <p>Technical metrics and business metrics should therefore be considered together.</p>
 
-<h2>Build for Failure and Rollback</h2>
+<h3 class="h4">Build for Failure and Rollback</h3>
 <p>No production system should assume that every deployment will work perfectly.</p>
 <p>Machine learning systems need a recovery strategy.</p>
 <p>Before releasing a new model, teams should know:</p>
@@ -156,14 +156,14 @@
 <p>Versioned deployments, staged releases, fallback mechanisms, and rollback procedures reduce operational risk.</p>
 <p>For higher-risk use cases, human review may remain part of the workflow even after automation is introduced.</p>
 
-<h2>Security Must Extend Across the ML Lifecycle</h2>
+<h3 class="h4">Security Must Extend Across the ML Lifecycle</h3>
 <p>Production machine learning expands the attack surface beyond the model itself.</p>
 <p>Organizations need to consider the security of:</p>
 <p><strong>Data → Development → Models → Pipelines → APIs → Infrastructure → Applications</strong></p>
 <p>Controls may include identity and access management, secrets management, encryption, network segmentation, API security, logging, vulnerability management, data protection, and least-privilege access.</p>
 <p>The objective is to treat ML as part of the enterprise technology environment rather than as an isolated data science project.</p>
 
-<h2>Governance Creates Accountability</h2>
+<h3 class="h4">Governance Creates Accountability</h3>
 <p>As machine learning becomes embedded in business decisions, organizations also need clear governance.</p>
 <p>Important questions include:</p>
 <p><strong>Who owns the model?</strong></p>
@@ -176,7 +176,7 @@
 <p>Governance does not have to mean creating unnecessary bureaucracy.</p>
 <p>Effective governance establishes ownership, traceability, controls, and decision-making processes appropriate to the risk of the application.</p>
 
-<h2>Human Oversight Still Matters</h2>
+<h3 class="h4">Human Oversight Still Matters</h3>
 <p>Not every decision should be completely automated.</p>
 <p>For sensitive or high-impact processes, machine learning may be more valuable as a decision-support capability.</p>
 <p>A model can identify patterns, prioritize cases, calculate risk, or make recommendations while humans retain authority over important decisions.</p>
@@ -184,7 +184,7 @@
 <p><strong>Machine Intelligence + Business Rules + Human Judgment</strong></p>
 <p>The appropriate level of automation should depend on the use case, risk, confidence, and business requirements.</p>
 
-<h2>Measure Business Outcomes, Not Just Model Accuracy</h2>
+<h3 class="h4">Measure Business Outcomes, Not Just Model Accuracy</h3>
 <p>A technically impressive model is not automatically a successful production system.</p>
 <p>Organizations should connect machine learning performance to measurable operational outcomes.</p>
 <p>Depending on the use case, these might include:</p>
@@ -205,7 +205,7 @@
 <p><strong>“What measurable business outcome is this system improving?”</strong></p>
 <p>That distinction is fundamental to enterprise AI.</p>
 
-<h2>A Practical Path from Pilot to Production</h2>
+<h3 class="h4">A Practical Path from Pilot to Production</h3>
 <p>Organizations can approach productionization through six stages.</p>
 <p><strong>1. Define the operational outcome</strong></p>
 <p>Identify the business problem, expected outcome, success metrics, users, and operational owner.</p>
@@ -220,18 +220,18 @@
 <p><strong>6. Continuously optimize</strong></p>
 <p>Use production evidence to improve models, pipelines, infrastructure, cost, and business performance.</p>
 
-<h2>From Machine Learning Experiment to Enterprise Capability</h2>
+<h3 class="h4">From Machine Learning Experiment to Enterprise Capability</h3>
 <p>The organizations that generate lasting value from machine learning are not simply those that build sophisticated models.</p>
 <p>They are the organizations that develop the engineering and operational capabilities required to run those models reliably.</p>
 <p>That means connecting:</p>
 <p><strong>Machine Learning + Data Engineering + MLOps + Cloud Infrastructure + Security + Governance + Enterprise Integration</strong></p>
 <p>When these disciplines work together, machine learning can move beyond experimentation and become part of everyday business operations.</p>
 
-<h2>How Neural Xpert Helps</h2>
+<h3 class="h4">How Neural Xpert Helps</h3>
 <p>Neural Xpert helps organizations move machine learning and AI initiatives from experimentation into secure, production-ready environments.</p>
 <p>Our work spans machine learning engineering, data and enterprise integration, cloud and AI infrastructure, MLOps, observability, security, governance, deployment, and continuous optimization.</p>
 <p>Whether an organization is validating its first machine learning use case or modernizing an existing production AI environment, the objective remains the same:</p>
 <p><strong>Build AI that can operate reliably in the real world.</strong></p>
-<h3>Ready to Move Your AI Initiative Into Production?</h3>
+<h4>Ready to Move Your AI Initiative Into Production?</h4>
 <p>Turn your machine learning pilot into a secure, scalable, and operational AI capability.</p>
 <p><a href="/contact">Talk to a Neural Xpert AI Expert</a></p>
