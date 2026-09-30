@@ -66,7 +66,7 @@ def apply_mail_settings():
         username = _saved("mail_username")
         if username:
             current_app.config["MAIL_USERNAME"] = username
-        password = _saved("mail_password")
+        password = _mail_password()
         if password:
             current_app.config["MAIL_PASSWORD"] = password
         sender = _saved("mail_sender")
@@ -90,7 +90,7 @@ def mail_form_state():
         "sender": config.get("MAIL_DEFAULT_SENDER") or "Neural Xpert",
         "recipient": mail_recipient() or "",
         "password_set": bool(config.get("MAIL_PASSWORD")),
-        "password_saved": bool(_saved("mail_password")),
+        "password_saved": bool(_mail_password()),
         "using_saved": bool(_saved("mail_server")),
         "contact_subject": _saved("mail_contact_subject") or CONTACT_SUBJECT,
         "contact_body": _saved("mail_contact_body") or CONTACT_BODY,
@@ -146,7 +146,9 @@ def save_mail_settings(form):
     _put("mail_sender", (sender or "Neural Xpert")[:255])
     _put("mail_recipient", recipient[:255])
     if password:
-        _put("mail_password", password)
+        from app.secretsbox import seal
+
+        _put("mail_password", seal(password))
     _put("mail_contact_subject", (form.get("mail_contact_subject") or "")[:200])
     _put("mail_contact_body", (form.get("mail_contact_body") or "")[:4000])
     _put("mail_career_subject", (form.get("mail_career_subject") or "")[:200])
@@ -245,6 +247,23 @@ def _email_html(title, preheader, inner):
     )
 
 
+def _mail_password():
+    from app.secretsbox import open_secret, seal
+
+    stored = _saved("mail_password")
+    if stored and not stored.startswith("nx1:"):
+        _put("mail_password", seal(stored))
+        from app.extensions import db
+
+        db.session.commit()
+        stored = _saved("mail_password")
+    return open_secret(stored)
+
+
+def _safe_subject(value):
+    return re.sub(r"[\r\n]+", " ", value or "").strip()[:200]
+
+
 def send_email(subject, recipients, body, reply_to=None, attachments=None, html=None):
     apply_mail_settings()
     current_app.extensions.pop("mail_last_error", None)
@@ -256,12 +275,12 @@ def send_email(subject, recipients, body, reply_to=None, attachments=None, html=
         current_app.logger.error("Email not sent (%s). No recipient is configured.", subject)
         return False
     message = Message(
-        subject=subject,
+        subject=_safe_subject(subject),
         recipients=inbox,
         body=body,
         html=html,
         sender=mail_sender(),
-        reply_to=reply_to,
+        reply_to=reply_to if reply_to and _EMAIL.fullmatch(reply_to) else None,
     )
     for filename, content_type, data in attachments or []:
         message.attach(filename, content_type, data)
@@ -350,14 +369,16 @@ def notify_application(job, application):
         f"Phone: {application.phone or '-'}\n\n"
         f"{application.cover_letter or '-'}\n"
     )
-    path = os.path.join(current_app.config["UPLOAD_FOLDER"], application.cv_filename)
+    stored = os.path.basename(application.cv_filename or "")
+    root = os.path.realpath(current_app.config["UPLOAD_FOLDER"])
+    path = os.path.realpath(os.path.join(root, stored))
     attachments = []
-    if os.path.isfile(path):
-        extension = application.cv_filename.rsplit(".", 1)[-1].lower()
+    if stored == application.cv_filename and path.startswith(root + os.sep) and os.path.isfile(path):
+        extension = stored.rsplit(".", 1)[-1].lower()
         with open(path, "rb") as handle:
             attachments.append(
                 (
-                    application.cv_original_name or application.cv_filename,
+                    os.path.basename((application.cv_original_name or stored).replace("\\", "/")).replace("\r", "").replace("\n", "") or stored,
                     _CV_TYPES.get(extension, "application/octet-stream"),
                     handle.read(),
                 )

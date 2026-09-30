@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap5.min.css') }}">
     {% endif %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
-    <script>
+    <script nonce="{{ csp_nonce }}">
         try {
             if (localStorage.getItem("nx-side") === "collapsed" && window.matchMedia("(min-width: 768px)").matches) {
                 document.documentElement.classList.add("nx-collapsed");

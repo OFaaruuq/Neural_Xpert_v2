@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 import secrets
 import time
 from datetime import datetime, timedelta, timezone
@@ -46,7 +47,7 @@ def _administrator_role():
     return StaffRole.query.filter_by(slug="administrator").one()
 
 
-def create_staff(email):
+def create_staff(email, role=None, name=""):
     normalized = normalize_email(email)
     if not normalized:
         raise ValueError("Enter a valid staff email address.")
@@ -55,9 +56,10 @@ def create_staff(email):
     password = secrets.token_urlsafe(18)
     staff = StaffUser(
         email=normalized,
+        name=(name or "")[:120],
         password_hash=generate_password_hash(password),
         is_active=True,
-        role=_administrator_role(),
+        role=role or _administrator_role(),
     )
     db.session.add(staff)
     db.session.commit()
@@ -114,9 +116,12 @@ def check_password(staff, password):
 
 
 def _otp_hash(staff_id, code):
-    secret = current_app.config["SECRET_KEY"]
-    payload = f"{secret}:{staff_id}:{code}".encode()
-    return hashlib.sha256(payload).hexdigest()
+    secret = (current_app.config.get("SECRET_KEY") or "").encode()
+    return hmac.new(secret, f"{staff_id}:{code}".encode(), hashlib.sha256).hexdigest()
+
+
+def session_stamp(staff):
+    return hashlib.sha256((staff.password_hash or "").encode()).hexdigest()[:32]
 
 
 def start_email_otp(staff):
@@ -175,7 +180,24 @@ def check_email_code(staff, challenge, code):
     return False
 
 
+def ensure_totp_sealed(staff):
+    """Rewrite a legacy plaintext authenticator secret into the sealed form."""
+    if staff is None or not staff.id or not staff.totp_secret:
+        return
+    stored = db.session.execute(
+        db.text("SELECT totp_secret FROM staff_users WHERE id = :id"),
+        {"id": staff.id},
+    ).scalar()
+    if not stored or str(stored).startswith("nx1:"):
+        return
+    from sqlalchemy.orm.attributes import flag_modified
+
+    flag_modified(staff, "totp_secret")
+    db.session.commit()
+
+
 def verify_totp(staff, code):
+    ensure_totp_sealed(staff)
     if not staff.totp_secret:
         return False
     supplied = "".join(ch for ch in (code or "") if ch.isdigit())
@@ -244,17 +266,21 @@ def complete_login(staff):
     staff.failed_attempts = 0
     staff.locked_until = None
     db.session.commit()
+    now = int(time.time())
     session.clear()
     session["staff_id"] = staff.id
     session["mfa_complete"] = True
-    session["staff_seen"] = int(time.time())
+    session["staff_seen"] = now
+    session["staff_started"] = now
+    session["staff_stamp"] = session_stamp(staff)
     session.permanent = True
 
 
 def session_is_fresh():
-    seen = session.get("staff_seen")
     now = int(time.time())
-    if seen and now - int(seen) > 2 * 60 * 60:
+    started = int(session.get("staff_started") or 0)
+    seen = int(session.get("staff_seen") or 0)
+    if not started or now - started > 12 * 60 * 60 or now - seen > 2 * 60 * 60:
         session.clear()
         return False
     session["staff_seen"] = now
@@ -267,4 +293,8 @@ def current_staff():
     staff = db.session.get(StaffUser, session.get("staff_id"))
     if staff is None or not staff.is_active or not staff.totp_enabled:
         return None
+    if session.get("staff_stamp") != session_stamp(staff):
+        session.clear()
+        return None
+    ensure_totp_sealed(staff)
     return staff

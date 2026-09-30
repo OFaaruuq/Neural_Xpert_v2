@@ -164,6 +164,28 @@ def ensure_catalog():
     db.session.commit()
 
 
+def record_security(action, detail="", staff=None):
+    """Write a security event even when no staff session exists yet."""
+    from flask import current_app
+
+    try:
+        db.session.add(
+            AuditLog(
+                staff_id=staff.id if staff else None,
+                action=(action or "")[:80],
+                object_type="security",
+                object_id="",
+                detail=(detail or "")[:400],
+                ip_address=(request.remote_addr or "")[:64] if request else "",
+            )
+        )
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        current_app.logger.warning("Security event %s was not stored", action)
+    current_app.logger.warning("security %s %s", action, detail or "")
+
+
 def record_audit(action, object_type="", object_id="", detail=""):
     staff = getattr(g, "staff", None)
     db.session.add(

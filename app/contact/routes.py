@@ -2,6 +2,7 @@ from email_validator import EmailNotValidError, validate_email
 from flask import Blueprint, render_template, request
 
 from app.extensions import db, limiter
+from app.limits import rate_limited
 from app.mailer import notify_contact
 from app.models import ContactSubmission
 from app.services import seo_for
@@ -22,6 +23,8 @@ def index():
 @bp.route("/contact", methods=["POST"])
 @limiter.limit("5 per minute")
 def submit():
+    if rate_limited("contact", 5, 60):
+        return "Please wait a moment and try again.", 429
     if request.form.get("company_website"):
         return "Thank You! Your message has been sent.", 200
 

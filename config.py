@@ -23,11 +23,13 @@ class Config:
     UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", "instance/uploads")
     ALLOWED_CV_EXTENSIONS = {"pdf", "doc", "docx"}
     ARTICLES_PER_PAGE = 6
-    WTF_CSRF_TIME_LIMIT = None
+    WTF_CSRF_TIME_LIMIT = 60 * 60 * 8
+    SESSION_COOKIE_NAME = "nx_session"
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
-    PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=12)
     REMEMBER_COOKIE_HTTPONLY = True
+    # Per-process limits. Account lockout is stored in the database, so it still applies across Gunicorn workers.
     RATELIMIT_STORAGE_URI = "memory://"
     MAIL_DEBUG = False
     MAIL_SERVER = os.environ.get("MAIL_SERVER", "")

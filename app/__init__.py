@@ -1,11 +1,13 @@
 import os
+import secrets
+from xml.sax.saxutils import escape
 
 import click
-from flask import Flask, abort, redirect, render_template, request, url_for
+from flask import Flask, abort, g, redirect, render_template, request, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.extensions import csrf, db, limiter, mail, migrate
-from app.services import configure_logging, plain_excerpt, sanitize_html, seo_for
+from app.services import configure_logging, plain_excerpt, safe_local_path, safe_static_path, safe_url, sanitize_html, seo_for
 from config import CONFIGS
 
 
@@ -25,6 +27,10 @@ def create_app(config_name=None):
     app.config.from_object(CONFIGS[config_name])
     if config_name == "production":
         _require_production_secrets(app)
+    elif config_name != "testing":
+        secret = app.config.get("SECRET_KEY") or ""
+        if secret in {"", "dev-only-change-me", "change-me", "test-secret"} or len(secret) < 32:
+            app.logger.warning("SECRET_KEY is still a development placeholder. Set a unique value before this server is reachable.")
     app.url_map.strict_slashes = False
     os.makedirs(app.instance_path, exist_ok=True)
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
@@ -38,6 +44,8 @@ def create_app(config_name=None):
     configure_logging(app)
     app.jinja_env.filters["sanitize_html"] = sanitize_html
     app.jinja_env.filters["plain_excerpt"] = plain_excerpt
+    app.jinja_env.filters["safe_url"] = safe_url
+    app.jinja_env.filters["safe_static"] = safe_static_path
 
     from app import models  # noqa: F401
     from app.admin.routes import bp as admin_bp
@@ -48,8 +56,9 @@ def create_app(config_name=None):
     from app.main.routes import bp as main_bp
     from app.visitors import record_public_visit
 
-    if config_name != "production" and not app.config.get("MAIL_SERVER"):
+    if config_name == "development" and not app.config.get("MAIL_SERVER"):
         app.config["ADMIN_OTP_ON_PAGE"] = True
+        app.logger.warning("SMTP is not configured, so admin sign-in codes are shown on the verify page. Do not expose this server.")
 
     app.register_blueprint(admin_bp)
     app.register_blueprint(main_bp)
@@ -65,7 +74,8 @@ def create_app(config_name=None):
     app.register_blueprint(contact_bp)
 
     if config_name == "production":
-        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+        # Trust one proxy for the client IP and scheme. Do not trust X-Forwarded-Host from the client.
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=0)
 
     @app.context_processor
     def defaults():
@@ -80,7 +90,7 @@ def create_app(config_name=None):
                 .all()
             )
         except Exception:
-            app.logger.debug("Sidebar articles are unavailable")
+            app.logger.warning("Sidebar articles are unavailable", exc_info=True)
         header_nav = []
         footer_nav = []
         try:
@@ -89,7 +99,7 @@ def create_app(config_name=None):
             header_nav = NavItem.query.filter_by(menu="header", enabled=True).order_by(NavItem.position, NavItem.id).all()
             footer_nav = NavItem.query.filter_by(menu="footer", enabled=True).order_by(NavItem.position, NavItem.id).all()
         except Exception:
-            app.logger.debug("Navigation records are unavailable")
+            app.logger.warning("Navigation records are unavailable", exc_info=True)
         return {
             "footer_variant": "inner",
             "seo_title": "Neural Xpert",
@@ -105,6 +115,7 @@ def create_app(config_name=None):
             "header_nav": header_nav,
             "footer_nav": footer_nav,
             "brand": _brand(),
+            "csp_nonce": getattr(g, "csp_nonce", ""),
         }
 
     @app.template_global()
@@ -139,7 +150,7 @@ def create_app(config_name=None):
 
             return brand_urls()
         except Exception:
-            app.logger.debug("Brand logos are unavailable")
+            app.logger.warning("Brand logos are unavailable", exc_info=True)
             logo = url_for("static", filename="img/logo-neural-xpert.png")
             return {
                 "header": logo,
@@ -163,6 +174,10 @@ def create_app(config_name=None):
         return g.home_section_map
 
     @app.before_request
+    def assign_csp_nonce():
+        g.csp_nonce = secrets.token_urlsafe(16)
+
+    @app.before_request
     def apply_redirects():
         if request.path.startswith(("/admin", "/static")):
             return None
@@ -173,7 +188,11 @@ def create_app(config_name=None):
         except Exception:
             return None
         if rule:
-            return redirect(rule.target, code=rule.status_code or 301)
+            target = safe_local_path(rule.target)
+            code = 301 if rule.status_code not in {301, 302} else rule.status_code
+            if target:
+                return redirect(target, code=code)
+            app.logger.warning("Ignored redirect %s because the destination is not a local path", rule.source)
         return None
 
     @app.after_request
@@ -182,19 +201,30 @@ def create_app(config_name=None):
         response.headers["X-Frame-Options"] = "SAMEORIGIN"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
-        response.headers["Content-Security-Policy"] = (
+        nonce = getattr(g, "csp_nonce", "") or secrets.token_urlsafe(16)
+        policy = (
             "default-src 'self'; "
             "img-src 'self' data: https:; "
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
             "font-src 'self' https://fonts.gstatic.com data:; "
-            "script-src 'self' 'unsafe-inline'; "
+            f"script-src 'self' 'nonce-{nonce}'; "
+            "object-src 'none'; "
             "frame-src 'self'; "
+            "frame-ancestors 'self'; "
             "connect-src 'self'; "
             "base-uri 'self'; "
             "form-action 'self'"
         )
         if config_name == "production":
+            policy += "; upgrade-insecure-requests"
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        if request.path.startswith("/brand/") and request.path.endswith(".svg"):
+            policy = "default-src 'none'; sandbox"
+            response.headers["Content-Disposition"] = "attachment"
+        response.headers["Content-Security-Policy"] = policy
+        response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+        response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+        response.headers["X-Permitted-Cross-Domain-Policies"] = "none"
         return record_public_visit(response)
 
     @app.errorhandler(404)
@@ -243,7 +273,7 @@ def create_app(config_name=None):
         for job in Job.query.filter(Job.status.in_(("published", "open"))).all():
             urls.append(url_for("careers.detail", slug=job.slug))
         base = app.config["SITE_URL"].rstrip("/")
-        items = "\n".join(f"  <url><loc>{base}{path}</loc></url>" for path in urls)
+        items = "\n".join(f"  <url><loc>{escape(base + path)}</loc></url>" for path in urls)
         xml = f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{items}\n</urlset>\n'
         return xml, 200, {"Content-Type": "application/xml; charset=utf-8"}
 

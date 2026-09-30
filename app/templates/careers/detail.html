@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block structured_data %}
-<script type="application/ld+json">{{ posting|tojson }}</script>
+<script type="application/ld+json" nonce="{{ csp_nonce }}">{{ posting|tojson }}</script>
 {% endblock %}
 {% block content %}
     <div class="breadcumb-wrapper nx-hero nx-career" data-bg-src="{{ url_for('static', filename='img/normal/about-neural-xpert.jpg') }}">

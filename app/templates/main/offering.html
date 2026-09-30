@@ -20,7 +20,7 @@
         {% if item.architecture %}<h2>Architecture</h2><p>{{ item.architecture }}</p>{% endif %}
         {% if item.benefits %}<h2>Benefits</h2><p>{{ item.benefits }}</p>{% endif %}
         {% if item.body %}<div>{{ item.body|sanitize_html|safe }}</div>{% endif %}
-        <a class="th-btn mt-4" href="{{ item.cta_url or url_for('contact.index') }}">{{ item.cta_label or 'Talk to an AI Expert' }}</a>
+        <a class="th-btn mt-4" href="{{ item.cta_url|safe_url or url_for('contact.index') }}">{{ item.cta_label or 'Talk to an AI Expert' }}</a>
     </div>
 </section>
 {% endblock %}

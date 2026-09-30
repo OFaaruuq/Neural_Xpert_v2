@@ -8,7 +8,7 @@ from flask import abort, current_app, send_from_directory, url_for
 from werkzeug.utils import secure_filename
 
 STORED = re.compile(r"logos/[a-f0-9]{32}\.(png|jpg|jpeg|webp|gif|svg|ico)")
-EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".ico"}
+EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".ico"}
 MAX_BYTES = 2_000_000
 
 LOGO_SLOTS = (
@@ -71,8 +71,12 @@ def _upload_root():
 def store_logo(upload):
     filename = secure_filename(upload.filename or "")
     ext = os.path.splitext(filename)[1].lower()
-    if ext not in EXTENSIONS:
-        return "", "Use a PNG, JPG, WEBP, GIF, SVG, or ICO file."
+    header = upload.stream.read(16)
+    upload.stream.seek(0)
+    from app.services import file_signature_ok
+
+    if ext not in EXTENSIONS or not file_signature_ok(ext, header):
+        return "", "Use a PNG, JPG, WEBP, GIF, or ICO file."
     stored = f"logos/{uuid.uuid4().hex}{ext}"
     directory = os.path.join(_upload_root(), "logos")
     os.makedirs(directory, exist_ok=True)

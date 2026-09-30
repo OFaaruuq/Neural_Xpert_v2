@@ -77,7 +77,7 @@
             <div class="th-mobile-menu">
                 <ul>
                                         {% if header_nav %}
-                                        {% for item in header_nav %}<li><a href="{{ item.url }}" {% if item.new_tab %}target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a></li>{% endfor %}
+                                        {% for item in header_nav %}<li><a href="{{ item.url|safe_url or '#' }}" {% if item.new_tab %}target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a></li>{% endfor %}
                                         {% else %}
                                         <li><a href="{{ url_for('main.index') }}">Home</a></li>
                                         <li><a href="{{ url_for('main.about') }}">About</a></li>
@@ -131,7 +131,7 @@
                                 <nav class="main-menu style2 d-none d-xl-inline-block">
                                     <ul>
                                         {% if header_nav %}
-                                        {% for item in header_nav %}<li><a href="{{ item.url }}" {% if item.new_tab %}target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a></li>{% endfor %}
+                                        {% for item in header_nav %}<li><a href="{{ item.url|safe_url or '#' }}" {% if item.new_tab %}target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a></li>{% endfor %}
                                         {% else %}
                                         <li><a href="{{ url_for('main.index') }}">Home</a></li>
                                         <li><a href="{{ url_for('main.about') }}">About</a></li>

@@ -72,7 +72,7 @@
     </div>
 </form>
 {% if row.id %}
-<form class="mt-3" method="post" action="{{ url_for('admin.inquiry_delete', inquiry_id=row.id) }}" onsubmit="return confirm('Remove this lead?');">
+<form class="mt-3" method="post" action="{{ url_for('admin.inquiry_delete', inquiry_id=row.id) }}" data-confirm="Remove this lead?">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-outline-danger" type="submit">Remove lead</button>
 </form>

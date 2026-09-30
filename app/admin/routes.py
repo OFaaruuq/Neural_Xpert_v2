@@ -6,7 +6,7 @@ from email_validator import EmailNotValidError, validate_email
 from flask import Blueprint, abort, flash, g, redirect, render_template, request, session, url_for
 
 from app.admin.access import PERMISSIONS, ensure_roles, ensure_staff_role
-from app.admin.catalog import record_audit
+from app.admin.catalog import record_audit, record_security
 from app.admin.security import (
     CODE_ERROR,
     LOGIN_ERROR,
@@ -16,6 +16,7 @@ from app.admin.security import (
     check_password,
     complete_login,
     confirm_enrollment,
+    ensure_totp_sealed,
     session_is_fresh,
     consume_recovery_code,
     current_staff,
@@ -23,11 +24,13 @@ from app.admin.security import (
     pending_login,
     provisioning_uri,
     register_failure,
+    session_stamp,
     start_email_otp,
     utcnow,
     verify_totp,
 )
 from app.extensions import db, limiter
+from app.limits import rate_limited
 from app.models import (
     Article,
     CaseStudy,
@@ -38,10 +41,17 @@ from app.models import (
     StaffRole,
     StaffUser,
 )
-from app.services import sanitize_html, slugify
+from app.services import safe_static_path, safe_url, sanitize_html, slugify
 from werkzeug.security import check_password_hash, generate_password_hash
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
+
+
+@bp.after_request
+def _admin_not_cached(response):
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Pragma"] = "no-cache"
+    return response
 
 INQUIRY_STATUSES = ("new", "contacted", "qualified", "opportunity", "proposal", "won", "lost", "in progress", "closed")
 APPLICATION_STATUSES = ("new", "screening", "interview", "offer", "hired", "rejected", "reviewing", "closed")
@@ -131,17 +141,26 @@ def login():
     if current_staff():
         return redirect(url_for("admin.dashboard"))
     error = ""
-    entered = ""
+    entered = (request.form.get("email") or "").strip() if request.method == "POST" else ""
+    if request.method == "POST" and rate_limited("admin-login", 8, 60):
+        return _render("admin/login.html", title="Sign in", error="Too many attempts. Try again in a minute.", email=entered), 429
     if request.method == "POST":
-        entered = (request.form.get("email") or "").strip()
         email = normalize_email(entered)
         password = request.form.get("password") or ""
         staff = StaffUser.query.filter_by(email=email).first() if email else None
-        if staff is None or not staff.is_active or account_is_locked(staff) or not check_password(staff, password):
-            if staff and staff.is_active and not account_is_locked(staff):
+        locked = bool(staff and staff.is_active and account_is_locked(staff))
+        if staff and staff.is_active:
+            password_ok = check_password(staff, password)
+        else:
+            check_password(None, password)
+            password_ok = False
+        if not password_ok or locked:
+            if staff and staff.is_active and not locked:
                 register_failure(staff)
+            record_security("login_failure", _mask_email(entered), staff if staff and staff.is_active else None)
             error = LOGIN_ERROR
         else:
+            record_security("login_password_accepted", _mask_email(staff.email), staff)
             if start_email_otp(staff) is None:
                 error = "The sign-in code could not be emailed. Try again in a moment."
             else:
@@ -156,8 +175,19 @@ def verify():
     if staff is None:
         return redirect(url_for("admin.login"))
     error = ""
+    if request.method == "POST" and rate_limited("admin-verify", 8, 60):
+        error = "Too many attempts. Try again in a minute."
+        return _render(
+            "admin/verify.html",
+            title="Verify sign-in",
+            error=error,
+            totp_enabled=staff.totp_enabled,
+            inbox=_mask_email(staff.email),
+            dev_code=session.get("login_dev_code", ""),
+        ), 429
     if request.method == "POST":
         if not check_email_code(staff, challenge, request.form.get("email_code")):
+            record_security("login_code_rejected", _mask_email(staff.email), staff)
             error = CODE_ERROR
         elif staff.totp_enabled and not (
             verify_totp(staff, request.form.get("totp_code"))
@@ -167,12 +197,14 @@ def verify():
             if challenge.attempts >= 5:
                 challenge.used = True
             db.session.commit()
+            record_security("login_code_rejected", _mask_email(staff.email), staff)
             error = CODE_ERROR
         else:
             challenge.used = True
             db.session.commit()
             if staff.totp_enabled:
                 complete_login(staff)
+                record_security("login_success", _mask_email(staff.email), staff)
                 return redirect(url_for("admin.dashboard"))
             begin_enrollment(staff)
             return redirect(url_for("admin.enroll"))
@@ -193,9 +225,19 @@ def enroll():
     if staff is None or not staff.is_active:
         return redirect(url_for("admin.login"))
     error = ""
-    if request.method == "POST":
+    status = 200
+    ensure_totp_sealed(staff)
+    if request.method == "POST" and rate_limited("admin-enroll", 8, 60):
+        error = "Too many attempts. Try again in a minute."
+        status = 429
+    elif request.method == "POST":
+        if int(session.get("enroll_attempts") or 0) >= 5:
+            session.clear()
+            return redirect(url_for("admin.login"))
         if confirm_enrollment(staff, request.form.get("totp_code")):
             return redirect(url_for("admin.recovery"))
+        session["enroll_attempts"] = int(session.get("enroll_attempts") or 0) + 1
+        record_security("authenticator_rejected", _mask_email(staff.email), staff)
         error = CODE_ERROR
     qr = segno.make(provisioning_uri(staff), error="m").svg_data_uri(scale=4)
     return _render(
@@ -204,7 +246,7 @@ def enroll():
         error=error,
         qr=qr,
         secret=staff.totp_secret,
-    )
+    ), status
 
 
 @bp.route("/recovery", methods=["GET", "POST"])
@@ -216,12 +258,16 @@ def recovery():
     if request.method == "POST":
         session.pop("recovery_codes", None)
         complete_login(staff)
+        record_security("login_success", _mask_email(staff.email), staff)
         return redirect(url_for("admin.dashboard"))
     return _render("admin/recovery.html", title="Save recovery codes", codes=codes)
 
 
 @bp.route("/logout", methods=["POST"])
 def logout():
+    staff = current_staff()
+    if staff:
+        record_security("logout", _mask_email(staff.email), staff)
     session.clear()
     return redirect(url_for("admin.login"))
 
@@ -242,6 +288,8 @@ def account():
         else:
             g.staff.password_hash = generate_password_hash(new_password)
             db.session.commit()
+            session["staff_stamp"] = session_stamp(g.staff)
+            record_security("password_changed", _mask_email(g.staff.email), g.staff)
             flash("Password updated.")
             return redirect(url_for("admin.account"))
     return _render("admin/account.html", title="Account", error=error)
@@ -462,7 +510,7 @@ def _article_form(article):
             article.slug = _unique_slug(Article, request.form.get("slug") or title, article.id)
             article.excerpt = excerpt
             article.content = sanitize_html(request.form.get("content") or "")
-            article.featured_image = (request.form.get("featured_image") or "")[:500]
+            article.featured_image = safe_static_path(request.form.get("featured_image") or "")
             article.seo_title = (request.form.get("seo_title") or title)[:255]
             article.meta_description = (request.form.get("meta_description") or excerpt)[:320]
             requested = request.form.get("status") if request.form.get("status") in ARTICLE_STATUSES else "draft"
@@ -471,10 +519,10 @@ def _article_form(article):
             article.status = requested
             article.tags = (request.form.get("tags") or "")[:500]
             article.focus_keyword = (request.form.get("focus_keyword") or "")[:160]
-            article.canonical_url = (request.form.get("canonical_url") or "")[:500]
+            article.canonical_url = safe_url(request.form.get("canonical_url") or "")
             article.robots = (request.form.get("robots") or "")[:80]
             article.cta_label = (request.form.get("cta_label") or "")[:120]
-            article.cta_url = (request.form.get("cta_url") or "")[:500]
+            article.cta_url = safe_url(request.form.get("cta_url") or "")
             if "blocks" in request.form:
                 article.blocks = (request.form.get("blocks") or "")[:20000]
             category_id = request.form.get("category_id", type=int)
@@ -558,7 +606,7 @@ def _study_form(study):
             study.technologies = (request.form.get("technologies") or "")[:500]
             study.client_name = (request.form.get("client_name") or "")[:255]
             study.client_display_name = (request.form.get("client_display_name") or "")[:255]
-            study.featured_image = (request.form.get("featured_image") or "")[:500]
+            study.featured_image = safe_static_path(request.form.get("featured_image") or "")
             study.seo_title = (request.form.get("seo_title") or "")[:255]
             study.meta_description = (request.form.get("meta_description") or "")[:320]
             requested = request.form.get("status") if request.form.get("status") in ARTICLE_STATUSES else "draft"
@@ -666,10 +714,7 @@ def users():
         else:
             from app.admin.security import create_staff
 
-            staff, password = create_staff(email)
-            staff.name = name
-            staff.role = role
-            db.session.commit()
+            staff, password = create_staff(email, role=role, name=name)
             session["provisioned_staff"] = {"email": staff.email, "password": password}
             flash("Staff account created.")
             return redirect(url_for("admin.users"))

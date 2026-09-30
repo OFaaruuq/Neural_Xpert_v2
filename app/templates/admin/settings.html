@@ -13,7 +13,7 @@
             <div class="flex-grow-1">
                 <h3 class="h6 mb-1">{{ slot.label }}</h3>
                 <p class="small text-secondary mb-2">{{ slot.help }}</p>
-                <input class="form-control" type="file" name="{{ slot.key }}" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.ico">
+                <input class="form-control" type="file" name="{{ slot.key }}" accept="image/png,image/jpeg,image/webp,image/gif,.ico">
                 {% if slot.custom %}
                 <div class="form-check mt-2">
                     <input class="form-check-input" type="checkbox" name="clear_{{ slot.key }}" value="1" id="clear-{{ slot.key }}">

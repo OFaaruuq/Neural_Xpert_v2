@@ -55,6 +55,15 @@ def ensure_roles():
 
 def ensure_staff_role(staff):
     ensure_roles()
-    if staff.role_id is None:
-        staff.role = StaffRole.query.filter_by(slug="administrator").one()
-        db.session.commit()
+    if staff.role_id is not None:
+        return
+    from app.models import StaffUser
+
+    administrator = StaffRole.query.filter_by(slug="administrator").one()
+    another_admin = StaffUser.query.filter(
+        StaffUser.role_id == administrator.id,
+        StaffUser.is_active.is_(True),
+        StaffUser.id != staff.id,
+    ).first()
+    staff.role = StaffRole.query.filter_by(slug="viewer").one() if another_admin else administrator
+    db.session.commit()

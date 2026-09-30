@@ -273,7 +273,7 @@ server {
     listen 80;
     server_name ${DOMAIN} www.${DOMAIN};
     server_tokens off;
-    client_max_body_size 8m;
+    client_max_body_size 6m;
 
     location ^~ /.well-known/acme-challenge/ {
         root /var/www/html;
@@ -290,7 +290,7 @@ server {
     server_tokens off;
     ssl_certificate ${CERT_DIR}/fullchain.pem;
     ssl_certificate_key ${CERT_DIR}/privkey.pem;
-    client_max_body_size 8m;
+    client_max_body_size 6m;
 
     location ^~ /.well-known/acme-challenge/ {
         root /var/www/html;
@@ -308,7 +308,8 @@ server {
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host \$host;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-For \$remote_addr;
+        proxy_set_header X-Forwarded-Host \$host;
         proxy_set_header X-Forwarded-Proto https;
         proxy_redirect off;
     }
@@ -320,7 +321,7 @@ server {
     listen 80;
     server_name ${DOMAIN} www.${DOMAIN};
     server_tokens off;
-    client_max_body_size 8m;
+    client_max_body_size 6m;
 
     location ^~ /.well-known/acme-challenge/ {
         root /var/www/html;
@@ -338,7 +339,8 @@ server {
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host \$host;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-For \$remote_addr;
+        proxy_set_header X-Forwarded-Host \$host;
         proxy_set_header X-Forwarded-Proto \$scheme;
         proxy_redirect off;
     }

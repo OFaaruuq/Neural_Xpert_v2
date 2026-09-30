@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from app.extensions import db
+from app.secretsbox import EncryptedText
 
 
 def utcnow():
@@ -209,7 +210,7 @@ class StaffUser(db.Model):
     def has_any(self, codes):
         owned = self.permission_set()
         return any(code in owned for code in codes)
-    totp_secret = db.Column(db.String(64), nullable=False, default="")
+    totp_secret = db.Column(EncryptedText, nullable=False, default="")
     totp_enabled = db.Column(db.Boolean, nullable=False, default=False)
     last_totp_step = db.Column(db.Integer, nullable=False, default=0)
     recovery_hashes = db.Column(db.Text, nullable=False, default="")
@@ -231,6 +232,16 @@ class LoginChallenge(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
 
     staff = db.relationship("StaffUser")
+
+
+class RequestRate(db.Model):
+    """Shared request counter so limits apply across Gunicorn workers."""
+
+    __tablename__ = "request_rates"
+
+    bucket = db.Column(db.String(180), primary_key=True)
+    window_start = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
+    hits = db.Column(db.Integer, nullable=False, default=0)
 
 
 class DailyPageView(db.Model):

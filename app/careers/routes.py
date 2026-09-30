@@ -5,6 +5,7 @@ from flask import Blueprint, abort, current_app, flash, redirect, render_templat
 from werkzeug.utils import secure_filename
 
 from app.extensions import db, limiter
+from app.limits import rate_limited
 from app.mailer import notify_application
 from app.models import Job, JobApplication
 from app.services import plain_excerpt, seo_for
@@ -30,7 +31,9 @@ def detail(slug):
     if job is None:
         abort(404)
     errors = []
-    if request.method == "POST":
+    if request.method == "POST" and rate_limited("career-apply", 8, 3600):
+        errors = ["Too many applications from this network. Try again later."]
+    elif request.method == "POST":
         errors = _save_application(job)
         if not errors:
             flash("Thank you. Your application has been received.", "success")

@@ -47,6 +47,12 @@ document.addEventListener("DOMContentLoaded", function () {
     var current = document.querySelector("aside.nx-side .nav-link.active");
     if (current && current.scrollIntoView) current.scrollIntoView({ block: "nearest" });
 
+    document.querySelectorAll("form[data-confirm]").forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+            if (!window.confirm(form.getAttribute("data-confirm"))) event.preventDefault();
+        });
+    });
+
     if (search) {
         document.addEventListener("keydown", function (event) {
             if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {

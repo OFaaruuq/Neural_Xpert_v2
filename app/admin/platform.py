@@ -2,12 +2,14 @@ import csv
 import io
 import json
 import os
+import re
 import uuid
 from datetime import date, timedelta
 
-from flask import abort, flash, g, redirect, render_template, request, send_file, url_for
+from flask import abort, flash, g, redirect, render_template, request, send_file, session, url_for
 from werkzeug.utils import secure_filename
 
+from app.services import file_signature_ok, safe_local_path, safe_static_path, safe_url
 from app.admin.catalog import (
     ensure_catalog,
     record_audit,
@@ -159,17 +161,17 @@ def page_edit(page_id):
         page.title = (request.form.get("title") or page.title).strip()[:255]
         page.hero_title = (request.form.get("hero_title") or "")[:255]
         page.hero_subtitle = (request.form.get("hero_subtitle") or "")[:2000]
-        page.hero_image = (request.form.get("hero_image") or "")[:500]
+        page.hero_image = safe_static_path(request.form.get("hero_image") or "")
         page.summary = (request.form.get("summary") or "")[:5000]
         page.cta_label = (request.form.get("cta_label") or "")[:120]
-        page.cta_url = (request.form.get("cta_url") or "")[:500]
+        page.cta_url = safe_url(request.form.get("cta_url") or "")
         page.seo_title = (request.form.get("seo_title") or "")[:255]
         page.meta_description = (request.form.get("meta_description") or "")[:320]
         page.focus_keyword = (request.form.get("focus_keyword") or "")[:160]
-        page.canonical_url = (request.form.get("canonical_url") or "")[:500]
+        page.canonical_url = safe_url(request.form.get("canonical_url") or "")
         page.og_title = (request.form.get("og_title") or "")[:255]
         page.og_description = (request.form.get("og_description") or "")[:320]
-        page.og_image = (request.form.get("og_image") or "")[:500]
+        page.og_image = safe_static_path(request.form.get("og_image") or "") or safe_url(request.form.get("og_image") or "")
         page.robots = (request.form.get("robots") or "")[:80]
         page.status = _publish_status(page.status)
         record_revision(page, "Page saved")
@@ -197,7 +199,7 @@ def homepage():
             section.headline = (request.form.get("headline") or "")[:255]
             section.summary = (request.form.get("summary") or "")[:2000]
             section.cta_label = (request.form.get("cta_label") or "")[:120]
-            section.cta_url = (request.form.get("cta_url") or "")[:500]
+            section.cta_url = safe_url(request.form.get("cta_url") or "")
         elif action in {"up", "down"}:
             direction = -1 if action == "up" else 1
             ordered = HomeSection.query.order_by(HomeSection.position, HomeSection.id).all()
@@ -240,8 +242,10 @@ def media():
             error = "ALT text is required."
         else:
             ext = os.path.splitext(upload.filename)[1].lower()
-            if ext not in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".pdf"}:
-                error = "Use an image or PDF."
+            header = upload.stream.read(16)
+            upload.stream.seek(0)
+            if ext not in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".pdf"} or not file_signature_ok(ext, header):
+                error = "Use a PNG, JPG, WEBP, GIF, or PDF file."
             else:
                 from flask import current_app
 
@@ -274,13 +278,32 @@ def media():
 
 
 def media_file(asset_id, filename):
-    asset = db.session.get(MediaAsset, asset_id)
-    if asset is None or asset.filename != filename:
-        abort(404)
     from flask import current_app
 
-    directory = os.path.join(current_app.config["UPLOAD_FOLDER"], "media")
-    return send_file(os.path.join(directory, asset.filename))
+    from app.admin.security import current_staff, session_is_fresh
+
+    if not session.get("mfa_complete"):
+        return redirect(url_for("admin.login"))
+    staff = current_staff()
+    if staff is None or not session_is_fresh():
+        return redirect(url_for("admin.login"))
+    if not staff.has_any(("content.view", "media.manage", "content.edit")):
+        abort(403)
+    asset = db.session.get(MediaAsset, asset_id)
+    stored = os.path.basename(filename or "")
+    if asset is None or asset.filename != stored or stored != os.path.basename(asset.filename):
+        abort(404)
+    directory = os.path.realpath(os.path.join(current_app.config["UPLOAD_FOLDER"], "media"))
+    path = os.path.realpath(os.path.join(directory, stored))
+    if not path.startswith(directory + os.sep) or not os.path.isfile(path):
+        abort(404)
+    attachment = stored.lower().endswith(".pdf")
+    return send_file(
+        path,
+        as_attachment=attachment,
+        download_name=asset.original_name or stored,
+        max_age=0,
+    )
 
 
 def navigation():
@@ -295,7 +318,7 @@ def navigation():
                     NavItem(
                         menu=request.form.get("menu") if request.form.get("menu") in {"header", "footer"} else "header",
                         label=label[:120],
-                        url=(request.form.get("url") or "/")[:500],
+                        url=safe_url(request.form.get("url") or "/") or "/",
                         enabled=False,
                         position=NavItem.query.count() + 1,
                     )
@@ -304,7 +327,7 @@ def navigation():
             item = db.session.get(NavItem, request.form.get("item_id", type=int))
             if item:
                 item.label = (request.form.get("label") or item.label)[:120]
-                item.url = (request.form.get("url") or item.url)[:500]
+                item.url = safe_url(request.form.get("url") or item.url) or item.url
                 item.enabled = request.form.get("enabled") == "1"
                 item.new_tab = request.form.get("new_tab") == "1"
                 item.menu = request.form.get("menu") if request.form.get("menu") in {"header", "footer"} else item.menu
@@ -355,7 +378,12 @@ def settings():
             if row.key.startswith("logo_"):
                 continue
             if row.key in request.form:
-                row.value = (request.form.get(row.key) or "")[:2000]
+                raw = (request.form.get(row.key) or "")[:2000]
+                if row.key == "analytics_id":
+                    raw = raw if re.fullmatch(r"[A-Za-z0-9_-]{0,40}", raw.strip()) else ""
+                elif row.key.endswith("_url") or row.key.startswith("social_"):
+                    raw = safe_url(raw)
+                row.value = raw
         notice = ""
         pending = []
         for row in SiteSetting.query.filter(SiteSetting.key.startswith("logo_")).all():
@@ -444,9 +472,9 @@ def redirects():
     if request.method == "POST":
         if not g.staff.has_any(("settings.manage", "content.edit")):
             abort(403)
-        source = (request.form.get("source") or "").strip()
-        target = (request.form.get("target") or "").strip()
-        if not source.startswith("/") or not target:
+        source = safe_local_path(request.form.get("source") or "")
+        target = safe_local_path(request.form.get("target") or "")
+        if not source or not target or source == target:
             error = "Use an internal path such as /old-page and a destination."
         elif RedirectRule.query.filter_by(source=source).first():
             error = "That path already redirects."
@@ -650,7 +678,10 @@ def simple_records(model, title, endpoint, fields, permission_edit):
                     except ValueError:
                         error = "Use a YYYY-MM-DD date."
                 else:
-                    setattr(row, name, (request.form.get(name) or "")[:2000])
+                    raw = (request.form.get(name) or "")[:2000]
+                    if name in {"website", "credential_url"}:
+                        raw = safe_url(raw)
+                    setattr(row, name, raw)
             if model is Testimonial and not (row.status or "").strip():
                 row.status = "draft"
             if model is Testimonial and row.status == "published" and not row.approved:
