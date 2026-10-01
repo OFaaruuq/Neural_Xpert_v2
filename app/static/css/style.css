@@ -35028,4 +35028,105 @@ span.select2-selection.select2-selection--single:focus {
   }
 }
 
+#features-sec .nx-cap-live {
+  min-height: 168px;
+}
+#features-sec .nx-cap-title,
+#features-sec .nx-cap-text {
+  transition: opacity 0.2s ease;
+}
+#features-sec .service-card,
+#services-sec .service-card,
+#industries-sec .service-card {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+#features-sec .service-card .box-icon,
+#services-sec .service-card .box-icon {
+  background: rgba(123, 93, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* The theme fill used to sit on :before at z-index -1, behind the tile,
+   while brightness(0) painted the glyph black. Color the tile directly. */
+#features-sec .service-card .box-icon:before,
+#services-sec .service-card .box-icon:before,
+#industries-sec .service-card .box-icon:before {
+  display: none;
+}
+#features-sec .service-card:hover,
+#features-sec .service-card.is-active,
+#services-sec .service-card:hover,
+#industries-sec .service-card:hover {
+  border-color: var(--theme-color);
+  box-shadow: 0 16px 40px rgba(123, 93, 255, 0.14);
+}
+#features-sec .service-card:hover .box-icon,
+#features-sec .service-card.is-active .box-icon,
+#services-sec .service-card:hover .box-icon,
+#industries-sec .service-card:hover .box-icon {
+  background: var(--theme-color);
+}
+/* Brand purple glyph. Never brightness(0), which renders these SVGs black. */
+#features-sec .service-card .box-icon img,
+#services-sec .service-card .box-icon img {
+  width: 40px;
+  height: 40px;
+  -webkit-filter: none;
+          filter: none;
+  -webkit-transform: none;
+          transform: none;
+  -webkit-transition: none;
+          transition: none;
+}
+#features-sec .service-card.nx-icon-ready .box-icon img,
+#services-sec .service-card.nx-icon-ready .box-icon img {
+  opacity: 0;
+}
+#features-sec .service-card.nx-icon-ready .box-icon::after,
+#services-sec .service-card.nx-icon-ready .box-icon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  background-color: #7B5DFF;
+  -webkit-mask-image: var(--nx-icon);
+          mask-image: var(--nx-icon);
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+          mask-position: center;
+  -webkit-mask-size: contain;
+          mask-size: contain;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+}
+#features-sec .service-card.nx-icon-ready:hover .box-icon::after,
+#features-sec .service-card.nx-icon-ready.is-active .box-icon::after,
+#services-sec .service-card.nx-icon-ready:hover .box-icon::after {
+  background-color: #ffffff;
+}
+#features-sec .service-card:hover .box-icon img,
+#features-sec .service-card.is-active .box-icon img,
+#services-sec .service-card:hover .box-icon img {
+  -webkit-transform: none;
+          transform: none;
+  -webkit-filter: none;
+          filter: none;
+}
+#industries-sec .service-card .box-icon i {
+  color: #7B5DFF;
+}
+#industries-sec .service-card:hover .box-icon i {
+  color: #ffffff;
+}
+.download-area .integration-card .box-icon img {
+  width: 28px;
+  height: 28px;
+}
+
 /*# sourceMappingURL=style.css.map */

@@ -122,14 +122,14 @@ Service Area
 ==============================-->
 <div class="nx-home-slot" style="order: {{ home_order('capabilities') }}">
 {% if home_on('capabilities') %}
-    <section class="service-area position-relative overflow-hidden space" id="features-sec">
+    <section class="service-area position-relative overflow-hidden space" id="features-sec" data-nx-capabilities>
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
-                    <div class="title-area text-center">
+                    <div class="title-area text-center nx-cap-live">
                         <span class="sub-title style2 text-anime-style-2">OUR CAPABILITIES</span>
-                        <h2 class="sec-title text-anime-style-3">{{ home_text('capabilities', 'headline') or 'Enterprise AI Capabilities' }}</h2>
-                        <p class="mb-0">From intelligent applications to production AI platforms, Neural Xpert helps enterprises design, build, integrate, secure, and scale AI across their business.</p>
+                        <h2 class="sec-title nx-cap-title" data-nx-cap-title data-default="{{ home_text('capabilities', 'headline') or 'Enterprise AI Capabilities' }}">{{ home_text('capabilities', 'headline') or 'Enterprise AI Capabilities' }}</h2>
+                        <p class="mb-0 nx-cap-text" data-nx-cap-text data-default="From intelligent applications to production AI platforms, Neural Xpert helps enterprises design, build, integrate, secure, and scale AI across their business.">From intelligent applications to production AI platforms, Neural Xpert helps enterprises design, build, integrate, secure, and scale AI across their business.</p>
                     </div>
                 </div>
             </div>
@@ -192,7 +192,7 @@ Service Area
                 <div class="col-md-6 col-xl-4">
                     <div class="service-card" id="ai-security">
                         <div class="box-icon">
-                            <img src="{{ url_for('static', filename='img/icon/service_1_1.svg') }}" alt="icon">
+                            <img src="{{ url_for('static', filename='img/icon/capability-security.svg') }}" alt="icon">
                         </div>
                         <div class="box-content">
                             <h3 class="box-title"><a href="{{ url_for('main.solutions') }}">AI Security, Governance &amp; MLOps</a></h3>

@@ -1355,39 +1355,42 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     })
 
-    //cta  SplitText
-gsap.registerPlugin(SplitText, ScrollTrigger);
+    //cta  SplitText — only on pages that actually have the marquee title.
+    // An empty SplitText target used to throw and skip every script after it,
+    // including the capability-card hover that rewrites the section heading.
+    if (document.querySelector(".slide-text") && document.querySelector(".th-title") && window.SplitText) {
+        gsap.registerPlugin(SplitText, ScrollTrigger);
 
-let wrapper = document.querySelector(".slide-text");
-let text = document.querySelector(".th-title");
-let split = SplitText.create(".th-title", { type: "chars, words" });
+        let wrapper = document.querySelector(".slide-text");
+        let text = document.querySelector(".th-title");
+        let split = new SplitText(text, { type: "chars, words" });
 
-const scrollTween = gsap.to(text, { 
-  xPercent: -100,
-  ease: "none",
-  scrollTrigger: {
-    trigger: wrapper,
-    pin: true,
-    
-    end: "+=500px",
-    scrub: true
-  }
-});
+        const scrollTween = gsap.to(text, {
+            xPercent: -100,
+            ease: "none",
+            scrollTrigger: {
+                trigger: wrapper,
+                pin: true,
+                end: "+=500px",
+                scrub: true
+            }
+        });
 
-split.chars.forEach((char) => {
-  gsap.from(char, {
-    yPercent: "random(-150, 0)",
-    rotation: "random(-20, 0)",
-    ease: "back.out(1.1)", 
-    scrollTrigger: {
-      trigger: char,
-      containerAnimation: scrollTween,
-      start: "left 100%",
-      end: "left 30%",
-      scrub: 1
+        split.chars.forEach((char) => {
+            gsap.from(char, {
+                yPercent: "random(-150, 0)",
+                rotation: "random(-20, 0)",
+                ease: "back.out(1.1)",
+                scrollTrigger: {
+                    trigger: char,
+                    containerAnimation: scrollTween,
+                    start: "left 100%",
+                    end: "left 30%",
+                    scrub: 1
+                }
+            });
+        });
     }
-  });
-});
 
 
 ////////////////////////////
@@ -1891,6 +1894,7 @@ const tl1 = gsap
     
 	
 
+
     /* Main js */
     /* -----------------*/
 
@@ -1921,3 +1925,60 @@ const tl1 = gsap
     //   }   
 
 })(jQuery);
+
+/* Capability cards: brand-colored icons, and the section heading follows the card under the pointer. */
+(function () {
+    function paintIcons(root) {
+        root.querySelectorAll(".service-card .box-icon img").forEach(function (img) {
+            var src = img.getAttribute("src");
+            var card = img.closest(".service-card");
+            var tile = img.closest(".box-icon");
+            if (!src || !card || !tile) return;
+            tile.style.setProperty("--nx-icon", "url(\"" + src + "\")");
+            card.classList.add("nx-icon-ready");
+        });
+    }
+
+    function bindCapabilities(section) {
+        var title = section.querySelector("[data-nx-cap-title]");
+        var blurb = section.querySelector("[data-nx-cap-text]");
+        if (!title || !blurb) return;
+        var defaultTitle = title.getAttribute("data-default") || title.textContent.trim();
+        var defaultText = blurb.getAttribute("data-default") || blurb.textContent.trim();
+        var cards = section.querySelectorAll(".service-card");
+
+        function apply(card) {
+            cards.forEach(function (item) { item.classList.remove("is-active"); });
+            if (!card) {
+                title.textContent = defaultTitle;
+                blurb.textContent = defaultText;
+                return;
+            }
+            var cardTitle = card.querySelector(".box-title");
+            var cardText = card.querySelector(".box-text");
+            card.classList.add("is-active");
+            title.textContent = cardTitle ? cardTitle.textContent.trim() : defaultTitle;
+            blurb.textContent = cardText ? cardText.textContent.trim() : defaultText;
+        }
+
+        cards.forEach(function (card) {
+            card.addEventListener("pointerenter", function () { apply(card); });
+            card.addEventListener("focusin", function () { apply(card); });
+        });
+        section.addEventListener("pointerleave", function () { apply(null); });
+        section.addEventListener("focusout", function (event) {
+            if (!section.contains(event.relatedTarget)) apply(null);
+        });
+    }
+
+    function init() {
+        document.querySelectorAll("#features-sec, #services-sec").forEach(paintIcons);
+        document.querySelectorAll("[data-nx-capabilities]").forEach(bindCapabilities);
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+    } else {
+        init();
+    }
+})();
