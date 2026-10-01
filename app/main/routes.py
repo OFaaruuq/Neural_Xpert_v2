@@ -1,5 +1,7 @@
-from flask import Blueprint, abort, render_template
+from flask import Blueprint, abort, jsonify, render_template, request
 
+from app.extensions import limiter
+from app.limits import rate_limited
 from app.services import seo_for
 
 bp = Blueprint("main", __name__)
@@ -137,6 +139,27 @@ def terms_of_service():
         "Neural Xpert | Terms of Service",
         "Terms that apply when you use the Neural Xpert website and related inquiry channels.",
     )
+
+
+@bp.route("/ask-ai", methods=["POST"])
+@limiter.limit("20 per hour")
+def ask_ai():
+    from app.ai_support import answer
+
+    if rate_limited("ask-ai", 12, 600):
+        return jsonify(error="Please wait a moment and try again."), 429
+    reply, code = answer(request.get_json(silent=True) or {})
+    if code == "disabled":
+        return jsonify(error="ASK AI is not available."), 404
+    if code == "unconfigured":
+        return jsonify(error="ASK AI is not available."), 404
+    if code == "invalid":
+        return jsonify(error="Enter a message and try again."), 400
+    if code == "busy":
+        return jsonify(error="ASK AI is busy. Please try again in a moment."), 429
+    if code:
+        return jsonify(error="ASK AI could not answer just now. Please try again or contact us."), 502
+    return jsonify(reply=reply)
 
 
 @bp.route("/cookie-policy")

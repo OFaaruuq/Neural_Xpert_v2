@@ -218,5 +218,15 @@
             </article>
         </div>
     </div>
+    {% if ask %}
+    <article class="card nx-panel mt-3">
+        <header class="nx-panel-head">
+            <h2>ASK AI</h2>
+            <a href="{{ url_for('admin.ask_ai_settings') }}">Manage</a>
+        </header>
+        <p class="mb-1">{% if ask.enabled and ask.key_set %}On for visitors, using {{ ask.model }}.{% elif ask.enabled %}The ASK AI button is visible. Answers start after an API key is saved.{% else %}Off. Visitors do not see the support button.{% endif %}</p>
+        <p class="text-secondary mb-0">{% if ask.key_set %}An OpenAI API key is saved.{% else %}No API key is saved.{% endif %}</p>
+    </article>
+    {% endif %}
 </section>
 {% endblock %}

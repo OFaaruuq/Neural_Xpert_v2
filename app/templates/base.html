@@ -14,6 +14,7 @@
     {% include 'includes/navbar.html' %}
     {% block content %}{% endblock %}
     {% include 'includes/footer.html' %}
+    {% if ask_ai.enabled %}{% include 'includes/ask_ai.html' %}{% endif %}
     {% include 'includes/scripts.html' %}
 </body>
 </html>

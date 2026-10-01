@@ -1,0 +1,60 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ask-ai.css') }}">
+<div class="nx-ask" id="ask-ai" data-ask-ai data-endpoint="{{ url_for('main.ask_ai') }}" data-csrf="{{ csrf_token() }}">
+    <button type="button" class="nx-ask-backdrop" data-ask-close hidden aria-label="Close ASK AI"></button>
+    <section class="nx-ask-panel" id="nx-ask-panel" role="dialog" aria-modal="true" aria-labelledby="nx-ask-title" hidden>
+        <header class="nx-ask-head">
+            <div class="nx-ask-brand">
+                <span class="nx-ask-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 2.4 13.7 8l5.6 1.7-5.6 1.7L12 17.1 10.3 11.4 4.7 9.7 10.3 8 12 2.4Zm6.1 10.3.7 2.3 2.3.7-2.3.7-.7 2.3-.7-2.3-2.3-.7 2.3-.7.7-2.3Z"/></svg>
+                </span>
+                <div>
+                    <h2 id="nx-ask-title">{{ ask_ai.label }}</h2>
+                    <p class="nx-ask-status"><span class="nx-ask-dot" aria-hidden="true"></span> AI support</p>
+                </div>
+            </div>
+            <div class="nx-ask-tools">
+                <button type="button" class="nx-ask-tool" data-ask-reset>New chat</button>
+                <button type="button" class="nx-ask-close" data-ask-close aria-label="Close ASK AI">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12 19 17.6 17.6 19 12 13.4 6.4 19 5 17.6 10.6 12 5 6.4 6.4 5Z"/></svg>
+                </button>
+            </div>
+        </header>
+        <div class="nx-ask-log" data-ask-log role="log" aria-live="polite" data-welcome="{{ ask_ai.welcome }}">
+            <div class="nx-ask-row nx-ask-row-bot">
+                <span class="nx-ask-avatar" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12 2.4 13.7 8l5.6 1.7-5.6 1.7L12 17.1 10.3 11.4 4.7 9.7 10.3 8 12 2.4Z"/></svg>
+                </span>
+                <div class="nx-ask-bubble nx-ask-bot nx-ask-plain" data-ask-welcome>{{ ask_ai.welcome }}</div>
+            </div>
+            <div class="nx-ask-prompts" data-ask-prompts>
+                <p class="nx-ask-prompt-label">Try asking</p>
+                <div class="nx-ask-prompt-list">
+                    <button type="button" data-ask-prompt>What AI services do you offer?</button>
+                    <button type="button" data-ask-prompt>How do AI agents work?</button>
+                    <button type="button" data-ask-prompt>What is enterprise RAG?</button>
+                    <button type="button" data-ask-prompt>How do we start a project?</button>
+                </div>
+            </div>
+        </div>
+        <form class="nx-ask-form" data-ask-form>
+            <label class="nx-ask-sr" for="nx-ask-input">Message</label>
+            <textarea id="nx-ask-input" data-ask-input rows="1" maxlength="1200" placeholder="Ask about services, agents, or a project"></textarea>
+            <button type="submit" class="nx-ask-send" data-ask-send disabled aria-label="Send message">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3.2 11.1 19.2 4c.9-.4 1.8.5 1.4 1.4l-7.1 16c-.4.9-1.6.8-1.9-.1l-2.1-6.6-6.6-2.1c-.9-.3-.9-1.5-.1-1.9Z"/></svg>
+            </button>
+        </form>
+        <p class="nx-ask-note">
+            <span data-ask-count hidden></span>
+            <span data-ask-hint>Enter to send · Shift+Enter for a new line</span>
+            <span class="nx-ask-note-sep" aria-hidden="true">·</span>
+            <a href="{{ url_for('contact.index') }}">Contact the team</a>
+        </p>
+    </section>
+    <button type="button" class="nx-ask-launch" data-ask-open aria-expanded="false" aria-controls="nx-ask-panel">
+        <span class="nx-ask-launch-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 2.4 13.7 8l5.6 1.7-5.6 1.7L12 17.1 10.3 11.4 4.7 9.7 10.3 8 12 2.4Zm6.1 10.3.7 2.3 2.3.7-2.3.7-.7 2.3-.7-2.3-2.3-.7 2.3-.7.7-2.3Z"/></svg>
+        </span>
+        <span class="nx-ask-launch-label">{{ ask_ai.label }}</span>
+    </button>
+</div>
+<script src="{{ url_for('static', filename='js/ask-ai.js') }}" defer></script>

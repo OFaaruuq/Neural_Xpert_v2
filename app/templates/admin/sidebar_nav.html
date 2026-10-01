@@ -11,6 +11,7 @@
     {% elif name == "image" %}<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.4"/><path d="M4 16l4.5-4 3.2 3 2.2-2L20 16"/>
     {% elif name == "users" %}<circle cx="9" cy="9" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="10" r="2.2"/><path d="M16 19a4.5 4.5 0 0 1 4.5-4"/>
     {% elif name == "mail" %}<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/>
+    {% elif name == "chat" %}<path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v7A2.5 2.5 0 0 1 16.5 16H12l-4 3.5V16H7.5A2.5 2.5 0 0 1 5 13.5v-7z"/>
     {% elif name == "flag" %}<path d="M6 20V4M6 5h11l-2 3.5L17 12H6"/>
     {% elif name == "clip" %}<rect x="7" y="4" width="10" height="16" rx="1.5"/><path d="M9 4.5h6V7H9zM9 11h6M9 14.5h4"/>
     {% elif name == "search" %}<circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/>
@@ -84,6 +85,7 @@
     <a class="nav-link {% if request.args.get('focus') == 'cta' %}active{% endif %}" href="{{ url_for('admin.homepage', focus='cta') }}">{{ ico('megaphone') }} CTAs</a>
     {% if g.staff.has_any(['settings.manage']) %}
     <a class="nav-link {% if request.endpoint == 'admin.email_settings' %}active{% endif %}" href="{{ url_for('admin.email_settings') }}">{{ ico('mail') }} Email</a>
+    <a class="nav-link {% if request.endpoint == 'admin.ask_ai_settings' %}active{% endif %}" href="{{ url_for('admin.ask_ai_settings') }}">{{ ico('chat') }} ASK AI</a>
     <a class="nav-link {% if request.endpoint == 'admin.settings' %}active{% endif %}" href="{{ url_for('admin.settings') }}">{{ ico('gear') }} Global Settings</a>
     {% endif %}
 </nav>

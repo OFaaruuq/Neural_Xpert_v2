@@ -375,7 +375,7 @@ def settings():
         if not g.staff.has_any(("settings.manage",)):
             abort(403)
         for row in SiteSetting.query.all():
-            if row.key.startswith("logo_"):
+            if row.key.startswith("logo_") or row.key.startswith("ask_ai_"):
                 continue
             if row.key in request.form:
                 raw = (request.form.get(row.key) or "")[:2000]
@@ -417,6 +417,28 @@ def settings():
         logos=logo_slots(),
         contact_email=setting_value("contact_email"),
     )
+
+
+def ask_ai_settings():
+    from app.ai_support import admin_state, audit_detail, save_settings, test_connection
+
+    if request.method == "POST":
+        if not g.staff.has_any(("settings.manage",)):
+            abort(403)
+        error = save_settings(request.form)
+        if error:
+            db.session.rollback()
+            flash(error)
+            return redirect(url_for("admin.ask_ai_settings"))
+        record_audit("ask_ai", "settings", "", audit_detail(request.form))
+        db.session.commit()
+        if request.form.get("action") == "test":
+            _ok, notice = test_connection()
+            flash(notice)
+        else:
+            flash("ASK AI settings saved.")
+        return redirect(url_for("admin.ask_ai_settings"))
+    return _render("admin/ask_ai.html", title="ASK AI", ask=admin_state())
 
 
 def email_settings():
@@ -573,6 +595,7 @@ def register(bp):
     add("/conversions", conversions, permission=("overview",))
     add("/settings", settings, ["GET", "POST"], ("settings.manage",))
     add("/email", email_settings, ["GET", "POST"], ("settings.manage",))
+    add("/ask-ai", ask_ai_settings, ["GET", "POST"], ("settings.manage",))
     add("/audit-logs", audit_logs, permission=("audit.view", "users.manage"))
     add("/health", health, permission=("overview",))
     add("/redirects", redirects, ["GET", "POST"], ("settings.manage", "content.edit"))

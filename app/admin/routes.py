@@ -124,7 +124,12 @@ def dashboard():
     from app.admin.overview import load_board
 
     ensure_catalog()
-    return _render("admin/dashboard.html", title="Dashboard", board=load_board())
+    ask = None
+    if g.staff.has_any(("settings.manage",)):
+        from app.ai_support import admin_state
+
+        ask = admin_state()
+    return _render("admin/dashboard.html", title="Dashboard", board=load_board(), ask=ask)
 
 
 def _mask_email(email):

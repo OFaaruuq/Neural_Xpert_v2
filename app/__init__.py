@@ -114,6 +114,7 @@ def create_app(config_name=None):
             "sidebar_posts": sidebar_posts,
             "header_nav": header_nav,
             "footer_nav": footer_nav,
+            "ask_ai": _ask_ai(),
             "brand": _brand(),
             "csp_nonce": getattr(g, "csp_nonce", ""),
         }
@@ -160,6 +161,15 @@ def create_app(config_name=None):
                 "favicon": url_for("static", filename="img/favicons/favicon-32x32.png"),
                 "favicon_custom": False,
             }
+
+    def _ask_ai():
+        try:
+            from app.ai_support import widget_state
+
+            return widget_state()
+        except Exception:
+            app.logger.warning("Ask AI settings are unavailable", exc_info=True)
+            return {"enabled": False, "label": "ASK AI", "welcome": ""}
 
     def _home_sections():
         from flask import g

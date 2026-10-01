@@ -8887,8 +8887,8 @@ ol.widget_recent_comments,
 }
 
 .header-logo {
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 .header-logo img.nx-logo,
 .mobile-logo img.nx-logo,
@@ -8899,6 +8899,10 @@ ol.widget_recent_comments,
   max-width: min(240px, 52vw);
   max-height: 48px;
   object-fit: contain;
+}
+.header-logo img.nx-logo {
+  max-width: min(164px, 42vw);
+  max-height: 32px;
 }
 .about-logo img.nx-logo {
   max-width: min(210px, 100%);
@@ -8923,26 +8927,26 @@ ol.widget_recent_comments,
 @media (hover: hover) and (min-width: 1200px) {
   .header-logo a {
     display: block;
-    width: 48px;
-    height: 48px;
+    width: 34px;
+    height: 32px;
     overflow: hidden;
     transition: width 0.35s ease;
   }
   .header-logo img.nx-logo {
     width: auto;
-    height: 48px;
+    height: 32px;
     max-width: none;
     max-height: none;
   }
   .header-logo a:hover,
   .header-logo a:focus-visible {
-    width: 246px;
+    width: 164px;
   }
 }
 @media (max-width: 575px) {
   .header-logo img.nx-logo {
-    max-width: min(156px, 48vw);
-    max-height: 36px;
+    max-width: min(132px, 42vw);
+    max-height: 26px;
   }
   .header-logo .icon-masking .mask-icon {
     -webkit-mask-size: cover;

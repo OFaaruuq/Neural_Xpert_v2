@@ -24,7 +24,7 @@
         </div>
     </div>
     {% endfor %}
-    {% for row in rows if not row.key.startswith('logo_') and not row.key.startswith('mail_') %}
+    {% for row in rows if not row.key.startswith('logo_') and not row.key.startswith('mail_') and not row.key.startswith('ask_ai_') %}
     <label class="form-label mt-3">{{ row.key.replace('_', ' ') }}
         <input class="form-control" name="{{ row.key }}" value="{{ row.value }}">
     </label>
