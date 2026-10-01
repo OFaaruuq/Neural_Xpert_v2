@@ -81,6 +81,20 @@ if [[ ! -f "${APP_DIR}/app/static/img/logo-neural-xpert.png" ]] \
   exit 1
 fi
 
+if [[ ! -f "${APP_DIR}/app/ai_support.py" ]] \
+  || [[ ! -f "${APP_DIR}/app/static/js/ask-ai.js" ]] \
+  || [[ ! -f "${APP_DIR}/app/static/css/ask-ai.css" ]] \
+  || [[ ! -f "${APP_DIR}/app/templates/includes/ask_ai.html" ]] \
+  || [[ ! -f "${APP_DIR}/app/static/img/bg/nx-hero.mp4" ]] \
+  || [[ -f "${APP_DIR}/app/static/img/bg/aior.mp4" ]] \
+  || ! grep -q "nx-hero.mp4" "${APP_DIR}/app/templates/main/home.html" \
+  || ! grep -q 'DEFAULT_LABEL = "ASK AI"' "${APP_DIR}/app/ai_support.py"; then
+  echo "ASK AI or the homepage video was not copied into ${APP_DIR}."
+  echo "The hero file must be img/bg/nx-hero.mp4, and the public button must be named ASK AI."
+  echo "Run: cd ${SOURCE_DIR} && git pull origin main && git log -1 --oneline"
+  exit 1
+fi
+
 install -d -o www-data -g www-data -m 750 "${APP_DIR}/instance"
 install -d -o www-data -g www-data -m 750 "${APP_DIR}/instance/uploads"
 
