@@ -3,13 +3,14 @@
 <p class="mb-2"><a href="{{ url_for('admin.articles') }}">Insights</a></p>
 <h1 class="h3">{{ article.title or "New insight" }}</h1>
 {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
-<form method="post" style="max-width:820px">
+<form method="post" enctype="multipart/form-data" style="max-width:820px">
+    {% from "admin/image_field.html" import image_field %}
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label class="form-label">Title <input class="form-control" name="title" value="{{ request.form.get('title', article.title or '') }}" required></label>
     <label class="form-label mt-3">Slug <input class="form-control" name="slug" value="{{ request.form.get('slug', article.slug or '') }}"></label>
     <label class="form-label mt-3">Excerpt <textarea class="form-control" name="excerpt" rows="3" required>{{ request.form.get('excerpt', article.excerpt or '') }}</textarea></label>
     <label class="form-label mt-3">Content <textarea class="form-control" name="content" rows="16">{{ request.form.get('content', article.content or '') }}</textarea></label>
-    <label class="form-label mt-3">Featured image <input class="form-control" name="featured_image" value="{{ request.form.get('featured_image', article.featured_image or '') }}"></label>
+    {{ image_field("Featured image", "featured_image", article.featured_image, "image_width", article.image_width, "image_height", article.image_height, "image_radius", article.image_radius) }}
     <label class="form-label mt-3">Category
         <select class="form-select" name="category_id">
             <option value="">None</option>

@@ -13,6 +13,9 @@
 </div>
 <section class="space">
     <div class="container">
+        {% if item.hero_image %}
+        <img class="nx-managed-img mb-4" src="{{ url_for('static', filename=item.hero_image) }}" alt="{{ item.name }}" style="{{ item.image_width|managed_image_style(item.image_height, item.image_radius) }}">
+        {% endif %}
         {% if item.summary %}<p class="mb-4">{{ item.summary }}</p>{% endif %}
         {% if item.challenges %}<h2>Challenges</h2><p>{{ item.challenges }}</p>{% endif %}
         {% if item.capabilities %}<h2>Capabilities</h2><p>{{ item.capabilities }}</p>{% endif %}

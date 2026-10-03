@@ -16,6 +16,7 @@
     {% elif name == "clip" %}<rect x="7" y="4" width="10" height="16" rx="1.5"/><path d="M9 4.5h6V7H9zM9 11h6M9 14.5h4"/>
     {% elif name == "search" %}<circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/>
     {% elif name == "chart" %}<path d="M4 19V5M4 19h16"/><path d="M8 15l3.2-4 2.6 2.2L18 7"/>
+    {% elif name == "pin" %}<path d="M12 21s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10z"/><circle cx="12" cy="11" r="2"/>
     {% elif name == "target" %}<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/>
     {% elif name == "link" %}<path d="M10 13a4 4 0 0 0 6 0l2-2a4 4 0 0 0-6-6l-1 1"/><path d="M14 11a4 4 0 0 0-6 0l-2 2a4 4 0 0 0 6 6l1-1"/>
     {% elif name == "quote" %}<path d="M8 16c-2 0-3.5-1.5-3.5-3.5S6 9 8 9V7c-3 0-5.5 2.2-5.5 5.5S5 18 8 18zm9 0c-2 0-3.5-1.5-3.5-3.5S15 9 17 9V7c-3 0-5.5 2.2-5.5 5.5S14 18 17 18z"/>
@@ -70,6 +71,7 @@
     <a class="nav-link {% if request.endpoint == 'admin.seo' %}active{% endif %}" href="{{ url_for('admin.seo') }}">{{ ico('search') }} SEO</a>
     {% endif %}
     <a class="nav-link {% if request.endpoint == 'admin.analytics' %}active{% endif %}" href="{{ url_for('admin.analytics') }}">{{ ico('chart') }} Analytics</a>
+    <a class="nav-link {% if request.endpoint == 'admin.visitor_ips' %}active{% endif %}" href="{{ url_for('admin.visitor_ips') }}">{{ ico('pin') }} Visitor IPs</a>
     <a class="nav-link {% if request.endpoint == 'admin.conversions' %}active{% endif %}" href="{{ url_for('admin.conversions') }}">{{ ico('target') }} Conversions</a>
     {% if g.staff.has_any(['content.view', 'content.edit']) %}
     <a class="nav-link {% if request.endpoint in ['admin.partners', 'admin.credentials'] %}active{% endif %}" href="{{ url_for('admin.partners') }}">{{ ico('link') }} Partners &amp; Credentials</a>

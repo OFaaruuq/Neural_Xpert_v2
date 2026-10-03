@@ -37,6 +37,12 @@ body.nx-site .th-btn {
   cursor: pointer;
 }
 
+.nx-managed-img {
+  display: block;
+  max-width: 100%;
+  object-fit: cover;
+  border-radius: 24px;
+}
 body.nx-site :focus-visible {
   outline: 2px solid var(--nx-blue);
   outline-offset: 3px;

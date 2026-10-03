@@ -28,6 +28,9 @@ class Article(db.Model):
     content = db.Column(db.Text, nullable=False, default="")
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"))
     featured_image = db.Column(db.String(500), nullable=False, default="")
+    image_width = db.Column(db.Integer, nullable=False, default=0)
+    image_height = db.Column(db.Integer, nullable=False, default=0)
+    image_radius = db.Column(db.Integer, nullable=False, default=24)
     author = db.Column(db.String(120), nullable=False, default="Neural Xpert")
     status = db.Column(db.String(32), nullable=False, default="draft", index=True)
     featured = db.Column(db.Boolean, nullable=False, default=False)
@@ -60,6 +63,9 @@ class CaseStudy(db.Model):
     content = db.Column(db.Text, nullable=False, default="")
     technologies = db.Column(db.String(500), nullable=False, default="")
     featured_image = db.Column(db.String(500), nullable=False, default="")
+    image_width = db.Column(db.Integer, nullable=False, default=0)
+    image_height = db.Column(db.Integer, nullable=False, default=0)
+    image_radius = db.Column(db.Integer, nullable=False, default=24)
     client_name = db.Column(db.String(255), nullable=False, default="")
     client_display_name = db.Column(db.String(255), nullable=False, default="")
     industry = db.Column(db.String(120), nullable=False, default="")
@@ -81,6 +87,9 @@ class CaseStudy(db.Model):
     security_controls = db.Column(db.Text, nullable=False, default="")
     implementation = db.Column(db.Text, nullable=False, default="")
     architecture_image = db.Column(db.String(500), nullable=False, default="")
+    arch_width = db.Column(db.Integer, nullable=False, default=0)
+    arch_height = db.Column(db.Integer, nullable=False, default=0)
+    arch_radius = db.Column(db.Integer, nullable=False, default=24)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
     updated_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
 
@@ -261,6 +270,19 @@ class DailyVisitor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     day = db.Column(db.Date, nullable=False, index=True)
     visitor_hash = db.Column(db.String(64), nullable=False)
+
+
+class PageVisit(db.Model):
+    """One public page view, including the visitor IP address."""
+
+    __tablename__ = "page_visits"
+
+    id = db.Column(db.Integer, primary_key=True)
+    visited_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, index=True)
+    ip_address = db.Column(db.String(64), nullable=False, default="", index=True)
+    path = db.Column(db.String(300), nullable=False)
+    user_agent = db.Column(db.String(300), nullable=False, default="")
+    visitor_hash = db.Column(db.String(64), nullable=False, default="", index=True)
 
 
 from app.models.platform import (  # noqa: E402,F401

@@ -1,5 +1,6 @@
 import re
 import time
+from io import BytesIO
 
 import pyotp
 
@@ -125,9 +126,113 @@ def test_public_visit_is_counted(client, app):
     client.get("/")
     client.get("/")
     with app.app_context():
-        from app.models import DailyPageView, DailyVisitor
+        from app.models import DailyPageView, DailyVisitor, PageVisit
 
         views = DailyPageView.query.filter_by(path="/").one().views
         visitors = DailyVisitor.query.count()
+        visits = PageVisit.query.filter_by(path="/").count()
     assert views == 2
     assert visitors == 1
+    assert visits == 2
+
+
+def test_admin_lists_every_visitor_ip(client, app):
+    client.get("/", environ_base={"REMOTE_ADDR": "203.0.113.10"})
+    client.get("/about", environ_base={"REMOTE_ADDR": "203.0.113.10"})
+    client.get("/", environ_base={"REMOTE_ADDR": "198.51.100.4"})
+    with app.app_context():
+        _staff, password = create_staff("traffic@neuralxpert.com")
+    home = _open_dashboard(client, app, "traffic@neuralxpert.com", password)
+    assert b"Visitor IPs" in home.data
+    page = client.get("/admin/visitors")
+    assert page.status_code == 200
+    assert b"203.0.113.10" in page.data
+    assert b"198.51.100.4" in page.data
+    assert b"/about" in page.data
+    narrowed = client.get("/admin/visitors?ip=203.0.113.10")
+    assert b"203.0.113.10" in narrowed.data
+    assert b"/about" in narrowed.data
+    assert b"198.51.100.4" not in narrowed.data
+    found = client.get("/admin/visitors?q=/about")
+    assert b"203.0.113.10" in found.data
+    assert b"198.51.100.4" not in found.data
+    exported = client.get("/admin/visitors.csv")
+    assert exported.status_code == 200
+    assert b"203.0.113.10" in exported.data
+    assert b"198.51.100.4" in exported.data
+    analytics = client.get("/admin/analytics")
+    assert b"Unique IP addresses" in analytics.data
+
+
+_PNG = (
+    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
+    b"\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01"
+    b"\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82"
+)
+
+
+def test_admin_uploads_images_with_size_and_radius(client, app):
+    with app.app_context():
+        _staff, password = create_staff("images@neuralxpert.com")
+    _open_dashboard(client, app, "images@neuralxpert.com", password)
+    pages = client.get("/admin/pages")
+    assert pages.status_code == 200
+    page_id = re.search(br"/admin/pages/(\d+)", pages.data).group(1)
+    editor = client.get(f"/admin/pages/{page_id.decode()}")
+    assert b"Radius (px)" in editor.data
+    assert b'name="hero_image_file"' in editor.data
+    insight = client.post(
+        "/admin/insights/new",
+        data={
+            "title": "Image briefing",
+            "excerpt": "Shows the uploaded picture",
+            "content": "<p>Body</p>",
+            "status": "published",
+            "image_width": "320",
+            "image_height": "180",
+            "image_radius": "18",
+            "featured_image_file": (BytesIO(_PNG), "brief.png"),
+        },
+        content_type="multipart/form-data",
+        follow_redirects=True,
+    )
+    assert b"Insight saved." in insight.data
+    assert b"border-radius:18px" in insight.data
+    with app.app_context():
+        from app.models import Article
+
+        article = Article.query.filter_by(title="Image briefing").one()
+        assert article.featured_image.startswith("uploads/")
+        assert article.image_width == 320
+        assert article.image_height == 180
+        assert article.image_radius == 18
+        slug = article.slug
+    public = client.get(f"/insights/{slug}")
+    assert public.status_code == 200
+    assert b"border-radius:18px" in public.data
+    assert b"width:320px" in public.data
+    solution = client.post(
+        "/admin/solutions/new",
+        data={
+            "name": "Secure copilots",
+            "summary": "A published solution",
+            "status": "published",
+            "image_width": "280",
+            "image_height": "160",
+            "image_radius": "22",
+            "hero_image_file": (BytesIO(_PNG), "copilot.png"),
+        },
+        content_type="multipart/form-data",
+        follow_redirects=True,
+    )
+    assert b"Solution saved." in solution.data
+    with app.app_context():
+        from app.models.platform import Offering
+
+        item = Offering.query.filter_by(name="Secure copilots").one()
+        assert item.hero_image.startswith("uploads/")
+        assert item.image_radius == 22
+        slug = item.slug
+    detail = client.get(f"/solutions/{slug}")
+    assert b"border-radius:22px" in detail.data
+    assert b"width:280px" in detail.data

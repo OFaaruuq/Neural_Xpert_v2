@@ -102,7 +102,7 @@ html.nx-collapsed .nx-app,
 }
 .nx-brand img.nx-wordmark { display: block; width: auto; height: auto; max-height: 36px; max-width: min(168px, 42vw); object-fit: contain; }
 .nx-brand img.nx-mark { display: none; width: 32px; height: 32px; object-fit: contain; }
-@media (min-width: 1280px) {
+@media (min-width: 768px) {
   .nx-brand { width: var(--nx-side); flex-basis: var(--nx-side); }
 }
 .nx-iconbtn, .nx-profile {
@@ -115,6 +115,7 @@ html.nx-collapsed .nx-app,
   display: inline-grid;
   place-items: center;
   position: relative;
+  flex: 0 0 auto;
 }
 .nx-iconbtn svg, .nx-search svg { width: 18px; height: 18px; }
 .nx-iconbtn:hover, .nx-profile:hover { background: #F4F0FF; }
@@ -136,7 +137,7 @@ html.nx-collapsed .nx-app,
   border-radius: 999px;
   border: 1px solid #E0E0E0;
   background: #f6f8fc;
-  padding: 0 58px 0 40px;
+  padding: 0 72px 0 40px;
   color: #06050B;
   box-shadow: none;
 }
@@ -152,11 +153,25 @@ html.nx-collapsed .nx-app,
   font-size: 11px;
   padding: 2px 6px;
 }
-.nx-top-end { display: flex; align-items: center; gap: 4px; margin-left: auto; padding-right: 16px; }
-.nx-profile { width: auto; padding: 0 8px 0 4px; gap: 8px; }
-.nx-profile-copy { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
-.nx-profile-copy strong { font-size: 13px; color: #06050B; max-width: 148px; }
+.nx-top-end { display: flex; align-items: center; gap: 4px; margin-left: auto; padding-right: 16px; flex: 0 0 auto; }
+.nx-profile {
+  width: auto;
+  max-width: 210px;
+  height: 38px;
+  padding: 0 8px 0 4px;
+  gap: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.nx-profile-copy { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; min-width: 0; }
+.nx-profile-copy strong { display: block; font-size: 13px; color: #06050B; max-width: 148px; }
 .nx-profile-copy small { font-size: 11px; color: #8B8B8B; }
+@media (max-width: 991px) {
+  .nx-search kbd,
+  .nx-profile-copy { display: none; }
+  .nx-search .form-control { padding-right: 16px; }
+}
 .nx-avatar {
   width: 34px;
   height: 34px;
@@ -437,14 +452,33 @@ a.card.nx-kpi:hover { border-color: #7B5DFF; color: inherit; }
 }
 .nx-status { color: #16a34a; font-weight: 600; }
 .nx-status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #22c55e; display: inline-block; margin-right: 6px; }
+.nx-image-field { margin-top: 12px; padding: 12px; border: 1px solid #E0E0E0; border-radius: 16px; background: #fff; }
+.nx-image-preview { margin-bottom: 8px; background: #F5F5F5; }
 @media (max-width: 767px) {
   .nx-app { --nx-gap: 8px; --nx-radius: 16px; }
   .nx-frame { margin-top: 8px; }
+  .nx-topbar.navbar {
+    flex-wrap: wrap !important;
+    height: auto;
+    row-gap: 0;
+    padding-bottom: 8px;
+  }
+  .nx-search {
+    order: 3;
+    flex: 1 0 100%;
+    max-width: none;
+    margin: 4px 0 0;
+    padding: 0 12px;
+  }
+  .nx-search .form-control { padding-right: 16px; }
+  .nx-top-end { padding-right: 8px; }
   .nx-brand,
   html.nx-collapsed .nx-brand,
   .nx-app.is-collapsed .nx-brand {
     width: auto;
+    flex: 0 1 auto;
     flex-basis: auto;
+    min-width: 0;
     justify-content: flex-start;
     padding-left: 12px;
     padding-right: 8px;
@@ -452,7 +486,7 @@ a.card.nx-kpi:hover { border-color: #7B5DFF; color: inherit; }
   }
   .nx-brand img.nx-wordmark,
   html.nx-collapsed .nx-brand img.nx-wordmark,
-  .nx-app.is-collapsed .nx-brand img.nx-wordmark { display: block; max-height: 28px; height: auto; }
+  .nx-app.is-collapsed .nx-brand img.nx-wordmark { display: block; max-height: 28px; max-width: 100%; height: auto; }
   .nx-brand img.nx-mark,
   html.nx-collapsed .nx-brand img.nx-mark,
   .nx-app.is-collapsed .nx-brand img.nx-mark { display: none; }
@@ -461,6 +495,16 @@ a.card.nx-kpi:hover { border-color: #7B5DFF; color: inherit; }
   .nx-main { padding: 16px; }
   html.nx-collapsed .nx-app,
   .nx-app.is-collapsed { --nx-side: 300px; }
+}
+@media (max-width: 380px) {
+  .nx-topbar.navbar { gap: 4px; }
+  .nx-brand,
+  html.nx-collapsed .nx-brand,
+  .nx-app.is-collapsed .nx-brand { padding-left: 10px; padding-right: 6px; }
+  .nx-brand img.nx-wordmark,
+  html.nx-collapsed .nx-brand img.nx-wordmark,
+  .nx-app.is-collapsed .nx-brand img.nx-wordmark { max-width: 104px; }
+  .nx-top-end { gap: 0; }
 }
 
 .auth-body {

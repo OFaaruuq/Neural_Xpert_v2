@@ -1,0 +1,32 @@
+{% macro image_field(label, path_name, path, width_name, width, height_name, height, radius_name, radius) %}
+<div class="nx-image-field">
+    <p class="form-label mb-2">{{ label }}</p>
+    {% if path %}
+    <img class="nx-image-preview" src="{{ url_for('static', filename=path) }}" alt="" style="{{ width|managed_image_style(height, radius) }}">
+    {% endif %}
+    <label class="form-label mt-2">Upload image
+        <input class="form-control" type="file" name="{{ path_name }}_file" accept="image/png,image/jpeg,image/webp,image/gif">
+    </label>
+    <label class="form-label mt-2">Current file
+        <input class="form-control" name="{{ path_name }}" value="{{ path or '' }}" placeholder="Leave blank to remove">
+    </label>
+    <div class="row g-2 mt-1">
+        <div class="col-4">
+            <label class="form-label">Width (px)
+                <input class="form-control" type="number" name="{{ width_name }}" min="0" max="2400" value="{{ width or 0 }}">
+            </label>
+        </div>
+        <div class="col-4">
+            <label class="form-label">Height (px)
+                <input class="form-control" type="number" name="{{ height_name }}" min="0" max="1600" value="{{ height or 0 }}">
+            </label>
+        </div>
+        <div class="col-4">
+            <label class="form-label">Radius (px)
+                <input class="form-control" type="number" name="{{ radius_name }}" min="0" max="80" value="{{ radius if radius is not none else 24 }}">
+            </label>
+        </div>
+    </div>
+    <p class="small text-secondary mb-0">Width or height 0 keeps the image flexible. Radius rounds the corners. Both are saved with this record.</p>
+</div>
+{% endmacro %}

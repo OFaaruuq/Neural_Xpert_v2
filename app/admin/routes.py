@@ -41,7 +41,8 @@ from app.models import (
     StaffRole,
     StaffUser,
 )
-from app.services import safe_static_path, safe_url, sanitize_html, slugify
+from app.images import apply_managed_image
+from app.services import safe_url, sanitize_html, slugify
 from werkzeug.security import check_password_hash, generate_password_hash
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -515,31 +516,34 @@ def _article_form(article):
             article.slug = _unique_slug(Article, request.form.get("slug") or title, article.id)
             article.excerpt = excerpt
             article.content = sanitize_html(request.form.get("content") or "")
-            article.featured_image = safe_static_path(request.form.get("featured_image") or "")
-            article.seo_title = (request.form.get("seo_title") or title)[:255]
-            article.meta_description = (request.form.get("meta_description") or excerpt)[:320]
-            requested = request.form.get("status") if request.form.get("status") in ARTICLE_STATUSES else "draft"
-            if requested == "published" and not g.staff.has_any(("content.publish",)):
-                requested = "review"
-            article.status = requested
-            article.tags = (request.form.get("tags") or "")[:500]
-            article.focus_keyword = (request.form.get("focus_keyword") or "")[:160]
-            article.canonical_url = safe_url(request.form.get("canonical_url") or "")
-            article.robots = (request.form.get("robots") or "")[:80]
-            article.cta_label = (request.form.get("cta_label") or "")[:120]
-            article.cta_url = safe_url(request.form.get("cta_url") or "")
-            if "blocks" in request.form:
-                article.blocks = (request.form.get("blocks") or "")[:20000]
-            category_id = request.form.get("category_id", type=int)
-            article.category = db.session.get(Category, category_id) if category_id else None
-            article.managed_in_admin = True
-            if article.status == "published" and article.published_at is None:
-                article.published_at = utcnow()
-            if article.id is None:
-                db.session.add(article)
-            db.session.commit()
-            flash("Insight saved.")
-            return redirect(url_for("admin.article_edit", article_id=article.id))
+            image_error = apply_managed_image(article, "featured_image", "featured_image_file", "image_width", "image_height", "image_radius")
+            if image_error:
+                error = image_error
+            else:
+                article.seo_title = (request.form.get("seo_title") or title)[:255]
+                article.meta_description = (request.form.get("meta_description") or excerpt)[:320]
+                requested = request.form.get("status") if request.form.get("status") in ARTICLE_STATUSES else "draft"
+                if requested == "published" and not g.staff.has_any(("content.publish",)):
+                    requested = "review"
+                article.status = requested
+                article.tags = (request.form.get("tags") or "")[:500]
+                article.focus_keyword = (request.form.get("focus_keyword") or "")[:160]
+                article.canonical_url = safe_url(request.form.get("canonical_url") or "")
+                article.robots = (request.form.get("robots") or "")[:80]
+                article.cta_label = (request.form.get("cta_label") or "")[:120]
+                article.cta_url = safe_url(request.form.get("cta_url") or "")
+                if "blocks" in request.form:
+                    article.blocks = (request.form.get("blocks") or "")[:20000]
+                category_id = request.form.get("category_id", type=int)
+                article.category = db.session.get(Category, category_id) if category_id else None
+                article.managed_in_admin = True
+                if article.status == "published" and article.published_at is None:
+                    article.published_at = utcnow()
+                if article.id is None:
+                    db.session.add(article)
+                db.session.commit()
+                flash("Insight saved.")
+                return redirect(url_for("admin.article_edit", article_id=article.id))
     return _render("admin/article_form.html", title=article.title or "New insight", article=article, categories=categories, error=error, statuses=ARTICLE_STATUSES)
 
 
@@ -611,30 +615,34 @@ def _study_form(study):
             study.technologies = (request.form.get("technologies") or "")[:500]
             study.client_name = (request.form.get("client_name") or "")[:255]
             study.client_display_name = (request.form.get("client_display_name") or "")[:255]
-            study.featured_image = safe_static_path(request.form.get("featured_image") or "")
-            study.seo_title = (request.form.get("seo_title") or "")[:255]
-            study.meta_description = (request.form.get("meta_description") or "")[:320]
-            requested = request.form.get("status") if request.form.get("status") in ARTICLE_STATUSES else "draft"
-            if requested == "published" and not g.staff.has_any(("content.publish",)):
-                requested = "review"
-            study.status = requested
-            study.customer_quote = (request.form.get("customer_quote") or "")[:5000]
-            study.metrics = (request.form.get("metrics") or "")[:5000] if request.form.get("metrics_verified") == "1" else ""
-            study.metrics_verified = request.form.get("metrics_verified") == "1"
-            study.cloud_platform = (request.form.get("cloud_platform") or "")[:255]
-            study.data_sources = (request.form.get("data_sources") or "")[:5000]
-            study.integrations = (request.form.get("integrations") or "")[:5000]
-            study.security_controls = (request.form.get("security_controls") or "")[:5000]
-            study.implementation = (request.form.get("implementation") or "")[:5000]
-            study.architecture_image = (request.form.get("architecture_image") or "")[:500]
-            study.managed_in_admin = True
-            if study.status == "published" and study.published_at is None:
-                study.published_at = utcnow()
-            if study.id is None:
-                db.session.add(study)
-            db.session.commit()
-            flash("Case study saved.")
-            return redirect(url_for("admin.study_edit", study_id=study.id))
+            image_error = apply_managed_image(study, "featured_image", "featured_image_file", "image_width", "image_height", "image_radius")
+            if not image_error:
+                image_error = apply_managed_image(study, "architecture_image", "architecture_image_file", "arch_width", "arch_height", "arch_radius")
+            if image_error:
+                error = image_error
+            else:
+                study.seo_title = (request.form.get("seo_title") or "")[:255]
+                study.meta_description = (request.form.get("meta_description") or "")[:320]
+                requested = request.form.get("status") if request.form.get("status") in ARTICLE_STATUSES else "draft"
+                if requested == "published" and not g.staff.has_any(("content.publish",)):
+                    requested = "review"
+                study.status = requested
+                study.customer_quote = (request.form.get("customer_quote") or "")[:5000]
+                study.metrics = (request.form.get("metrics") or "")[:5000] if request.form.get("metrics_verified") == "1" else ""
+                study.metrics_verified = request.form.get("metrics_verified") == "1"
+                study.cloud_platform = (request.form.get("cloud_platform") or "")[:255]
+                study.data_sources = (request.form.get("data_sources") or "")[:5000]
+                study.integrations = (request.form.get("integrations") or "")[:5000]
+                study.security_controls = (request.form.get("security_controls") or "")[:5000]
+                study.implementation = (request.form.get("implementation") or "")[:5000]
+                study.managed_in_admin = True
+                if study.status == "published" and study.published_at is None:
+                    study.published_at = utcnow()
+                if study.id is None:
+                    db.session.add(study)
+                db.session.commit()
+                flash("Case study saved.")
+                return redirect(url_for("admin.study_edit", study_id=study.id))
     return _render("admin/study_form.html", title=study.title or "New case study", study=study, error=error, statuses=ARTICLE_STATUSES)
 
 

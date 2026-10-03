@@ -24,8 +24,8 @@
     {% if g.staff is defined %}
     <div class="nx-app" id="nxApp">
         <header class="navbar navbar-expand bg-white border-bottom sticky-top nx-topbar flex-nowrap px-0">
-            <a class="nx-brand" href="{{ url_for('admin.dashboard') }}"><img class="nx-wordmark" src="{{ brand.admin }}" alt="Neural Xpert"><img class="nx-mark" src="{{ brand.icon }}" alt=""></a>
-            <button class="nx-iconbtn" id="nxMenu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="adminNav">
+            <a class="nx-brand" href="{{ url_for('admin.dashboard') }}" aria-label="Neural Xpert"><img class="nx-wordmark" src="{{ brand.admin }}" alt=""><img class="nx-mark" src="{{ brand.icon }}" alt=""></a>
+            <button class="nx-iconbtn" id="nxMenu" type="button" aria-label="Menu" aria-expanded="true" aria-controls="adminNav">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             </button>
             <form class="nx-search" method="get" action="{{ url_for('admin.search') }}" role="search">
@@ -35,7 +35,7 @@
             </form>
             <div class="nx-top-end">
                 <div class="dropdown">
-                    <button class="nx-iconbtn" type="button" data-bs-toggle="dropdown" aria-label="Notifications">
+                    <button class="nx-iconbtn" type="button" data-bs-toggle="dropdown" aria-label="Notifications{% if new_lead_count %} ({{ new_lead_count }} new){% endif %}">
                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V10a6 6 0 1 1 12 0v6l1.5 2H4.5L6 16z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10 19a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
                         {% if new_lead_count %}<span class="nx-dot-alert"></span>{% endif %}
                     </button>
@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <div class="dropdown">
-                    <button class="nx-profile" type="button" data-bs-toggle="dropdown" title="{{ g.staff.display_name }}">
+                    <button class="nx-profile" type="button" data-bs-toggle="dropdown" aria-label="{{ g.staff.display_name }}" title="{{ g.staff.display_name }}">
                         <span class="nx-avatar">{{ g.staff.display_name[:1]|upper }}</span>
                         <span class="nx-profile-copy">
                             <strong class="text-truncate">{{ g.staff.display_name }}</strong>

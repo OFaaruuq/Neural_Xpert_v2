@@ -26,7 +26,7 @@
                 {% for study in studies %}
                 <div class="col-lg-6">
                     <div class="case-study">
-                        <div class="box-img"><img src="{{ url_for('static', filename=study.featured_image) }}" alt="{{ study.title }}">
+                        <div class="box-img">{% if study.featured_image %}<img class="nx-managed-img" src="{{ url_for('static', filename=study.featured_image) }}" alt="{{ study.title }}" style="{{ study.image_width|managed_image_style(study.image_height, study.image_radius) }}">{% endif %}
                             <div class="tags">
                                 {% for tag in study.technology_list() %}<span>{{ tag }}</span>{% endfor %}
                             </div>

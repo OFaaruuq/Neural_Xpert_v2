@@ -8,7 +8,8 @@
     {% endif %}
 </div>
 {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
-<form method="post">
+<form method="post" enctype="multipart/form-data">
+    {% from "admin/image_field.html" import image_field %}
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="row g-3">
         <div class="col-lg-8">
@@ -68,8 +69,8 @@
             </div></div>
             <div class="card mb-3"><div class="card-body">
                 <h2 class="h6">Images</h2>
-                <label class="form-label mt-2">Featured image <input class="form-control" name="featured_image" value="{{ study.featured_image or '' }}" placeholder="img/project/example.jpg"></label>
-                <label class="form-label mt-3">Architecture image <input class="form-control" name="architecture_image" value="{{ study.architecture_image or '' }}" placeholder="img/project/architecture.png"></label>
+                {{ image_field("Featured image", "featured_image", study.featured_image, "image_width", study.image_width, "image_height", study.image_height, "image_radius", study.image_radius) }}
+                {{ image_field("Architecture image", "architecture_image", study.architecture_image, "arch_width", study.arch_width, "arch_height", study.arch_height, "arch_radius", study.arch_radius) }}
             </div></div>
             <div class="card"><div class="card-body">
                 <h2 class="h6">SEO</h2>

@@ -18,7 +18,7 @@
                 <div class="col-lg-6">
                     <div class="th-blog blog-single has-post-thumbnail single-grid">
                         <div class="blog-img global-img">
-                            <a href="{{ url_for('blog.detail', slug=article.slug) }}"><img src="{{ url_for('static', filename=article.featured_image) }}" alt="{{ article.title }}" width="632" height="260"></a>
+                            <a href="{{ url_for('blog.detail', slug=article.slug) }}">{% if article.featured_image %}<img class="nx-managed-img" src="{{ url_for('static', filename=article.featured_image) }}" alt="{{ article.title }}" style="{{ article.image_width|managed_image_style(article.image_height, article.image_radius) }}">{% endif %}</a>
                         </div>
                         <div class="blog-content">
                             <div class="blog-meta">

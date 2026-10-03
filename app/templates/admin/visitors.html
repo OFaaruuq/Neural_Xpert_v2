@@ -1,0 +1,95 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<h1 class="h3">Visitor IP addresses</h1>
+<p class="text-secondary">Every public page view on this site. The list updates as people visit.</p>
+<div class="row g-3">
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-secondary">Unique IPs</div><div class="fs-3">{{ report.unique_total }}</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-secondary">Visits today</div><div class="fs-3">{{ report.today_hits }}</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-secondary">IPs today</div><div class="fs-3">{{ report.today_ips }}</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-secondary">Latest visit</div><div class="fs-5">{{ report.latest.visited_at.strftime('%Y-%m-%d %H:%M UTC') if report.latest and report.latest.visited_at else 'None yet' }}</div></div></div></div>
+</div>
+
+<form class="card mt-4" method="get" action="{{ url_for('admin.visitor_ips') }}">
+    <div class="card-body d-flex flex-wrap gap-2 align-items-center">
+        <label class="form-label mb-0" for="visitor-q">Search</label>
+        <input class="form-control" id="visitor-q" name="q" value="{{ report.search }}" placeholder="IP address or page path" style="max-width: 320px;">
+        {% if report.selected %}<input type="hidden" name="ip" value="{{ report.selected }}">{% endif %}
+        <button class="btn btn-primary" type="submit">Search</button>
+        {% if report.search or report.selected %}
+        <a class="btn btn-outline-primary" href="{{ url_for('admin.visitor_ips') }}">Clear</a>
+        {% endif %}
+        <a class="btn btn-outline-primary ms-md-auto" href="{{ url_for('admin.visitor_export', q=report.search, ip=report.selected) }}">Download CSV</a>
+    </div>
+</form>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h2 class="h5">All IP addresses <span class="text-secondary fs-6">{{ report.address_total }}</span></h2>
+        {% if report.selected %}<p class="mb-2">Filtered to <strong>{{ report.selected }}</strong>.</p>{% endif %}
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>IP address</th><th>Visits</th><th>Last page</th><th>Last seen</th><th>First seen</th><th></th></tr></thead>
+            <tbody>
+            {% for row in report.addresses %}
+            <tr>
+                <td>{{ row.ip_address or 'Unknown' }}</td>
+                <td>{{ row.visits }}</td>
+                <td>{{ row.last_path }}</td>
+                <td>{{ row.last_seen.strftime('%Y-%m-%d %H:%M') if row.last_seen else '' }}</td>
+                <td>{{ row.first_seen.strftime('%Y-%m-%d %H:%M') if row.first_seen else '' }}</td>
+                <td>{% if row.ip_address %}<a href="{{ url_for('admin.visitor_ips', ip=row.ip_address, q=report.search) }}">Visits</a>{% endif %}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6">No visitor IP addresses yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if report.address_pages > 1 %}
+    <div class="card-body d-flex gap-2">
+        {% if report.address_page > 1 %}
+        <a href="{{ url_for('admin.visitor_ips', q=report.search, ip=report.selected, page=report.address_page - 1, log=report.log_page) }}">Previous</a>
+        {% endif %}
+        <span>Page {{ report.address_page }} of {{ report.address_pages }}</span>
+        {% if report.address_page < report.address_pages %}
+        <a href="{{ url_for('admin.visitor_ips', q=report.search, ip=report.selected, page=report.address_page + 1, log=report.log_page) }}">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h2 class="h5">Visit log <span class="text-secondary fs-6">{{ report.hit_total }}</span></h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>When</th><th>IP address</th><th>Page</th><th>Browser</th></tr></thead>
+            <tbody>
+            {% for row in report.hits %}
+            <tr>
+                <td>{{ row.visited_at.strftime('%Y-%m-%d %H:%M UTC') if row.visited_at else '' }}</td>
+                <td>{% if row.ip_address %}<a href="{{ url_for('admin.visitor_ips', ip=row.ip_address, q=report.search) }}">{{ row.ip_address }}</a>{% else %}Unknown{% endif %}</td>
+                <td>{{ row.path }}</td>
+                <td title="{{ row.user_agent }}">{{ row.user_agent[:80] }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4">No visits recorded yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if report.log_pages > 1 %}
+    <div class="card-body d-flex gap-2">
+        {% if report.log_page > 1 %}
+        <a href="{{ url_for('admin.visitor_ips', q=report.search, ip=report.selected, page=report.address_page, log=report.log_page - 1) }}">Previous</a>
+        {% endif %}
+        <span>Page {{ report.log_page }} of {{ report.log_pages }}</span>
+        {% if report.log_page < report.log_pages %}
+        <a href="{{ url_for('admin.visitor_ips', q=report.search, ip=report.selected, page=report.address_page, log=report.log_page + 1) }}">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

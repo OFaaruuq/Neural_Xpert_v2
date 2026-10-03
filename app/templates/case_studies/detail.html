@@ -35,7 +35,7 @@
                     </div>
                     {% if study.featured_image %}
                     <div class="global-img th-radius mb-60">
-                        <img data-animate="true" src="{{ url_for('static', filename=study.featured_image) }}" alt="{{ study.title }}">
+                        <img class="nx-managed-img" data-animate="true" src="{{ url_for('static', filename=study.featured_image) }}" alt="{{ study.title }}" style="{{ study.image_width|managed_image_style(study.image_height, study.image_radius) }}">
                     </div>
                     {% endif %}
                 </div>
@@ -50,6 +50,9 @@
                             {% if study.challenge %}<h3 class="blog-title h4">Challenge</h3><p class="blog-desc">{{ study.challenge }}</p>{% endif %}
                             {% if study.solution %}<h3 class="blog-title h4">Solution</h3><p class="blog-desc">{{ study.solution }}</p>{% endif %}
                             {% if study.architecture %}<h3 class="blog-title h4">Architecture</h3><p class="blog-desc">{{ study.architecture }}</p>{% endif %}
+                            {% if study.architecture_image %}
+                            <img class="nx-managed-img mb-4" src="{{ url_for('static', filename=study.architecture_image) }}" alt="{{ study.title }} architecture" style="{{ study.arch_width|managed_image_style(study.arch_height, study.arch_radius) }}">
+                            {% endif %}
                             {% if study.results %}<h3 class="blog-title h4">Results</h3><p class="blog-desc">{{ study.results }}</p>{% endif %}
                         </div>
                     </div>

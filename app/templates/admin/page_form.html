@@ -7,12 +7,13 @@
 <ul class="list-inline small">
     {% for name, ok in checks %}<li class="list-inline-item">{{ name }} {% if ok %}✓{% else %}needs work{% endif %}</li>{% endfor %}
 </ul>
-<form method="post" style="max-width:820px">
+<form method="post" enctype="multipart/form-data" style="max-width:820px">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% from "admin/image_field.html" import image_field %}
     <label class="form-label">Page title <input class="form-control" name="title" value="{{ page.title }}" required></label>
     <label class="form-label mt-3">Hero title <input class="form-control" name="hero_title" value="{{ page.hero_title }}"></label>
     <label class="form-label mt-3">Hero subtitle <textarea class="form-control" name="hero_subtitle" rows="3">{{ page.hero_subtitle }}</textarea></label>
-    <label class="form-label mt-3">Hero image <input class="form-control" name="hero_image" value="{{ page.hero_image }}"></label>
+    {{ image_field("Hero image", "hero_image", page.hero_image, "hero_width", page.hero_width, "hero_height", page.hero_height, "hero_radius", page.hero_radius) }}
     <label class="form-label mt-3">Summary <textarea class="form-control" name="summary" rows="4">{{ page.summary }}</textarea></label>
     <div class="row g-3 mt-1">
         <div class="col-md-6"><label class="form-label">CTA label <input class="form-control" name="cta_label" value="{{ page.cta_label }}"></label></div>
@@ -25,7 +26,10 @@
     <label class="form-label mt-3">Canonical URL <input class="form-control" name="canonical_url" value="{{ page.canonical_url }}"></label>
     <label class="form-label mt-3">Social title <input class="form-control" name="og_title" value="{{ page.og_title }}"></label>
     <label class="form-label mt-3">Social description <textarea class="form-control" name="og_description" rows="2">{{ page.og_description }}</textarea></label>
-    <label class="form-label mt-3">Social image <input class="form-control" name="og_image" value="{{ page.og_image }}"></label>
+    <label class="form-label mt-3">Social image
+        <input class="form-control" type="file" name="og_image_file" accept="image/png,image/jpeg,image/webp,image/gif">
+    </label>
+    <label class="form-label mt-2">Current social image <input class="form-control" name="og_image" value="{{ page.og_image }}"></label>
     <label class="form-label mt-3">Robots <input class="form-control" name="robots" value="{{ page.robots }}" placeholder="index, follow"></label>
     <label class="form-label mt-3">Status
         <select class="form-select" name="status">{% for item in statuses %}<option value="{{ item }}" {% if page.status == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>

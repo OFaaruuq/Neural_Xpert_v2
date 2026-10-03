@@ -34,8 +34,9 @@ from app.models.platform import (
     SiteSetting,
     Testimonial,
 )
+from app.images import apply_managed_image, save_public_image
 from app.services import sanitize_html, slugify
-from app.visitors import traffic_summary
+from app.visitors import traffic_summary, visitor_export_rows, visitor_report
 
 PUBLISH_STATUSES = ("draft", "review", "scheduled", "published", "archived")
 OFFER_FIELDS = (
@@ -43,7 +44,7 @@ OFFER_FIELDS = (
     ("slug", "Slug", "text"),
     ("summary", "Short description", "area"),
     ("body", "Full content", "area"),
-    ("hero_image", "Hero image", "text"),
+    ("hero_image", "Hero image", "image"),
     ("icon", "Icon", "text"),
     ("challenges", "Challenges", "area"),
     ("capabilities", "Capabilities", "area"),
@@ -112,22 +113,26 @@ def _offering_form(kind, item, endpoint):
             item.name = name[:255]
             item.slug = _unique_kind_slug(kind, request.form.get("slug") or name, item.id)
             for field, _label, kind_name in OFFER_FIELDS:
-                if field in {"name", "slug"}:
+                if field in {"name", "slug"} or kind_name == "image":
                     continue
                 value = request.form.get(field) or ""
                 if kind_name == "area":
                     value = sanitize_html(value) if field == "body" else value
                 setattr(item, field, value[:5000] if kind_name == "area" else value[:500])
-            item.featured = request.form.get("featured") == "1"
-            item.status = _publish_status(item.status)
-            if item.id is None:
-                db.session.add(item)
-                db.session.flush()
-            record_revision(item, f"Saved {kind}")
-            record_audit("save", kind, item.id, item.name)
-            db.session.commit()
-            flash(f"{kind.title()} saved.")
-            return redirect(url_for(endpoint + "_edit", item_id=item.id))
+            image_error = apply_managed_image(item, "hero_image", "hero_image_file", "image_width", "image_height", "image_radius")
+            if image_error:
+                error = image_error
+            else:
+                item.featured = request.form.get("featured") == "1"
+                item.status = _publish_status(item.status)
+                if item.id is None:
+                    db.session.add(item)
+                    db.session.flush()
+                record_revision(item, f"Saved {kind}")
+                record_audit("save", kind, item.id, item.name)
+                db.session.commit()
+                flash(f"{kind.title()} saved.")
+                return redirect(url_for(endpoint + "_edit", item_id=item.id))
     grade, checks = seo_checks(item.seo_title or item.name, item.meta_description or item.summary, item.name, bool(item.hero_image or item.icon), True, True)
     return _render(
         "admin/module_form.html",
@@ -161,7 +166,9 @@ def page_edit(page_id):
         page.title = (request.form.get("title") or page.title).strip()[:255]
         page.hero_title = (request.form.get("hero_title") or "")[:255]
         page.hero_subtitle = (request.form.get("hero_subtitle") or "")[:2000]
-        page.hero_image = safe_static_path(request.form.get("hero_image") or "")
+        image_error = apply_managed_image(page, "hero_image", "hero_image_file", "hero_width", "hero_height", "hero_radius")
+        if image_error:
+            error = image_error
         page.summary = (request.form.get("summary") or "")[:5000]
         page.cta_label = (request.form.get("cta_label") or "")[:120]
         page.cta_url = safe_url(request.form.get("cta_url") or "")
@@ -171,14 +178,23 @@ def page_edit(page_id):
         page.canonical_url = safe_url(request.form.get("canonical_url") or "")
         page.og_title = (request.form.get("og_title") or "")[:255]
         page.og_description = (request.form.get("og_description") or "")[:320]
-        page.og_image = safe_static_path(request.form.get("og_image") or "") or safe_url(request.form.get("og_image") or "")
+        og_upload = request.files.get("og_image_file")
+        if og_upload is not None and og_upload.filename:
+            stored, notice = save_public_image(og_upload)
+            if notice:
+                error = error or notice
+            else:
+                page.og_image = stored
+        else:
+            page.og_image = safe_static_path(request.form.get("og_image") or "") or safe_url(request.form.get("og_image") or "")
         page.robots = (request.form.get("robots") or "")[:80]
         page.status = _publish_status(page.status)
-        record_revision(page, "Page saved")
-        record_audit("save", "page", page.id, page.title)
-        db.session.commit()
-        flash("Page saved.")
-        return redirect(url_for("admin.page_edit", page_id=page.id))
+        if not error:
+            record_revision(page, "Page saved")
+            record_audit("save", "page", page.id, page.title)
+            db.session.commit()
+            flash("Page saved.")
+            return redirect(url_for("admin.page_edit", page_id=page.id))
     grade, checks = seo_checks(page.seo_title or page.hero_title or page.title, page.meta_description or page.summary, page.hero_title or page.title)
     return _render("admin/page_form.html", title=page.title, page=page, error=error, statuses=PUBLISH_STATUSES, grade=grade, checks=checks)
 
@@ -354,10 +370,46 @@ def seo():
 def analytics():
     traffic = traffic_summary()
     leads = ConversionEvent.query.filter_by(name="contact_submit").count()
-    from app.models import DailyPageView
+    from app.models import DailyPageView, PageVisit
 
     total_views = db.session.query(db.func.coalesce(db.func.sum(DailyPageView.views), 0)).scalar() or 0
-    return _render("admin/analytics.html", title="Analytics", traffic=traffic, leads=leads, total_views=total_views)
+    unique_ips = db.session.query(db.func.count(db.func.distinct(PageVisit.ip_address))).scalar() or 0
+    return _render(
+        "admin/analytics.html",
+        title="Analytics",
+        traffic=traffic,
+        leads=leads,
+        total_views=total_views,
+        unique_ips=unique_ips,
+    )
+
+
+def visitor_ips():
+    report = visitor_report(
+        search=request.args.get("q") or "",
+        address=request.args.get("ip") or "",
+        page=request.args.get("page", 1, type=int) or 1,
+        log_page=request.args.get("log", 1, type=int) or 1,
+    )
+    return _render("admin/visitors.html", title="Visitor IPs", report=report)
+
+
+def visitor_export():
+    rows = visitor_export_rows(request.args.get("q") or "", request.args.get("ip") or "")
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(["visited_at", "ip_address", "path", "user_agent"])
+    for row in rows:
+        writer.writerow([
+            row.visited_at.isoformat() if row.visited_at else "",
+            row.ip_address,
+            row.path,
+            row.user_agent,
+        ])
+    record_audit("export", "visitors", "", "csv")
+    db.session.commit()
+    payload = io.BytesIO(buffer.getvalue().encode("utf-8"))
+    return send_file(payload, mimetype="text/csv", as_attachment=True, download_name="neural-xpert-visitor-ips.csv")
 
 
 def conversions():
@@ -592,6 +644,8 @@ def register(bp):
     add("/navigation", navigation, ["GET", "POST"], ("content.view", "settings.manage"))
     add("/seo", seo, permission=("content.view", "seo.manage"))
     add("/analytics", analytics, permission=("overview",))
+    add("/visitors", visitor_ips, permission=("overview",))
+    add("/visitors.csv", visitor_export, permission=("overview",))
     add("/conversions", conversions, permission=("overview",))
     add("/settings", settings, ["GET", "POST"], ("settings.manage",))
     add("/email", email_settings, ["GET", "POST"], ("settings.manage",))

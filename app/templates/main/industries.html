@@ -21,6 +21,21 @@
                     </div>
                 </div>
             </div>
+            {% if published_industries %}
+            <div class="row gy-4 justify-content-center mb-4">
+                {% for item in published_industries %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card h-100 text-center">
+                        {% if item.hero_image %}
+                        <img class="nx-managed-img mb-3" src="{{ url_for('static', filename=item.hero_image) }}" alt="{{ item.name }}" style="{{ item.image_width|managed_image_style(item.image_height, item.image_radius) }}">
+                        {% endif %}
+                        <h3 class="box-title"><a href="{{ url_for('main.industry_detail', slug=item.slug) }}">{{ item.name }}</a></h3>
+                        <p class="box-text">{{ item.summary }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             <div class="row gy-4 justify-content-center">
                 <div class="col-6 col-md-4 col-xl" style="min-width:0">
                     <div class="service-card h-100 text-center">

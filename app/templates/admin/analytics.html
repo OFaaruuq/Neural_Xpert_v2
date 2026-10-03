@@ -7,6 +7,7 @@
     <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-secondary">Views, 30 days</div><div class="fs-3">{{ traffic.month_views }}</div></div></div></div>
     <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-secondary">All page views</div><div class="fs-3">{{ total_views }}</div></div></div></div>
     <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-secondary">Contact leads</div><div class="fs-3">{{ leads }}</div></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><div class="text-secondary">Unique IP addresses</div><div class="fs-3">{{ unique_ips }}</div><a href="{{ url_for('admin.visitor_ips') }}">View all IPs</a></div></div></div>
 </div>
 <div class="card mt-4"><div class="card-body">
     <h2 class="h5">Top pages this week</h2>

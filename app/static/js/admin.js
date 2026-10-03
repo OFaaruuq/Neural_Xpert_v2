@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function setCollapsed(next) {
         document.documentElement.classList.toggle("nx-collapsed", next);
         if (app) app.classList.toggle("is-collapsed", next);
-        if (menu) menu.setAttribute("aria-expanded", next ? "true" : "false");
+        if (menu) menu.setAttribute("aria-expanded", next ? "false" : "true");
         document.querySelectorAll("aside.nx-side .nav-link").forEach(function (link) {
             if (next) link.setAttribute("title", link.textContent.replace(/\s+/g, " ").trim());
             else link.removeAttribute("title");
@@ -54,6 +54,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     if (search) {
+        var shortcut = search.parentElement && search.parentElement.querySelector("kbd");
+        var platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || "";
+        if (shortcut && !/mac/i.test(platform)) shortcut.textContent = "Ctrl K";
         document.addEventListener("keydown", function (event) {
             if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
                 event.preventDefault();

@@ -51,7 +51,7 @@
                     </div>
                     {% if article.featured_image %}
                     <div class="global-img th-radius mt-60 mb-60">
-                        <img data-animate="true" src="{{ url_for('static', filename=article.featured_image) }}" alt="{{ article.title }}" width="1320" height="550">
+                        <img class="nx-managed-img" data-animate="true" src="{{ url_for('static', filename=article.featured_image) }}" alt="{{ article.title }}" style="{{ article.image_width|managed_image_style(article.image_height, article.image_radius) }}">
                     </div>
                     {% endif %}
                 </div>
