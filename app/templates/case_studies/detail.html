@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class="breadcumb-wrapper nx-hero" data-bg-src="{{ url_for('static', filename=study.featured_image) if study.featured_image else url_for('static', filename='img/bg/process-bg.jpg') }}">
+<div class="nx-case-page" style="{{ case_page_css(page) }}">
+    <div class="breadcumb-wrapper nx-hero" style="{{ case_banner_style(study.image_width, study.image_height, study.image_radius) }}" data-bg-src="{{ url_for('static', filename=study.featured_image) if study.featured_image else url_for('static', filename='img/bg/process-bg.jpg') }}">
         <div class="container">
             <div class="breadcumb-content">
                 <h1 class="breadcumb-title text-anime-style-3">{{ study.title }}</h1>
@@ -21,8 +22,8 @@
                             <div class="blog-meta mb-20">
                                 {% for tag in study.technology_list() %}<a href="{{ url_for('case_studies.index') }}">{{ tag }}</a>{% endfor %}
                             </div>
-                            <h2 class="case-text h3">{{ study.title }}</h2>
-                            <p class="blog-desc mb-0">{{ study.summary }}</p>
+                            <h2 class="case-text h3" style="{{ study|case_text_style('title') }}">{{ study.title }}</h2>
+                            <p class="blog-desc mb-0" style="{{ study|case_text_style('summary') }}">{{ study.summary }}</p>
                         </div>
                         <div class="right-text">
                             <div class="box-profile">
@@ -60,4 +61,5 @@
             </div>
         </div>
     </section>
+</div>
 {% endblock %}

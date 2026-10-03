@@ -1,6 +1,7 @@
 from flask import Blueprint, abort, render_template
 
 from app.models import CaseStudy
+from app.models.platform import SitePage
 from app.services import absolute_static, canonical_url, seo_for
 
 bp = Blueprint("case_studies", __name__)
@@ -18,7 +19,8 @@ def index():
         "Case Studies | Neural Xpert",
         "Explore how Neural Xpert designs and delivers secure, production-ready AI solutions for the enterprise.",
     )
-    return render_template("case_studies/list.html", studies=studies, **context)
+    page = SitePage.query.filter_by(key="case-studies").first()
+    return render_template("case_studies/list.html", studies=studies, page=page, **context)
 
 
 @bp.route("/case-studies/<slug>")
@@ -32,4 +34,5 @@ def detail(slug):
     context["canonical_url"] = canonical_url(f"/case-studies/{study.slug}")
     context["og_type"] = "article"
     context["og_image"] = absolute_static(study.featured_image)
-    return render_template("case_studies/detail.html", study=study, **context)
+    page = SitePage.query.filter_by(key="case-studies").first()
+    return render_template("case_studies/detail.html", study=study, page=page, **context)

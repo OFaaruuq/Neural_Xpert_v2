@@ -520,6 +520,82 @@ def test_admin_features_that_were_unwired(client, app):
         assert StaffUser.query.filter_by(email="temp@neuralxpert.com").one().totp_enabled is False
 
 
+def test_admin_styles_the_case_studies_page(client, app):
+    with app.app_context():
+        _staff, password = create_staff("cases@neuralxpert.com")
+    _open_dashboard(client, app, "cases@neuralxpert.com", password)
+    saved = client.post(
+        "/admin/case-studies",
+        data={
+            "listing": "1",
+            "title": "Our work",
+            "hero_title": "Systems in production",
+            "hero_subtitle": "FIELD NOTES",
+            "summary": "A shorter introduction.",
+            "cta_label": "Open the study",
+            "font_family": "georgia",
+            "heading_size": "40",
+            "body_size": "18",
+            "tag_size": "14",
+            "heading_color": "#112233",
+            "body_color": "#445566",
+            "hero_width": "960",
+            "hero_height": "420",
+            "hero_image_file": (BytesIO(_PNG), "hero.png"),
+        },
+        content_type="multipart/form-data",
+        follow_redirects=True,
+    )
+    assert b"Case studies page updated." in saved.data
+    created = client.post(
+        "/admin/case-studies/new",
+        data={
+            "title": "Styled platform",
+            "summary": "Card summary text",
+            "status": "published",
+            "font_family": "arial",
+            "title_size": "28",
+            "summary_size": "16",
+            "image_width": "320",
+            "image_height": "180",
+            "image_radius": "8",
+            "featured_image_file": (BytesIO(_PNG), "card.png"),
+            "arch_width": "400",
+            "arch_height": "200",
+            "arch_radius": "12",
+            "architecture_image_file": (BytesIO(_PNG), "arch.png"),
+        },
+        content_type="multipart/form-data",
+        follow_redirects=True,
+    )
+    assert b"Case study saved." in created.data
+    page = client.get("/case-studies")
+    assert b"Our work" in page.data
+    assert b"Systems in production" in page.data
+    assert b"FIELD NOTES" in page.data
+    assert b"A shorter introduction." in page.data
+    assert b"Georgia, serif" in page.data
+    assert b"--nx-case-heading-size:40px" in page.data
+    assert b"--nx-case-body-size:18px" in page.data
+    assert b"#112233" in page.data
+    assert b"Open the study" in page.data
+    assert b"--nx-case-hero-width:960px" in page.data
+    assert b"--nx-case-hero-height:420px" in page.data
+    assert b"font-size:28px" in page.data
+    assert b"font-size:16px" in page.data
+    assert b"Arial, Helvetica, sans-serif" in page.data
+    assert b"width:320px" in page.data
+    assert b"height:180px" in page.data
+    assert b"border-radius:8px" in page.data
+    detail = client.get("/case-studies/styled-platform")
+    assert detail.status_code == 200
+    assert b"font-size:28px" in detail.data
+    assert b"min-height:180px" in detail.data
+    assert b"border-radius:8px" in detail.data
+    assert b"width:400px" in detail.data
+    assert b"border-radius:12px" in detail.data
+
+
 def test_approved_records_appear_on_the_public_site(client, app):
     import os
     from datetime import date

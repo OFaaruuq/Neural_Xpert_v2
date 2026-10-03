@@ -46,9 +46,13 @@ def create_app(config_name=None):
     app.jinja_env.filters["plain_excerpt"] = plain_excerpt
     app.jinja_env.filters["safe_url"] = safe_url
     app.jinja_env.filters["safe_static"] = safe_static_path
+    from app.case_style import banner_style, card_text_style, page_css
     from app.images import managed_image_style
 
     app.jinja_env.filters["managed_image_style"] = managed_image_style
+    app.jinja_env.filters["case_text_style"] = card_text_style
+    app.jinja_env.globals["case_page_css"] = page_css
+    app.jinja_env.globals["case_banner_style"] = banner_style
 
     from app import models  # noqa: F401
     from app.admin.routes import bp as admin_bp

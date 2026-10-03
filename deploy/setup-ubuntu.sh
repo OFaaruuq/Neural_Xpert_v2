@@ -252,8 +252,9 @@ if [[ ! -f "${APP_DIR}/app/visitors.py" || ! -f "${APP_DIR}/app/images.py" ]]; t
   exit 1
 fi
 if [[ ! -f "${APP_DIR}/migrations/versions/b7e2c4a91d08_page_visit_ips.py" ]] \
-  || [[ ! -f "${APP_DIR}/migrations/versions/c8d4e1b72a05_content_image_size_radius.py" ]]; then
-  echo "The visitor IP or image-size migration is missing. PostgreSQL would start without those tables."
+  || [[ ! -f "${APP_DIR}/migrations/versions/c8d4e1b72a05_content_image_size_radius.py" ]] \
+  || [[ ! -f "${APP_DIR}/migrations/versions/d1a6f3c94e20_case_study_page_style.py" ]]; then
+  echo "The visitor IP, image-size, or case-study style migration is missing. PostgreSQL would start without those columns."
   exit 1
 fi
 

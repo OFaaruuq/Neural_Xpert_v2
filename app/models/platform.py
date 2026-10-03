@@ -32,6 +32,12 @@ class SitePage(db.Model):
     og_description = db.Column(db.String(320), nullable=False, default="")
     og_image = db.Column(db.String(500), nullable=False, default="")
     robots = db.Column(db.String(80), nullable=False, default="")
+    font_family = db.Column(db.String(40), nullable=False, default="")
+    heading_size = db.Column(db.Integer, nullable=False, default=0)
+    body_size = db.Column(db.Integer, nullable=False, default=0)
+    tag_size = db.Column(db.Integer, nullable=False, default=0)
+    heading_color = db.Column(db.String(20), nullable=False, default="")
+    body_color = db.Column(db.String(20), nullable=False, default="")
     updated_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
 
 

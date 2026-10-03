@@ -556,3 +556,61 @@ body.nx-site :focus-visible {
     height: 240px;
   }
 }
+
+.nx-case-page {
+  font-family: var(--nx-case-font, var(--body-font));
+}
+.nx-case-page[style*="--nx-case-title-font"] .breadcumb-title,
+.nx-case-page[style*="--nx-case-title-font"] .sec-title,
+.nx-case-page[style*="--nx-case-title-font"] .box-title,
+.nx-case-page[style*="--nx-case-title-font"] .case-text {
+  font-family: var(--nx-case-title-font);
+}
+.nx-case-page[style*="--nx-case-heading-size"] .breadcumb-title,
+.nx-case-page[style*="--nx-case-heading-size"] .sec-title,
+.nx-case-page[style*="--nx-case-heading-size"] .box-title,
+.nx-case-page[style*="--nx-case-heading-size"] .case-text {
+  font-size: var(--nx-case-heading-size);
+  line-height: 1.25;
+}
+.nx-case-page[style*="--nx-case-body-size"] .box-text,
+.nx-case-page[style*="--nx-case-body-size"] .title-area p,
+.nx-case-page[style*="--nx-case-body-size"] .blog-desc {
+  font-size: var(--nx-case-body-size);
+  line-height: 1.6;
+}
+.nx-case-page[style*="--nx-case-tag-size"] .tags span,
+.nx-case-page[style*="--nx-case-tag-size"] .date,
+.nx-case-page[style*="--nx-case-tag-size"] .sub-title {
+  font-size: var(--nx-case-tag-size);
+}
+.nx-case-page[style*="--nx-case-heading-color"] .breadcumb-title,
+.nx-case-page[style*="--nx-case-heading-color"] .sec-title,
+.nx-case-page[style*="--nx-case-heading-color"] .box-title,
+.nx-case-page[style*="--nx-case-heading-color"] .box-title a,
+.nx-case-page[style*="--nx-case-heading-color"] .case-text {
+  color: var(--nx-case-heading-color);
+}
+.nx-case-page[style*="--nx-case-body-color"] .box-text,
+.nx-case-page[style*="--nx-case-body-color"] .title-area p,
+.nx-case-page[style*="--nx-case-body-color"] .blog-desc {
+  color: var(--nx-case-body-color);
+}
+.nx-case-page[style*="--nx-case-hero-width"] .case-studies-hero,
+.nx-case-page[style*="--nx-case-hero-width"] .nx-hero {
+  width: var(--nx-case-hero-width);
+  max-width: 100%;
+  margin-inline: auto;
+}
+.nx-case-page[style*="--nx-case-hero-height"] .case-studies-hero,
+.nx-case-page[style*="--nx-case-hero-height"] .nx-hero {
+  min-height: var(--nx-case-hero-height);
+}
+.nx-case-page[style*="--nx-case-hero-radius"] .case-studies-hero,
+.nx-case-page[style*="--nx-case-hero-radius"] .nx-hero {
+  border-radius: var(--nx-case-hero-radius);
+  overflow: hidden;
+}
+.nx-case-page .case-study .box-img img.nx-managed-img {
+  max-width: 100%;
+}

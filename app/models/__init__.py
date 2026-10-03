@@ -90,6 +90,9 @@ class CaseStudy(db.Model):
     arch_width = db.Column(db.Integer, nullable=False, default=0)
     arch_height = db.Column(db.Integer, nullable=False, default=0)
     arch_radius = db.Column(db.Integer, nullable=False, default=24)
+    font_family = db.Column(db.String(40), nullable=False, default="")
+    title_size = db.Column(db.Integer, nullable=False, default=0)
+    summary_size = db.Column(db.Integer, nullable=False, default=0)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow)
     updated_at = db.Column(db.DateTime(timezone=True), nullable=False, default=utcnow, onupdate=utcnow)
 

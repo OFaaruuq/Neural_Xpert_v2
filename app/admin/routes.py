@@ -42,6 +42,7 @@ from app.models import (
     StaffRole,
     StaffUser,
 )
+from app.case_style import FONT_CHOICES, apply_card_type, apply_page_style
 from app.images import apply_managed_image, save_public_image
 from app.services import safe_static_path, safe_url, sanitize_html, slugify
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -590,9 +591,27 @@ def _article_form(article):
     return _render("admin/article_form.html", title=article.title or "New insight", article=article, categories=categories, error=error, statuses=ARTICLE_STATUSES)
 
 
-@bp.route("/case-studies")
+@bp.route("/case-studies", methods=["GET", "POST"])
 @permission_required("content.view")
 def studies():
+    from app.admin.catalog import ensure_catalog
+    from app.models.platform import SitePage
+
+    ensure_catalog()
+    if request.method == "POST":
+        if not g.staff.has_any(("content.edit",)):
+            abort(403)
+        page = SitePage.query.filter_by(key="case-studies").first()
+        if page is None:
+            abort(404)
+        image_error = apply_page_style(page)
+        if image_error:
+            flash(image_error)
+        else:
+            record_audit("save", "page", page.id, "case studies appearance")
+            db.session.commit()
+            flash("Case studies page updated.")
+        return redirect(url_for("admin.studies"))
     status = request.args.get("status", "")
     term = (request.args.get("q") or "").strip()
     query = CaseStudy.query
@@ -617,6 +636,8 @@ def studies():
         counts=counts,
         total=CaseStudy.query.count(),
         statuses=ARTICLE_STATUSES,
+        listing=SitePage.query.filter_by(key="case-studies").first(),
+        fonts=FONT_CHOICES,
     )
 
 
@@ -684,6 +705,7 @@ def _study_form(study):
                 study.integrations = (request.form.get("integrations") or "")[:5000]
                 study.security_controls = (request.form.get("security_controls") or "")[:5000]
                 study.implementation = (request.form.get("implementation") or "")[:5000]
+                apply_card_type(study)
                 study.managed_in_admin = True
                 if study.status == "published" and study.published_at is None:
                     study.published_at = utcnow()
@@ -692,7 +714,7 @@ def _study_form(study):
                 db.session.commit()
                 flash("Case study saved.")
                 return redirect(url_for("admin.study_edit", study_id=study.id))
-    return _render("admin/study_form.html", title=study.title or "New case study", study=study, error=error, statuses=ARTICLE_STATUSES)
+    return _render("admin/study_form.html", title=study.title or "New case study", study=study, error=error, statuses=ARTICLE_STATUSES, fonts=FONT_CHOICES)
 
 
 @bp.route("/careers")

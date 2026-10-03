@@ -9,6 +9,38 @@
     <a class="btn btn-primary" href="{{ url_for('admin.study_new') }}">New case study</a>
     {% endif %}
 </div>
+{% if listing %}
+<form class="card mb-4" method="post" enctype="multipart/form-data">
+    <div class="card-body">
+        <h2 class="h5">Public page appearance</h2>
+        <p class="text-secondary">These settings change the text, type, and hero on <a href="{{ url_for('case_studies.index') }}" target="_blank" rel="noopener">/case-studies</a>. Each card image is sized on that case study. Leave a size at 0 to keep the theme.</p>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="listing" value="1">
+        {% from "admin/image_field.html" import image_field %}
+        <div class="row g-3">
+            <div class="col-md-4"><label class="form-label">Page title <input class="form-control" name="title" value="{{ listing.title }}"></label></div>
+            <div class="col-md-4"><label class="form-label">Eyebrow <input class="form-control" name="hero_subtitle" value="{{ listing.hero_subtitle }}" placeholder="CASE STUDIES"></label></div>
+            <div class="col-md-4"><label class="form-label">Headline <input class="form-control" name="hero_title" value="{{ listing.hero_title }}" placeholder="Enterprise AI in Action"></label></div>
+            <div class="col-12"><label class="form-label">Introduction <textarea class="form-control" name="summary" rows="3">{{ listing.summary }}</textarea></label></div>
+            <div class="col-md-4"><label class="form-label">Button label <input class="form-control" name="cta_label" value="{{ listing.cta_label }}" placeholder="Read Case Study"></label></div>
+            <div class="col-md-4"><label class="form-label">Font
+                <select class="form-select" name="font_family">
+                    {% for value, label in fonts %}<option value="{{ value }}" {% if listing.font_family == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                </select>
+            </label></div>
+            <div class="col-md-4"><label class="form-label">Heading size (px) <input class="form-control" type="number" name="heading_size" min="0" max="96" value="{{ listing.heading_size or 0 }}"></label></div>
+            <div class="col-md-4"><label class="form-label">Body size (px) <input class="form-control" type="number" name="body_size" min="0" max="40" value="{{ listing.body_size or 0 }}"></label></div>
+            <div class="col-md-4"><label class="form-label">Tag size (px) <input class="form-control" type="number" name="tag_size" min="0" max="32" value="{{ listing.tag_size or 0 }}"></label></div>
+            <div class="col-md-4"><label class="form-label">Heading color <input class="form-control" name="heading_color" value="{{ listing.heading_color }}" placeholder="#112233"></label></div>
+            <div class="col-md-4"><label class="form-label">Body color <input class="form-control" name="body_color" value="{{ listing.body_color }}" placeholder="#445566"></label></div>
+            <div class="col-12">{{ image_field("Hero image", "hero_image", listing.hero_image, "hero_width", listing.hero_width, "hero_height", listing.hero_height, "hero_radius", listing.hero_radius) }}</div>
+        </div>
+        {% if g.staff.has_any(['content.edit']) %}
+        <button class="btn btn-primary mt-3" type="submit">Save page appearance</button>
+        {% endif %}
+    </div>
+</form>
+{% endif %}
 <div class="d-flex flex-wrap gap-2 mb-3">
     <a class="nx-filter {% if not status %}is-on{% endif %}" href="{{ url_for('admin.studies', q=q or none) }}">All {{ total }}</a>
     {% for item in statuses %}
