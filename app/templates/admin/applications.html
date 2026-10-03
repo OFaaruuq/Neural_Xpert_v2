@@ -2,13 +2,14 @@
 {% block content %}
 <h1 class="h3 mb-3">Applications</h1>
 <div class="card"><div class="table-responsive"><table class="table mb-0 align-middle">
-    <thead><tr><th>Name</th><th>Opening</th><th>Email</th><th>Status</th></tr></thead>
+    <thead><tr><th>Name</th><th>Opening</th><th>Email</th><th>CV</th><th>Status</th></tr></thead>
     <tbody>
     {% for row in rows %}
     <tr>
         <td>{{ row.name }}</td>
         <td>{{ row.job.title if row.job else '' }}</td>
-        <td>{{ row.email }}</td>
+        <td>{{ row.email }}{% if row.cover_letter %}<div class="small text-secondary">{{ row.cover_letter }}</div>{% endif %}</td>
+        <td><a href="{{ url_for('admin.application_cv', application_id=row.id) }}">{{ row.cv_original_name or 'Download CV' }}</a></td>
         <td>
             {% if g.staff.has_any(['careers.edit', 'crm.edit']) %}
             <form class="d-flex gap-2" method="post">
@@ -25,7 +26,7 @@
         </td>
     </tr>
     {% else %}
-    <tr><td colspan="4">No applications.</td></tr>
+    <tr><td colspan="5">No applications.</td></tr>
     {% endfor %}
     </tbody>
 </table></div></div>

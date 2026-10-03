@@ -15,18 +15,48 @@
     </div>
 </div></form>
 {% endif %}
-<div class="card"><div class="table-responsive"><table class="table mb-0">
-    <thead><tr><th>File</th><th>ALT</th><th>Folder</th><th>Size</th></tr></thead>
+<p class="mb-3">
+    <a href="{{ url_for('admin.media') }}">All</a>
+    {% for name in folders %} · <a href="{{ url_for('admin.media', folder=name) }}">{{ name }}</a>{% endfor %}
+</p>
+<div class="card"><div class="table-responsive"><table class="table mb-0 align-middle">
+    <thead><tr><th>File</th><th>Details</th><th>Pixels</th><th>Size</th><th></th></tr></thead>
     <tbody>
     {% for row in rows %}
     <tr>
-        <td><a href="{{ url_for('admin.media_file', asset_id=row.id, filename=row.filename) }}">{{ row.original_name or row.filename }}</a></td>
-        <td>{{ row.alt_text }}</td>
-        <td>{{ row.folder }}</td>
+        <td>
+            {% set image = row.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.webp', '.gif')) %}
+            {% if image %}<img src="{{ url_for('admin.media_file', asset_id=row.id, filename=row.filename) }}" alt="" style="width:72px;height:48px;object-fit:cover;border-radius:8px;display:block;margin-bottom:6px">{% endif %}
+            <a href="{{ url_for('admin.media_file', asset_id=row.id, filename=row.filename) }}">{{ row.original_name or row.filename }}</a>
+        </td>
+        <td>
+            {% if g.staff.has_any(['media.manage', 'content.edit']) %}
+            <form class="row g-2" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="asset_id" value="{{ row.id }}">
+                <div class="col-md-4"><input class="form-control form-control-sm" name="alt_text" value="{{ row.alt_text }}" aria-label="ALT text" required></div>
+                <div class="col-md-3"><input class="form-control form-control-sm" name="title" value="{{ row.title }}" aria-label="Title"></div>
+                <div class="col-md-3"><select class="form-select form-select-sm" name="folder" aria-label="Folder">{% for name in folders %}<option {% if row.folder == name %}selected{% endif %}>{{ name }}</option>{% endfor %}</select></div>
+                <div class="col-md-2"><button class="btn btn-sm btn-primary" type="submit">Save</button></div>
+            </form>
+            {% else %}
+            {{ row.alt_text }}
+            {% endif %}
+        </td>
+        <td>{% if row.width %}{{ row.width }}×{{ row.height }}{% else %}—{% endif %}</td>
         <td>{{ row.size }}</td>
+        <td>
+            {% if g.staff.has_any(['media.manage', 'content.edit']) %}
+            <form method="post" data-confirm="Remove this file?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="delete_id" value="{{ row.id }}">
+                <button class="btn btn-sm btn-outline-primary" type="submit">Remove</button>
+            </form>
+            {% endif %}
+        </td>
     </tr>
     {% else %}
-    <tr><td colspan="4">No files yet.</td></tr>
+    <tr><td colspan="5">No files yet.</td></tr>
     {% endfor %}
     </tbody>
 </table></div></div>

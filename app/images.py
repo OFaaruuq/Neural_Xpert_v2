@@ -11,6 +11,42 @@ from app.services import file_signature_ok, safe_static_path
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
 
 
+def read_image_size(path):
+    """Width and height from a PNG, JPEG, GIF, or WEBP file. Returns (0, 0) when unknown."""
+    try:
+        with open(path, "rb") as handle:
+            data = handle.read(65536)
+    except OSError:
+        return 0, 0
+    if data.startswith(b"\x89PNG\r\n\x1a\n") and len(data) >= 24 and data[12:16] == b"IHDR":
+        return int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    if data[:6] in (b"GIF87a", b"GIF89a") and len(data) >= 10:
+        return int.from_bytes(data[6:8], "little"), int.from_bytes(data[8:10], "little")
+    if len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP" and data[12:16] == b"VP8X" and len(data) >= 30:
+        return 1 + int.from_bytes(data[24:27], "little"), 1 + int.from_bytes(data[27:30], "little")
+    if data[:2] == b"\xff\xd8":
+        return _jpeg_size(data)
+    return 0, 0
+
+
+def _jpeg_size(data):
+    index = 2
+    while index + 9 < len(data):
+        if data[index] != 0xFF:
+            break
+        marker = data[index + 1]
+        if marker in {0xC0, 0xC1, 0xC2}:
+            return int.from_bytes(data[index + 7 : index + 9], "big"), int.from_bytes(data[index + 5 : index + 7], "big")
+        if marker in {0xD8, 0xD9} or 0xD0 <= marker <= 0xD7:
+            index += 2
+            continue
+        length = int.from_bytes(data[index + 2 : index + 4], "big")
+        if length < 2:
+            break
+        index += 2 + length
+    return 0, 0
+
+
 def image_pixels(value, default, upper):
     if value is None or str(value).strip() == "":
         return default

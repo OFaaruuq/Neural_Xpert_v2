@@ -691,7 +691,25 @@ Gallery Area
             </div>
         </div>
 
-    </div><!--==============================
-	Footer Area
-==============================-->
+    </div>
+    {% if public_credentials %}
+    <section class="space" id="credentials">
+        <div class="container">
+            <div class="title-area text-center">
+                <span class="sub-title style3">CREDENTIALS</span>
+                <h2 class="sec-title">Certifications on record</h2>
+            </div>
+            <div class="row gy-4 justify-content-center">
+                {% for item in public_credentials %}
+                <div class="col-md-6 col-xl-4">
+                    <div class="service-card h-100">
+                        <h3 class="box-title">{% if item.credential_url %}<a href="{{ item.credential_url|safe_url }}">{{ item.name }}</a>{% else %}{{ item.name }}{% endif %}</h3>
+                        <p class="mb-0">{{ item.issuer }}{% if item.holder %} · {{ item.holder }}{% endif %}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
 {% endblock %}

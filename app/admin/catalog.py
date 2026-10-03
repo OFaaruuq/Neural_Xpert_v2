@@ -44,6 +44,7 @@ HOME_SECTIONS = (
     ("industries", "Industries"),
     ("integrations", "Integrations"),
     ("engagement", "Engagement Models"),
+    ("testimonials", "Testimonials"),
     ("cta", "Main CTA"),
     ("insights", "Insights"),
 )

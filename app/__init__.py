@@ -103,6 +103,33 @@ def create_app(config_name=None):
             footer_nav = NavItem.query.filter_by(menu="footer", enabled=True).order_by(NavItem.position, NavItem.id).all()
         except Exception:
             app.logger.warning("Navigation records are unavailable", exc_info=True)
+        public_testimonials = []
+        public_partners = []
+        public_credentials = []
+        try:
+            from datetime import date
+
+            from app.models.platform import Credential, Partner, Testimonial
+
+            public_testimonials = (
+                Testimonial.query.filter_by(status="published", approved=True)
+                .order_by(Testimonial.id.desc())
+                .limit(6)
+                .all()
+            )
+            public_partners = [
+                row
+                for row in Partner.query.filter_by(display=True).order_by(Partner.position, Partner.id).all()
+                if (row.evidence or "").strip()
+            ]
+            today = date.today()
+            public_credentials = [
+                row
+                for row in Credential.query.filter_by(display=True, status="active").order_by(Credential.name).all()
+                if row.expires_on is None or row.expires_on >= today
+            ]
+        except Exception:
+            app.logger.warning("Public trust records are unavailable", exc_info=True)
         return {
             "footer_variant": "inner",
             "seo_title": "Neural Xpert",
@@ -117,6 +144,9 @@ def create_app(config_name=None):
             "sidebar_posts": sidebar_posts,
             "header_nav": header_nav,
             "footer_nav": footer_nav,
+            "public_testimonials": public_testimonials,
+            "public_partners": public_partners,
+            "public_credentials": public_credentials,
             "ask_ai": _ask_ai(),
             "brand": _brand(),
             "csp_nonce": getattr(g, "csp_nonce", ""),

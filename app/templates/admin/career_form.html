@@ -14,6 +14,7 @@
     <label class="form-label mt-3">Requirements <textarea class="form-control" name="requirements" rows="6">{{ request.form.get('requirements', job.requirements or '') }}</textarea></label>
     <label class="form-label mt-3">Responsibilities <textarea class="form-control" name="responsibilities" rows="4">{{ job.responsibilities or '' }}</textarea></label>
     <label class="form-label mt-3">Experience <textarea class="form-control" name="experience" rows="3">{{ job.experience or '' }}</textarea></label>
+    <label class="form-label mt-3">Apply by <input class="form-control" type="date" name="closing_on" value="{{ job.closing_on.isoformat() if job.closing_on else '' }}"></label>
     <label class="form-label mt-3">Workplace
         <select class="form-select" name="workplace">
             {% for item in ['', 'Remote', 'Hybrid', 'On-site'] %}<option value="{{ item }}" {% if job.workplace == item %}selected{% endif %}>{{ item or 'Select' }}</option>{% endfor %}
@@ -28,4 +29,11 @@
     <button class="btn btn-primary mt-3" type="submit">Save</button>
     {% endif %}
 </form>
+{% if job.id and g.staff.has_any(['careers.edit']) %}
+<form class="mt-3" method="post" data-confirm="Remove this opening?">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="delete" value="1">
+    <button class="btn btn-outline-primary" type="submit">Remove</button>
+</form>
+{% endif %}
 {% endblock %}

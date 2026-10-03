@@ -897,7 +897,49 @@ Engagement Area
     </section>
 {% endif %}
 </div>
-<!-- Testimonials removed until verified customer testimonials, logos, or a Customer Success section are available. -->
+<div class="nx-home-slot" style="order: {{ home_order('testimonials') }}">
+{% if home_on('testimonials') and (public_testimonials or public_partners) %}
+    <section class="space" id="trust">
+        <div class="container">
+            {% if public_testimonials %}
+            <div class="title-area text-center">
+                <span class="sub-title style2">{{ home_text('testimonials', 'eyebrow') or 'CUSTOMERS' }}</span>
+                <h2 class="sec-title">{{ home_text('testimonials', 'headline') or 'Approved customer notes' }}</h2>
+            </div>
+            <div class="row gy-4">
+                {% for item in public_testimonials %}
+                <div class="col-md-6">
+                    <blockquote class="service-card h-100">
+                        <p class="mb-2">{{ item.quote }}</p>
+                        <footer>{{ item.customer }}{% if item.role %}, {{ item.role }}{% endif %}{% if item.company %} · {{ item.company }}{% endif %}</footer>
+                    </blockquote>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if public_partners %}
+            <div class="title-area text-center {% if public_testimonials %}mt-80{% endif %}">
+                <h2 class="sec-title">Partners</h2>
+            </div>
+            <div class="row gy-4 justify-content-center">
+                {% for item in public_partners %}
+                <div class="col-6 col-md-4 col-xl-3">
+                    <div class="service-card h-100 text-center">
+                        {% set logo = item.logo|safe_static %}
+                        {% if logo %}
+                        <img class="nx-managed-img mb-2" src="{{ url_for('static', filename=logo) }}" alt="{{ item.name }}" style="width:100%;height:72px;object-fit:contain;border-radius:12px">
+                        {% endif %}
+                        <h3 class="box-title mb-0">{% if item.website %}<a href="{{ item.website|safe_url }}">{{ item.name }}</a>{% else %}{{ item.name }}{% endif %}</h3>
+                        {% if item.relationship %}<p class="mb-0">{{ item.relationship }}</p>{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+{% endif %}
+</div>
 <!--==============================
 Cta Area  
 ==============================-->

@@ -11,6 +11,13 @@
     <label class="form-label mt-3">Excerpt <textarea class="form-control" name="excerpt" rows="3" required>{{ request.form.get('excerpt', article.excerpt or '') }}</textarea></label>
     <label class="form-label mt-3">Content <textarea class="form-control" name="content" rows="16">{{ request.form.get('content', article.content or '') }}</textarea></label>
     {{ image_field("Featured image", "featured_image", article.featured_image, "image_width", article.image_width, "image_height", article.image_height, "image_radius", article.image_radius) }}
+    <label class="form-label mt-3">Social image <input class="form-control" type="file" name="og_image_file" accept="image/png,image/jpeg,image/webp,image/gif"></label>
+    <label class="form-label mt-2">Current social image <input class="form-control" name="og_image" value="{{ article.og_image or '' }}"></label>
+    <label class="form-label mt-3">Author <input class="form-control" name="author" value="{{ request.form.get('author', article.author or '') }}"></label>
+    <div class="form-check mt-3">
+        <input class="form-check-input" type="checkbox" name="featured" value="1" id="featured" {% if article.featured %}checked{% endif %}>
+        <label class="form-check-label" for="featured">Featured. Featured insights appear first on the public list.</label>
+    </div>
     <label class="form-label mt-3">Category
         <select class="form-select" name="category_id">
             <option value="">None</option>
@@ -19,6 +26,7 @@
             {% endfor %}
         </select>
     </label>
+    <label class="form-label mt-3">New category <input class="form-control" name="new_category" placeholder="Optional. Creates a category and selects it."></label>
     <label class="form-label mt-3">Status
         <select class="form-select" name="status">
             {% for item in statuses %}<option value="{{ item }}" {% if article.status == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
@@ -29,6 +37,7 @@
     <label class="form-label mt-3">Tags <input class="form-control" name="tags" value="{{ article.tags or '' }}"></label>
     <label class="form-label mt-3">Focus keyword <input class="form-control" name="focus_keyword" value="{{ article.focus_keyword or '' }}"></label>
     <label class="form-label mt-3">Canonical URL <input class="form-control" name="canonical_url" value="{{ article.canonical_url or '' }}"></label>
+    <label class="form-label mt-3">Robots <input class="form-control" name="robots" value="{{ article.robots or '' }}" placeholder="index, follow"></label>
     <label class="form-label mt-3">CTA label <input class="form-control" name="cta_label" value="{{ article.cta_label or '' }}"></label>
     <label class="form-label mt-3">CTA link <input class="form-control" name="cta_url" value="{{ article.cta_url or '' }}"></label>
     <p class="text-secondary mt-3">Saving here keeps this insight when the site is seeded again. Publishing requires the publish permission.</p>
@@ -36,4 +45,11 @@
     <button class="btn btn-primary" type="submit">Save</button>
     {% endif %}
 </form>
+{% if article.id and g.staff.has_any(['content.edit']) %}
+<form class="mt-3" method="post" data-confirm="Remove this insight?">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="delete" value="1">
+    <button class="btn btn-outline-primary" type="submit">Remove</button>
+</form>
+{% endif %}
 {% endblock %}

@@ -11,6 +11,8 @@ from werkzeug.utils import secure_filename
 
 from app.services import file_signature_ok, safe_local_path, safe_static_path, safe_url
 from app.admin.catalog import (
+    HOME_SECTIONS,
+    OFFERINGS,
     ensure_catalog,
     record_audit,
     record_revision,
@@ -34,7 +36,7 @@ from app.models.platform import (
     SiteSetting,
     Testimonial,
 )
-from app.images import apply_managed_image, save_public_image
+from app.images import apply_managed_image, read_image_size, save_public_image
 from app.services import sanitize_html, slugify
 from app.visitors import traffic_summary, visitor_export_rows, visitor_report
 
@@ -105,8 +107,20 @@ def _offering_form(kind, item, endpoint):
     if request.method == "POST":
         if not g.staff.has_any(("content.edit",)):
             abort(403)
-        name = (request.form.get("name") or "").strip()
-        if not name:
+        if request.form.get("delete") == "1" and item.id:
+            seeded = {(kind_name, slug) for kind_name, _name, slug in OFFERINGS}
+            if (item.kind, item.slug) in seeded:
+                error = "Built-in items come back if removed. Set the status to archived instead."
+            else:
+                db.session.delete(item)
+                record_audit("delete", kind, item.id, item.name)
+                db.session.commit()
+                flash(f"{kind.title()} removed.")
+                return redirect(url_for(endpoint))
+        name = (request.form.get("name") or "").strip() if not error else ""
+        if error:
+            pass
+        elif not name:
             error = "Name is required."
         else:
             item.kind = kind
@@ -223,6 +237,11 @@ def homepage():
             swap = index + direction if index is not None else None
             if swap is not None and 0 <= swap < len(ordered):
                 ordered[index].position, ordered[swap].position = ordered[swap].position, ordered[index].position
+        elif action == "delete":
+            if section.key in {key for key, _name in HOME_SECTIONS}:
+                flash("Built-in sections can be hidden. Only a duplicated section can be removed.")
+                return redirect(url_for("admin.homepage"))
+            db.session.delete(section)
         elif action == "duplicate":
             copy = HomeSection(
                 key=_unique_section_key(section.key + "-copy"),
@@ -241,7 +260,12 @@ def homepage():
         flash("Homepage updated.")
         return redirect(url_for("admin.homepage"))
     rows = HomeSection.query.order_by(HomeSection.position, HomeSection.id).all()
-    return _render("admin/homepage.html", title="Homepage", rows=rows)
+    return _render(
+        "admin/homepage.html",
+        title="Homepage",
+        rows=rows,
+        builtin={key for key, _name in HOME_SECTIONS},
+    )
 
 
 def media():
@@ -250,6 +274,37 @@ def media():
     if request.method == "POST":
         if not g.staff.has_any(("media.manage", "content.edit")):
             abort(403)
+        if request.form.get("delete_id"):
+            from flask import current_app
+
+            asset = db.session.get(MediaAsset, request.form.get("delete_id", type=int))
+            if asset:
+                stored = os.path.basename(asset.filename or "")
+                directory = os.path.realpath(os.path.join(current_app.config["UPLOAD_FOLDER"], "media"))
+                path = os.path.realpath(os.path.join(directory, stored))
+                if path.startswith(directory + os.sep) and os.path.isfile(path):
+                    os.remove(path)
+                db.session.delete(asset)
+                record_audit("delete", "media", stored, asset.alt_text)
+                db.session.commit()
+                flash("File removed.")
+            return redirect(url_for("admin.media"))
+        if request.form.get("asset_id"):
+            asset = db.session.get(MediaAsset, request.form.get("asset_id", type=int))
+            alt = (request.form.get("alt_text") or "").strip()
+            if asset is None:
+                error = "That file is no longer in the library."
+            elif not alt:
+                error = "ALT text is required."
+            else:
+                folder = secure_filename(request.form.get("folder") or "general") or "general"
+                asset.alt_text = alt[:255]
+                asset.title = (request.form.get("title") or alt)[:255]
+                asset.folder = folder[:80]
+                record_audit("update", "media", asset.filename, alt)
+                db.session.commit()
+                flash("File details saved.")
+                return redirect(url_for("admin.media"))
         upload = request.files.get("file")
         alt = (request.form.get("alt_text") or "").strip()
         if upload is None or not upload.filename:
@@ -271,12 +326,15 @@ def media():
                 os.makedirs(directory, exist_ok=True)
                 path = os.path.join(directory, stored)
                 upload.save(path)
+                width, height = read_image_size(path)
                 asset = MediaAsset(
                     filename=stored,
                     original_name=secure_filename(upload.filename)[:255],
                     alt_text=alt[:255],
                     title=(request.form.get("title") or alt)[:255],
                     folder=folder[:80],
+                    width=width,
+                    height=height,
                     size=os.path.getsize(path),
                     uploaded_by_id=g.staff.id,
                 )
@@ -290,7 +348,14 @@ def media():
     if folder:
         query = query.filter_by(folder=folder)
     rows = query.order_by(MediaAsset.created_at.desc()).all()
-    return _render("admin/media.html", title="Media library", rows=rows, error=error, folder=folder)
+    return _render(
+        "admin/media.html",
+        title="Media library",
+        rows=rows,
+        error=error,
+        folder=folder,
+        folders=("general", "logos", "heroes", "case-studies", "blog", "team", "icons", "documents"),
+    )
 
 
 def media_file(asset_id, filename):
@@ -327,6 +392,14 @@ def navigation():
     if request.method == "POST":
         if not g.staff.has_any(("settings.manage", "content.edit")):
             abort(403)
+        if request.form.get("delete_id"):
+            item = db.session.get(NavItem, request.form.get("delete_id", type=int))
+            if item:
+                db.session.delete(item)
+                record_audit("navigation", "nav", item.id, "deleted")
+                db.session.commit()
+                flash("Navigation item removed.")
+            return redirect(url_for("admin.navigation"))
         if request.form.get("create") == "1":
             label = (request.form.get("label") or "").strip()
             if label:
@@ -350,9 +423,13 @@ def navigation():
         record_audit("navigation", "nav", "", "updated")
         db.session.commit()
         flash("Navigation saved. The public menu changes only for items you enable.")
-        return redirect(url_for("admin.navigation"))
-    rows = NavItem.query.order_by(NavItem.menu, NavItem.position, NavItem.id).all()
-    return _render("admin/navigation.html", title="Navigation", rows=rows)
+        return redirect(url_for("admin.navigation", menu=request.form.get("menu") if request.form.get("menu") in {"header", "footer"} else None))
+    menu = request.args.get("menu") if request.args.get("menu") in {"header", "footer"} else ""
+    query = NavItem.query
+    if menu:
+        query = query.filter_by(menu=menu)
+    rows = query.order_by(NavItem.menu, NavItem.position, NavItem.id).all()
+    return _render("admin/navigation.html", title="Footer" if menu == "footer" else "Navigation", rows=rows, menu=menu)
 
 
 def seo():
@@ -546,18 +623,51 @@ def redirects():
     if request.method == "POST":
         if not g.staff.has_any(("settings.manage", "content.edit")):
             abort(403)
-        source = safe_local_path(request.form.get("source") or "")
-        target = safe_local_path(request.form.get("target") or "")
-        if not source or not target or source == target:
-            error = "Use an internal path such as /old-page and a destination."
-        elif RedirectRule.query.filter_by(source=source).first():
-            error = "That path already redirects."
-        else:
-            db.session.add(RedirectRule(source=source[:300], target=target[:500], enabled=True))
-            record_audit("redirect", "redirect", source, target)
-            db.session.commit()
-            flash("Redirect saved.")
+        if request.form.get("delete_id"):
+            rule = db.session.get(RedirectRule, request.form.get("delete_id", type=int))
+            if rule:
+                db.session.delete(rule)
+                record_audit("redirect", "redirect", rule.source, "deleted")
+                db.session.commit()
+                flash("Redirect removed.")
             return redirect(url_for("admin.redirects"))
+        if request.form.get("toggle_id"):
+            rule = db.session.get(RedirectRule, request.form.get("toggle_id", type=int))
+            if rule:
+                rule.enabled = not rule.enabled
+                record_audit("redirect", "redirect", rule.source, "enabled" if rule.enabled else "disabled")
+                db.session.commit()
+                flash("Redirect updated.")
+            return redirect(url_for("admin.redirects"))
+        if request.form.get("rule_id"):
+            rule = db.session.get(RedirectRule, request.form.get("rule_id", type=int))
+            target = safe_local_path(request.form.get("target") or "")
+            code = request.form.get("status_code", type=int)
+            if rule is None:
+                error = "That redirect no longer exists."
+            elif not target or target == rule.source:
+                error = "Use an internal destination that is different from the source."
+            else:
+                rule.target = target[:500]
+                rule.status_code = code if code in {301, 302} else rule.status_code
+                record_audit("redirect", "redirect", rule.source, rule.target)
+                db.session.commit()
+                flash("Redirect updated.")
+                return redirect(url_for("admin.redirects"))
+        else:
+            source = safe_local_path(request.form.get("source") or "")
+            target = safe_local_path(request.form.get("target") or "")
+            code = request.form.get("status_code", type=int)
+            if not source or not target or source == target:
+                error = "Use an internal path such as /old-page and a destination."
+            elif RedirectRule.query.filter_by(source=source).first():
+                error = "That path already redirects."
+            else:
+                db.session.add(RedirectRule(source=source[:300], target=target[:500], status_code=code if code in {301, 302} else 301, enabled=True))
+                record_audit("redirect", "redirect", source, target)
+                db.session.commit()
+                flash("Redirect saved.")
+                return redirect(url_for("admin.redirects"))
     rows = RedirectRule.query.order_by(RedirectRule.source).all()
     return _render("admin/redirects.html", title="Redirects", rows=rows, error=error)
 
@@ -567,6 +677,46 @@ def backups():
 
 
 def revisions():
+    from datetime import datetime
+
+    if request.method == "POST":
+        if not g.staff.has_any(("content.edit",)):
+            abort(403)
+        row = db.session.get(ContentRevision, request.form.get("restore_id", type=int))
+        models = {"site_pages": SitePage, "offerings": Offering}
+        error = ""
+        if row is None or row.object_type not in models:
+            error = "This revision cannot be restored."
+        else:
+            obj = db.session.get(models[row.object_type], row.object_id)
+            if obj is None:
+                error = "That item no longer exists."
+            else:
+                try:
+                    data = json.loads(row.snapshot or "{}")
+                except json.JSONDecodeError:
+                    data = None
+                if not isinstance(data, dict):
+                    error = "This revision snapshot is incomplete."
+                else:
+                    for column in obj.__table__.columns:
+                        if column.name in {"id"} or column.name not in data:
+                            continue
+                        value = data[column.name]
+                        kind = type(column.type).__name__
+                        if value and kind.startswith("DateTime") and isinstance(value, str):
+                            value = datetime.fromisoformat(value)
+                        elif value and kind == "Date" and isinstance(value, str):
+                            value = date.fromisoformat(value[:10])
+                        setattr(obj, column.name, value)
+                    record_revision(obj, "Restored an earlier revision")
+                    record_audit("restore", row.object_type, obj.id, row.note)
+                    db.session.commit()
+                    flash("Revision restored.")
+                    return redirect(url_for("admin.revisions"))
+        if error:
+            flash(error)
+            return redirect(url_for("admin.revisions"))
     rows = ContentRevision.query.order_by(ContentRevision.created_at.desc()).limit(100).all()
     return _render("admin/revisions.html", title="Revision history", rows=rows)
 
@@ -588,10 +738,26 @@ def search():
     pages = SitePage.query.filter(SitePage.title.ilike(like)).limit(10).all() if term else []
     articles = Article.query.filter(Article.title.ilike(like)).limit(10).all() if term else []
     offerings = Offering.query.filter(Offering.name.ilike(like)).limit(10).all() if term else []
+    studies = CaseStudy.query.filter(CaseStudy.title.ilike(like)).limit(10).all() if term else []
+    jobs = Job.query.filter(Job.title.ilike(like)).limit(10).all() if term else []
+    media_rows = MediaAsset.query.filter(MediaAsset.alt_text.ilike(like) | MediaAsset.title.ilike(like) | MediaAsset.original_name.ilike(like)).limit(10).all() if term else []
     from app.models import ContactSubmission
 
     leads = ContactSubmission.query.filter(ContactSubmission.name.ilike(like) | ContactSubmission.email.ilike(like)).limit(10).all() if term else []
-    return _render("admin/search.html", title="Search", term=term, pages=pages, articles=articles, offerings=offerings, leads=leads)
+    offering_endpoints = {"solution": "admin.solutions_edit", "service": "admin.services_edit", "industry": "admin.industries_edit"}
+    return _render(
+        "admin/search.html",
+        title="Search",
+        term=term,
+        pages=pages,
+        articles=articles,
+        offerings=offerings,
+        studies=studies,
+        jobs=jobs,
+        media_rows=media_rows,
+        leads=leads,
+        offering_endpoints=offering_endpoints,
+    )
 
 
 def leads_export():
@@ -654,7 +820,7 @@ def register(bp):
     add("/health", health, permission=("overview",))
     add("/redirects", redirects, ["GET", "POST"], ("settings.manage", "content.edit"))
     add("/backups", backups, permission=("settings.manage",))
-    add("/revisions", revisions)
+    add("/revisions", revisions, ["GET", "POST"])
     add("/workflow", workflow)
     add("/search", search, permission=("overview", "content.view", "crm.view"))
     add("/leads/export.csv", leads_export, permission=("leads.export", "crm.edit"))
@@ -742,6 +908,7 @@ def simple_records(model, title, endpoint, fields, permission_edit):
                     db.session.delete(row)
                     record_audit("delete", model.__tablename__, "", title)
                     db.session.commit()
+                    flash(f"{title} removed.")
                 return redirect(url_for(endpoint))
             row_id = request.form.get("row_id", type=int)
             row = db.session.get(model, row_id) if row_id else model()
@@ -767,6 +934,9 @@ def simple_records(model, title, endpoint, fields, permission_edit):
             if model is Partner and row.display and not (row.evidence or "").strip():
                 row.display = False
                 error = "Add internal approval evidence before a relationship can be shown publicly."
+            primary_name, primary_label, primary_kind = fields[0]
+            if primary_kind != "bool" and not str(getattr(row, primary_name) or "").strip():
+                error = f"{primary_label} is required."
             if not error:
                 if row.id is None:
                     db.session.add(row)

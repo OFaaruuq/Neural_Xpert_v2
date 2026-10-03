@@ -74,7 +74,8 @@
     <a class="nav-link {% if request.endpoint == 'admin.visitor_ips' %}active{% endif %}" href="{{ url_for('admin.visitor_ips') }}">{{ ico('pin') }} Visitor IPs</a>
     <a class="nav-link {% if request.endpoint == 'admin.conversions' %}active{% endif %}" href="{{ url_for('admin.conversions') }}">{{ ico('target') }} Conversions</a>
     {% if g.staff.has_any(['content.view', 'content.edit']) %}
-    <a class="nav-link {% if request.endpoint in ['admin.partners', 'admin.credentials'] %}active{% endif %}" href="{{ url_for('admin.partners') }}">{{ ico('link') }} Partners &amp; Credentials</a>
+    <a class="nav-link {% if request.endpoint == 'admin.partners' %}active{% endif %}" href="{{ url_for('admin.partners') }}">{{ ico('link') }} Partners</a>
+    <a class="nav-link {% if request.endpoint == 'admin.credentials' %}active{% endif %}" href="{{ url_for('admin.credentials') }}">{{ ico('check') }} Credentials</a>
     <a class="nav-link {% if request.endpoint == 'admin.testimonials' %}active{% endif %}" href="{{ url_for('admin.testimonials') }}">{{ ico('quote') }} Testimonials</a>
     {% endif %}
 </nav>
@@ -82,9 +83,9 @@
 {% if g.staff.has_any(['settings.manage', 'content.edit']) %}
 <div class="nx-nav-label">Website</div>
 <nav class="nav flex-column">
-    <a class="nav-link {% if request.endpoint == 'admin.navigation' %}active{% endif %}" href="{{ url_for('admin.navigation') }}">{{ ico('menu') }} Navigation</a>
-    <a class="nav-link" href="{{ url_for('admin.navigation') }}">{{ ico('footer') }} Footer</a>
-    <a class="nav-link {% if request.args.get('focus') == 'cta' %}active{% endif %}" href="{{ url_for('admin.homepage', focus='cta') }}">{{ ico('megaphone') }} CTAs</a>
+    <a class="nav-link {% if request.endpoint == 'admin.navigation' and request.args.get('menu') != 'footer' %}active{% endif %}" href="{{ url_for('admin.navigation') }}">{{ ico('menu') }} Navigation</a>
+    <a class="nav-link {% if request.endpoint == 'admin.navigation' and request.args.get('menu') == 'footer' %}active{% endif %}" href="{{ url_for('admin.navigation', menu='footer') }}">{{ ico('footer') }} Footer</a>
+    <a class="nav-link {% if request.args.get('focus') == 'cta' %}active{% endif %}" href="{{ url_for('admin.homepage', focus='cta') }}#cta">{{ ico('megaphone') }} CTAs</a>
     {% if g.staff.has_any(['settings.manage']) %}
     <a class="nav-link {% if request.endpoint == 'admin.email_settings' %}active{% endif %}" href="{{ url_for('admin.email_settings') }}">{{ ico('mail') }} Email</a>
     <a class="nav-link {% if request.endpoint == 'admin.ask_ai_settings' %}active{% endif %}" href="{{ url_for('admin.ask_ai_settings') }}">{{ ico('chat') }} ASK AI</a>

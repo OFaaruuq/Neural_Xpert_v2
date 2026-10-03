@@ -4,9 +4,53 @@
 {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
 <form class="row g-2 mb-4" method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="col-md-4"><input class="form-control" name="source" placeholder="/old-path" required></div>
-    <div class="col-md-4"><input class="form-control" name="target" placeholder="/new-path" required></div>
+    <div class="col-md-3"><input class="form-control" name="source" placeholder="/old-path" required></div>
+    <div class="col-md-3"><input class="form-control" name="target" placeholder="/new-path" required></div>
+    <div class="col-md-2"><select class="form-select" name="status_code"><option value="301">301</option><option value="302">302</option></select></div>
     <div class="col-md-2"><button class="btn btn-primary" type="submit">Add</button></div>
 </form>
-<table class="table">{% for row in rows %}<tr><td>{{ row.source }}</td><td>{{ row.target }}</td><td>{{ row.status_code }}</td></tr>{% else %}<tr><td>No redirects.</td></tr>{% endfor %}</table>
+<table class="table">
+    <thead><tr><th>From</th><th>To</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>
+        <td>{{ row.source }}</td>
+        <td>
+            {% if g.staff.has_any(['settings.manage', 'content.edit']) %}
+            <form class="d-flex gap-2" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="rule_id" value="{{ row.id }}">
+                <input class="form-control form-control-sm" name="target" value="{{ row.target }}">
+                <select class="form-select form-select-sm" name="status_code" style="max-width:90px">
+                    <option value="301" {% if row.status_code == 301 %}selected{% endif %}>301</option>
+                    <option value="302" {% if row.status_code == 302 %}selected{% endif %}>302</option>
+                </select>
+                <button class="btn btn-sm btn-primary" type="submit">Save</button>
+            </form>
+            {% else %}
+            {{ row.target }}
+            {% endif %}
+        </td>
+        <td>{{ row.status_code }}</td>
+        <td>
+            <span class="nx-badge {% if row.enabled %}is-on{% endif %}">{{ 'Active' if row.enabled else 'Off' }}</span>
+            {% if g.staff.has_any(['settings.manage', 'content.edit']) %}
+            <form class="d-inline" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="toggle_id" value="{{ row.id }}">
+                <button class="btn btn-sm btn-outline-primary" type="submit">{{ 'Disable' if row.enabled else 'Enable' }}</button>
+            </form>
+            <form class="d-inline" method="post" data-confirm="Remove this redirect?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="delete_id" value="{{ row.id }}">
+                <button class="btn btn-sm btn-outline-primary" type="submit">Remove</button>
+            </form>
+            {% endif %}
+        </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">No redirects.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

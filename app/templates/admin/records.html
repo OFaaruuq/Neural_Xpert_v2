@@ -23,14 +23,38 @@
     {% endfor %}
     <button class="btn btn-primary mt-3" type="submit">Save</button>
 </div></form>
-<div class="card"><div class="table-responsive"><table class="table mb-0">
-    <thead><tr>{% for name, label, kind in fields %}<th>{{ label }}</th>{% endfor %}</tr></thead>
-    <tbody>
-    {% for row in rows %}
-    <tr>{% for name, label, kind in fields %}<td>{{ row|attr(name) }}</td>{% endfor %}</tr>
-    {% else %}
-    <tr><td colspan="{{ fields|length }}">None yet.</td></tr>
+{% for row in rows %}
+<form class="card mb-3" method="post"><div class="card-body">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="row_id" value="{{ row.id }}">
+    <div class="row g-2">
+    {% for name, label, kind in fields %}
+        {% set value = row|attr(name) %}
+        <div class="col-md-6">
+        {% if kind == 'bool' %}
+        <div class="form-check mt-3"><input class="form-check-input" type="checkbox" name="{{ name }}" value="1" id="row-{{ row.id }}-{{ name }}" {% if value %}checked{% endif %}><label class="form-check-label" for="row-{{ row.id }}-{{ name }}">{{ label }}</label></div>
+        {% elif kind == 'area' %}
+        <label class="form-label mt-2">{{ label }}<textarea class="form-control" name="{{ name }}" rows="3">{{ value or '' }}</textarea></label>
+        {% elif kind == 'date' %}
+        <label class="form-label mt-2">{{ label }}<input class="form-control" type="date" name="{{ name }}" value="{{ value.isoformat() if value else '' }}"></label>
+        {% else %}
+        <label class="form-label mt-2">{{ label }}<input class="form-control" name="{{ name }}" value="{{ value or '' }}"></label>
+        {% endif %}
+        </div>
     {% endfor %}
-    </tbody>
-</table></div></div>
+    </div>
+    {% if g.staff.has_any(['content.edit']) %}
+    <button class="btn btn-primary mt-3" type="submit">Update</button>
+    </div></form>
+    <form class="mb-4" method="post" data-confirm="Remove this record?">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="delete_id" value="{{ row.id }}">
+        <button class="btn btn-outline-primary" type="submit">Remove</button>
+    </form>
+    {% else %}
+    </div></form>
+    {% endif %}
+{% else %}
+<p class="text-secondary">None yet.</p>
+{% endfor %}
 {% endblock %}

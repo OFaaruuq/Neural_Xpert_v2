@@ -60,12 +60,16 @@
                             <h3 class="widget_title">Company</h3>
                             <div class="menu-all-pages-container">
                                 <ul class="menu">
+                                    {% if footer_nav %}
+                                    {% for item in footer_nav %}<li><a href="{{ item.url|safe_url or '#' }}" {% if item.new_tab %}target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a></li>{% endfor %}
+                                    {% else %}
                                     <li><a href="{{ url_for('main.about') }}">About</a></li>
                                     <li><a href="{{ url_for('main.industries') }}">Industries</a></li>
                                     <li><a href="{{ url_for('case_studies.index') }}">Case Studies</a></li>
                                     <li><a href="{{ url_for('blog.index') }}">Insights</a></li>
                                     <li><a href="{{ url_for('careers.index') }}">Careers</a></li>
                                     <li><a href="{{ url_for('contact.index') }}">Contact</a></li>
+                                    {% endif %}
                                 </ul>
                             </div>
                         </div>
@@ -167,12 +171,16 @@
                             <h3 class="widget_title">Company</h3>
                             <div class="menu-all-pages-container">
                                 <ul class="menu">
+                                    {% if footer_nav %}
+                                    {% for item in footer_nav %}<li><a href="{{ item.url|safe_url or '#' }}" {% if item.new_tab %}target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a></li>{% endfor %}
+                                    {% else %}
                                     <li><a href="{{ url_for('main.about') }}">About</a></li>
                                     <li><a href="{{ url_for('main.industries') }}">Industries</a></li>
                                     <li><a href="{{ url_for('case_studies.index') }}">Case Studies</a></li>
                                     <li><a href="{{ url_for('blog.index') }}">Insights</a></li>
                                     <li><a href="{{ url_for('careers.index') }}">Careers</a></li>
                                     <li><a href="{{ url_for('contact.index') }}">Contact</a></li>
+                                    {% endif %}
                                 </ul>
                             </div>
                         </div>

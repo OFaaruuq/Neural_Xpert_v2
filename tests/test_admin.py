@@ -236,3 +236,345 @@ def test_admin_uploads_images_with_size_and_radius(client, app):
     detail = client.get(f"/solutions/{slug}")
     assert b"border-radius:22px" in detail.data
     assert b"width:280px" in detail.data
+
+
+def test_admin_can_manage_records_redirects_and_media(client, app):
+    with app.app_context():
+        _staff, password = create_staff("records@neuralxpert.com")
+    home = _open_dashboard(client, app, "records@neuralxpert.com", password)
+    assert b"Credentials" in home.data
+    assert b'href="/admin/credentials"' in home.data
+    for path in (
+        "/admin/",
+        "/admin/pages",
+        "/admin/homepage",
+        "/admin/solutions",
+        "/admin/services",
+        "/admin/industries",
+        "/admin/case-studies",
+        "/admin/case-studies/new",
+        "/admin/insights/new",
+        "/admin/solutions/new",
+        "/admin/crm/new",
+        "/admin/careers/new",
+        "/admin/insights",
+        "/admin/media",
+        "/admin/crm",
+        "/admin/careers",
+        "/admin/applications",
+        "/admin/seo",
+        "/admin/analytics",
+        "/admin/visitors",
+        "/admin/conversions",
+        "/admin/partners",
+        "/admin/credentials",
+        "/admin/testimonials",
+        "/admin/navigation",
+        "/admin/email",
+        "/admin/ask-ai",
+        "/admin/settings",
+        "/admin/redirects",
+        "/admin/backups",
+        "/admin/revisions",
+        "/admin/workflow",
+        "/admin/users",
+        "/admin/access-roles",
+        "/admin/audit-logs",
+        "/admin/health",
+        "/admin/account",
+    ):
+        page = client.get(path)
+        assert page.status_code == 200, path
+
+    blank = client.post("/admin/partners", data={"name": " "}, follow_redirects=True)
+    assert b"Organization is required." in blank.data
+    saved = client.post(
+        "/admin/partners",
+        data={"name": "Acme Cloud", "relationship": "Technology", "evidence": "Contract on file"},
+        follow_redirects=True,
+    )
+    assert b"Partners saved." in saved.data
+    assert b"Acme Cloud" in saved.data
+    with app.app_context():
+        from app.models.platform import Partner
+
+        partner_id = Partner.query.filter_by(name="Acme Cloud").one().id
+    updated = client.post(
+        "/admin/partners",
+        data={"row_id": partner_id, "name": "Acme Systems", "relationship": "Technology", "evidence": "Contract on file"},
+        follow_redirects=True,
+    )
+    assert b"Acme Systems" in updated.data
+    removed = client.post("/admin/partners", data={"delete_id": partner_id}, follow_redirects=True)
+    assert b"Partners removed." in removed.data
+    assert b"Acme Systems" not in removed.data
+
+    credential = client.post(
+        "/admin/credentials",
+        data={"name": "ISO 27001", "issuer": "BSI", "issued_on": "2026-01-15"},
+        follow_redirects=True,
+    )
+    assert b"ISO 27001" in credential.data
+    blocked = client.post(
+        "/admin/testimonials",
+        data={"customer": "Amina", "quote": "Clear delivery", "status": "published"},
+    )
+    assert b"Customer approval is required" in blocked.data
+
+    added = client.post("/admin/redirects", data={"source": "/old-offer", "target": "/solutions"}, follow_redirects=True)
+    assert b"/old-offer" in added.data
+    with app.app_context():
+        from app.models.platform import RedirectRule
+
+        rule_id = RedirectRule.query.filter_by(source="/old-offer").one().id
+    disabled = client.post("/admin/redirects", data={"toggle_id": rule_id}, follow_redirects=True)
+    assert b"Off" in disabled.data
+    gone = client.post("/admin/redirects", data={"delete_id": rule_id}, follow_redirects=True)
+    assert b"Redirect removed." in gone.data
+    assert b"/old-offer" not in gone.data
+
+    menu = client.post(
+        "/admin/navigation",
+        data={"create": "1", "menu": "footer", "label": "Careers link", "url": "/careers"},
+        follow_redirects=True,
+    )
+    assert b"Careers link" in menu.data
+    with app.app_context():
+        from app.models.platform import NavItem
+
+        item_id = NavItem.query.filter_by(label="Careers link").one().id
+    client.post("/admin/navigation", data={"delete_id": item_id}, follow_redirects=True)
+    with app.app_context():
+        from app.models.platform import NavItem
+
+        assert NavItem.query.filter_by(label="Careers link").first() is None
+
+    homepage = client.get("/admin/homepage?focus=cta")
+    assert b'id="cta"' in homepage.data
+
+    uploaded = client.post(
+        "/admin/media",
+        data={"alt_text": "Office lobby", "folder": "general", "file": (BytesIO(_PNG), "lobby.png")},
+        content_type="multipart/form-data",
+        follow_redirects=True,
+    )
+    assert b"Office lobby" in uploaded.data
+    with app.app_context():
+        from app.models.platform import MediaAsset
+
+        asset = MediaAsset.query.filter_by(alt_text="Office lobby").one()
+        asset_id = asset.id
+        filename = asset.filename
+    opened = client.get(f"/admin/files/{asset_id}/{filename}")
+    assert opened.status_code == 200
+    assert opened.data.startswith(b"\x89PNG")
+    client.post("/admin/media", data={"delete_id": asset_id}, follow_redirects=True)
+    with app.app_context():
+        from app.models.platform import MediaAsset
+
+        assert MediaAsset.query.filter_by(alt_text="Office lobby").first() is None
+
+
+def test_admin_features_that_were_unwired(client, app):
+    with app.app_context():
+        _staff, password = create_staff("complete@neuralxpert.com")
+    _open_dashboard(client, app, "complete@neuralxpert.com", password)
+
+    menu = client.post(
+        "/admin/navigation",
+        data={"create": "1", "menu": "footer", "label": "Partner desk", "url": "/contact"},
+        follow_redirects=True,
+    )
+    assert b"Partner desk" in menu.data
+    assert b"New tab" in menu.data
+    with app.app_context():
+        from app.models.platform import NavItem
+
+        item = NavItem.query.filter_by(label="Partner desk").one()
+        item_id = item.id
+    client.post(
+        "/admin/navigation",
+        data={"item_id": item_id, "menu": "footer", "label": "Partner desk", "url": "/contact", "enabled": "1", "new_tab": "1"},
+        follow_redirects=True,
+    )
+    public = client.get("/")
+    assert b'target="_blank" rel="noopener">Partner desk' in public.data
+
+    added = client.post(
+        "/admin/redirects",
+        data={"source": "/legacy", "target": "/about", "status_code": "302"},
+        follow_redirects=True,
+    )
+    assert b"/legacy" in added.data
+    hopped = client.get("/legacy")
+    assert hopped.status_code == 302
+    assert hopped.headers["Location"].endswith("/about")
+
+    insight = client.post(
+        "/admin/insights/new",
+        data={
+            "title": "Featured briefing",
+            "excerpt": "Shown first when featured",
+            "content": "<p>Body</p>",
+            "author": "Amina Hassan",
+            "featured": "1",
+            "status": "published",
+            "new_category": "Field notes",
+        },
+        follow_redirects=True,
+    )
+    assert b"Insight saved." in insight.data
+    with app.app_context():
+        from app.models import Article, Category
+
+        article = Article.query.filter_by(title="Featured briefing").one()
+        assert article.author == "Amina Hassan"
+        assert article.featured is True
+        assert article.category.name == "Field notes"
+        slug = article.slug
+        article_id = article.id
+        assert Category.query.filter_by(name="Field notes").one()
+    detail = client.get(f"/insights/{slug}")
+    assert b"Amina Hassan" in detail.data
+    removed = client.post(f"/admin/insights/{article_id}", data={"delete": "1"}, follow_redirects=True)
+    assert b"Insight removed." in removed.data
+
+    opening = client.post(
+        "/admin/careers/new",
+        data={"title": "AI engineer", "description": "Build production systems", "status": "published", "closing_on": "2026-12-01"},
+        follow_redirects=True,
+    )
+    assert b"Opening saved." in opening.data
+    with app.app_context():
+        from app.models import Job
+
+        job = Job.query.filter_by(title="AI engineer").one()
+        job_slug = job.slug
+    career = client.get(f"/careers/{job_slug}")
+    assert b"December 01, 2026" in career.data
+
+    uploaded = client.post(
+        "/admin/media",
+        data={"alt_text": "Lobby measurement", "folder": "general", "file": (BytesIO(_PNG), "measure.png")},
+        content_type="multipart/form-data",
+        follow_redirects=True,
+    )
+    assert "1×1".encode() in uploaded.data
+    found = client.get("/admin/search?q=Lobby+measurement")
+    assert b"Lobby measurement" in found.data
+
+    pages = client.get("/admin/pages")
+    page_id = re.search(br"/admin/pages/(\d+)", pages.data).group(1).decode()
+    client.post(f"/admin/pages/{page_id}", data={"title": "Alpha title", "hero_title": "Alpha title"})
+    client.post(f"/admin/pages/{page_id}", data={"title": "Beta title", "hero_title": "Beta title"})
+    with app.app_context():
+        from app.models.platform import ContentRevision
+
+        revision = ContentRevision.query.filter(ContentRevision.snapshot.contains("Alpha title")).order_by(ContentRevision.id.asc()).first()
+        revision_id = revision.id
+    restored = client.post("/admin/revisions", data={"restore_id": revision_id}, follow_redirects=True)
+    assert b"Revision restored." in restored.data
+    with app.app_context():
+        from app.extensions import db
+        from app.models.platform import SitePage
+
+        assert db.session.get(SitePage, int(page_id)).title == "Alpha title"
+
+    solution = client.post(
+        "/admin/solutions/new",
+        data={"name": "Custom widget", "summary": "Temporary", "status": "draft"},
+        follow_redirects=True,
+    )
+    assert b"Solution saved." in solution.data
+    with app.app_context():
+        from app.models.platform import Offering
+
+        item_id = Offering.query.filter_by(name="Custom widget").one().id
+        seeded_id = Offering.query.filter_by(kind="solution", slug="generative-ai").one().id
+    gone = client.post(f"/admin/solutions/{item_id}", data={"delete": "1"}, follow_redirects=True)
+    assert b"Solution removed." in gone.data
+    blocked = client.post(f"/admin/solutions/{seeded_id}", data={"delete": "1"})
+    assert b"Built-in items come back if removed." in blocked.data
+
+    with app.app_context():
+        from app.models import StaffUser
+
+        other, _password = create_staff("temp@neuralxpert.com")
+        other_id = other.id
+    reset = client.post(f"/admin/users/{other_id}", data={"action": "reset"}, follow_redirects=True)
+    assert b"Temporary password" in reset.data
+    assert b"temp@neuralxpert.com" in reset.data
+    with app.app_context():
+        from app.extensions import db
+        from app.models import StaffUser
+
+        person = StaffUser.query.filter_by(email="temp@neuralxpert.com").one()
+        person.totp_enabled = True
+        person.totp_secret = "secret"
+        db.session.commit()
+    cleared = client.post(f"/admin/users/{other_id}", data={"action": "reset_mfa"}, follow_redirects=True)
+    assert b"Authenticator cleared." in cleared.data
+    with app.app_context():
+        from app.models import StaffUser
+
+        assert StaffUser.query.filter_by(email="temp@neuralxpert.com").one().totp_enabled is False
+
+
+def test_approved_records_appear_on_the_public_site(client, app):
+    import os
+    from datetime import date
+
+    with app.app_context():
+        from app.extensions import db
+        from app.models import Job, JobApplication
+        from app.models.platform import Credential, Partner, Testimonial
+
+        db.session.add(Testimonial(customer="Amina", company="Northwind", quote="The deployment was careful.", approved=True, status="published"))
+        db.session.add(Testimonial(customer="Hidden", quote="Do not publish this.", approved=False, status="draft"))
+        db.session.add(Partner(name="Harbor Cloud", relationship="Technology", evidence="Contract 2026", display=True))
+        db.session.add(Partner(name="Unapproved Labs", evidence="", display=True))
+        db.session.add(Credential(name="ISO 27001", issuer="BSI", holder="Neural Xpert", display=True, status="active", expires_on=date(2027, 1, 1)))
+        job = Job(title="Platform engineer", slug="platform-engineer", status="draft")
+        db.session.add(job)
+        db.session.flush()
+        application = JobApplication(job=job, name="Nora", email="nora@example.com", cover_letter="I build platforms.", cv_filename="nora.pdf", cv_original_name="nora.pdf")
+        db.session.add(application)
+        db.session.commit()
+        application_id = application.id
+        folder = app.config["UPLOAD_FOLDER"]
+        os.makedirs(folder, exist_ok=True)
+        with open(os.path.join(folder, "nora.pdf"), "wb") as handle:
+            handle.write(b"%PDF-1.4 test")
+    home = client.get("/")
+    assert b"The deployment was careful." in home.data
+    assert b"Harbor Cloud" in home.data
+    assert b"Do not publish this." not in home.data
+    assert b"Unapproved Labs" not in home.data
+    about = client.get("/about")
+    assert b"ISO 27001" in about.data
+    denied = client.get(f"/admin/applications/{application_id}/cv")
+    assert denied.status_code in {302, 401, 403}
+    with app.app_context():
+        import time
+
+        from app.admin.security import session_stamp
+        from app.extensions import db
+
+        staff, _password = create_staff("cv@neuralxpert.com")
+        staff.totp_enabled = True
+        staff.totp_secret = "JBSWY3DPEHPK3PXP"
+        db.session.commit()
+        stamp = session_stamp(staff)
+        staff_id = staff.id
+    now = int(time.time())
+    with client.session_transaction() as sess:
+        sess["staff_id"] = staff_id
+        sess["mfa_complete"] = True
+        sess["staff_seen"] = now
+        sess["staff_started"] = now
+        sess["staff_stamp"] = stamp
+    downloaded = client.get(f"/admin/applications/{application_id}/cv")
+    assert downloaded.status_code == 200
+    assert downloaded.data.startswith(b"%PDF")
+    listed = client.get("/admin/applications")
+    assert b"I build platforms." in listed.data

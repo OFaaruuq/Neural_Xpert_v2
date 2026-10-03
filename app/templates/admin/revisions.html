@@ -3,7 +3,7 @@
 <h1 class="h3">Revision history</h1>
 <p class="text-secondary">A snapshot is stored when a page or offering is saved.</p>
 <table class="table">
-    <thead><tr><th>When</th><th>Who</th><th>Object</th><th>Note</th></tr></thead>
+    <thead><tr><th>When</th><th>Who</th><th>Object</th><th>Note</th><th></th></tr></thead>
     <tbody>
     {% for row in rows %}
     <tr>
@@ -11,9 +11,18 @@
         <td>{{ row.staff.email if row.staff else '' }}</td>
         <td>{{ row.object_type }} {{ row.object_id }}</td>
         <td>{{ row.note }}</td>
+        <td>
+            {% if g.staff.has_any(['content.edit']) and row.object_type in ['site_pages', 'offerings'] %}
+            <form method="post" data-confirm="Restore this revision?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="restore_id" value="{{ row.id }}">
+                <button class="btn btn-sm btn-outline-primary" type="submit">Restore</button>
+            </form>
+            {% endif %}
+        </td>
     </tr>
     {% else %}
-    <tr><td colspan="4">No revisions yet.</td></tr>
+    <tr><td colspan="5">No revisions yet.</td></tr>
     {% endfor %}
     </tbody>
 </table>

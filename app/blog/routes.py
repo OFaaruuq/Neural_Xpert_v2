@@ -33,7 +33,7 @@ def index():
         active_category = Category.query.filter_by(slug=category_slug, kind="article").first()
         if active_category:
             query = query.filter_by(category_id=active_category.id)
-    pagination = query.order_by(Article.published_at.desc(), Article.id.desc()).paginate(page=page, per_page=6)
+    pagination = query.order_by(Article.featured.desc(), Article.published_at.desc(), Article.id.desc()).paginate(page=page, per_page=6)
     categories = Category.query.filter_by(kind="article").order_by(Category.name).all()
     context = seo_for(
         "insights",

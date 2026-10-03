@@ -8,7 +8,13 @@
 <h2 class="h5">Insights</h2>
 <ul>{% for row in articles %}<li><a href="{{ url_for('admin.article_edit', article_id=row.id) }}">{{ row.title }}</a></li>{% else %}<li>None</li>{% endfor %}</ul>
 <h2 class="h5">Solutions, services, industries</h2>
-<ul>{% for row in offerings %}<li>{{ row.kind }}: {{ row.name }}</li>{% else %}<li>None</li>{% endfor %}</ul>
+<ul>{% for row in offerings %}<li><a href="{{ url_for(offering_endpoints[row.kind], item_id=row.id) }}">{{ row.kind }}: {{ row.name }}</a></li>{% else %}<li>None</li>{% endfor %}</ul>
+<h2 class="h5">Case studies</h2>
+<ul>{% for row in studies %}<li><a href="{{ url_for('admin.study_edit', study_id=row.id) }}">{{ row.title }}</a></li>{% else %}<li>None</li>{% endfor %}</ul>
+<h2 class="h5">Careers</h2>
+<ul>{% for row in jobs %}<li><a href="{{ url_for('admin.career_edit', job_id=row.id) }}">{{ row.title }}</a></li>{% else %}<li>None</li>{% endfor %}</ul>
+<h2 class="h5">Media</h2>
+<ul>{% for row in media_rows %}<li><a href="{{ url_for('admin.media_file', asset_id=row.id, filename=row.filename) }}">{{ row.title or row.original_name }}</a></li>{% else %}<li>None</li>{% endfor %}</ul>
 <h2 class="h5">Leads</h2>
 <ul>{% for row in leads %}<li><a href="{{ url_for('admin.inquiry', inquiry_id=row.id) }}">{{ row.name }}</a></li>{% else %}<li>None</li>{% endfor %}</ul>
 {% endif %}

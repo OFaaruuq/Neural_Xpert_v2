@@ -1,9 +1,10 @@
+import os
 from datetime import date
 from functools import wraps
 
 import segno
 from email_validator import EmailNotValidError, validate_email
-from flask import Blueprint, abort, flash, g, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, current_app, flash, g, redirect, render_template, request, send_file, session, url_for
 
 from app.admin.access import PERMISSIONS, ensure_roles, ensure_staff_role
 from app.admin.catalog import record_audit, record_security
@@ -41,8 +42,8 @@ from app.models import (
     StaffRole,
     StaffUser,
 )
-from app.images import apply_managed_image
-from app.services import safe_url, sanitize_html, slugify
+from app.images import apply_managed_image, save_public_image
+from app.services import safe_static_path, safe_url, sanitize_html, slugify
 from werkzeug.security import check_password_hash, generate_password_hash
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -227,7 +228,8 @@ def verify():
 @bp.route("/enroll", methods=["GET", "POST"])
 @limiter.limit("8 per minute", methods=["POST"])
 def enroll():
-    staff = db.session.get(StaffUser, session.get("enroll_staff_id"))
+    enroll_id = session.get("enroll_staff_id")
+    staff = db.session.get(StaffUser, enroll_id) if enroll_id else None
     if staff is None or not staff.is_active:
         return redirect(url_for("admin.login"))
     error = ""
@@ -257,7 +259,8 @@ def enroll():
 
 @bp.route("/recovery", methods=["GET", "POST"])
 def recovery():
-    staff = db.session.get(StaffUser, session.get("enroll_staff_id"))
+    enroll_id = session.get("enroll_staff_id")
+    staff = db.session.get(StaffUser, enroll_id) if enroll_id else None
     codes = session.get("recovery_codes") or []
     if staff is None or not codes:
         return redirect(url_for("admin.login"))
@@ -479,6 +482,18 @@ def applications():
     return _render("admin/applications.html", title="Applications", rows=rows, statuses=APPLICATION_STATUSES)
 
 
+@bp.route("/applications/<int:application_id>/cv")
+@permission_required("careers.view", "crm.view")
+def application_cv(application_id):
+    row = db.session.get(JobApplication, application_id)
+    stored = os.path.basename(row.cv_filename or "") if row else ""
+    directory = os.path.realpath(current_app.config["UPLOAD_FOLDER"])
+    path = os.path.realpath(os.path.join(directory, stored)) if stored else ""
+    if row is None or not stored or not path.startswith(directory + os.sep) or not os.path.isfile(path):
+        abort(404)
+    return send_file(path, as_attachment=True, download_name=row.cv_original_name or stored, max_age=0)
+
+
 @bp.route("/insights")
 @permission_required("content.view")
 def articles():
@@ -507,6 +522,12 @@ def _article_form(article):
     if request.method == "POST":
         if not g.staff.has_any(("content.edit",)):
             abort(403)
+        if request.form.get("delete") == "1" and article.id:
+            db.session.delete(article)
+            record_audit("delete", "article", article.id, article.title)
+            db.session.commit()
+            flash("Insight removed.")
+            return redirect(url_for("admin.articles"))
         title = (request.form.get("title") or "").strip()
         excerpt = (request.form.get("excerpt") or "").strip()
         if not title or not excerpt:
@@ -514,6 +535,8 @@ def _article_form(article):
         else:
             article.title = title[:255]
             article.slug = _unique_slug(Article, request.form.get("slug") or title, article.id)
+            article.author = (request.form.get("author") or article.author or "Neural Xpert")[:120]
+            article.featured = request.form.get("featured") == "1"
             article.excerpt = excerpt
             article.content = sanitize_html(request.form.get("content") or "")
             image_error = apply_managed_image(article, "featured_image", "featured_image_file", "image_width", "image_height", "image_radius")
@@ -532,18 +555,38 @@ def _article_form(article):
                 article.robots = (request.form.get("robots") or "")[:80]
                 article.cta_label = (request.form.get("cta_label") or "")[:120]
                 article.cta_url = safe_url(request.form.get("cta_url") or "")
-                if "blocks" in request.form:
-                    article.blocks = (request.form.get("blocks") or "")[:20000]
-                category_id = request.form.get("category_id", type=int)
-                article.category = db.session.get(Category, category_id) if category_id else None
-                article.managed_in_admin = True
-                if article.status == "published" and article.published_at is None:
-                    article.published_at = utcnow()
-                if article.id is None:
-                    db.session.add(article)
-                db.session.commit()
-                flash("Insight saved.")
-                return redirect(url_for("admin.article_edit", article_id=article.id))
+                og_upload = request.files.get("og_image_file")
+                if og_upload is not None and og_upload.filename:
+                    stored, notice = save_public_image(og_upload)
+                    if notice:
+                        error = notice
+                    else:
+                        article.og_image = stored
+                else:
+                    article.og_image = safe_static_path(request.form.get("og_image") or "") or safe_url(request.form.get("og_image") or "")
+                if not error:
+                    if "blocks" in request.form:
+                        article.blocks = (request.form.get("blocks") or "")[:20000]
+                    new_category = (request.form.get("new_category") or "").strip()
+                    if new_category:
+                        category_slug = slugify(new_category) or "category"
+                        existing = Category.query.filter_by(slug=category_slug, kind="article").first()
+                        if existing is None:
+                            existing = Category(name=new_category[:120], slug=_unique_slug(Category, new_category), kind="article")
+                            db.session.add(existing)
+                            db.session.flush()
+                        article.category = existing
+                    else:
+                        category_id = request.form.get("category_id", type=int)
+                        article.category = db.session.get(Category, category_id) if category_id else None
+                    article.managed_in_admin = True
+                    if article.status == "published" and article.published_at is None:
+                        article.published_at = utcnow()
+                    if article.id is None:
+                        db.session.add(article)
+                    db.session.commit()
+                    flash("Insight saved.")
+                    return redirect(url_for("admin.article_edit", article_id=article.id))
     return _render("admin/article_form.html", title=article.title or "New insight", article=article, categories=categories, error=error, statuses=ARTICLE_STATUSES)
 
 
@@ -597,6 +640,12 @@ def _study_form(study):
     if request.method == "POST":
         if not g.staff.has_any(("content.edit",)):
             abort(403)
+        if request.form.get("delete") == "1" and study.id:
+            db.session.delete(study)
+            record_audit("delete", "case_study", study.id, study.title)
+            db.session.commit()
+            flash("Case study removed.")
+            return redirect(url_for("admin.studies"))
         title = (request.form.get("title") or "").strip()
         summary = (request.form.get("summary") or "").strip()
         if not title or not summary:
@@ -673,8 +722,19 @@ def _career_form(job):
     if request.method == "POST":
         if not g.staff.has_any(("careers.edit",)):
             abort(403)
-        title = (request.form.get("title") or "").strip()
-        if not title:
+        if request.form.get("delete") == "1" and job.id:
+            if job.applications:
+                error = "This opening has applications, so it cannot be removed. Set the status to closed."
+            else:
+                db.session.delete(job)
+                record_audit("delete", "job", job.id, job.title)
+                db.session.commit()
+                flash("Opening removed.")
+                return redirect(url_for("admin.careers"))
+        title = (request.form.get("title") or "").strip() if not error else ""
+        if error:
+            pass
+        elif not title:
             error = "Title is required."
         else:
             job.title = title[:255]
@@ -687,14 +747,20 @@ def _career_form(job):
             job.responsibilities = sanitize_html(request.form.get("responsibilities") or "")
             job.experience = (request.form.get("experience") or "")[:5000]
             job.workplace = (request.form.get("workplace") or "")[:40]
+            raw_close = (request.form.get("closing_on") or "").strip()
+            try:
+                job.closing_on = date.fromisoformat(raw_close) if raw_close else None
+            except ValueError:
+                error = "Use a YYYY-MM-DD closing date."
             job.status = request.form.get("status") if request.form.get("status") in JOB_STATUSES else "draft"
             if job.status in ("published", "open") and job.published_at is None:
                 job.published_at = utcnow()
-            if job.id is None:
-                db.session.add(job)
-            db.session.commit()
-            flash("Opening saved.")
-            return redirect(url_for("admin.career_edit", job_id=job.id))
+            if not error:
+                if job.id is None:
+                    db.session.add(job)
+                db.session.commit()
+                flash("Opening saved.")
+                return redirect(url_for("admin.career_edit", job_id=job.id))
     return _render("admin/career_form.html", title=job.title or "New opening", job=job, error=error, statuses=JOB_STATUSES)
 
 
@@ -753,7 +819,35 @@ def user_edit(user_id):
     if person is None:
         abort(404)
     error = ""
-    if request.method == "POST":
+    reset = None
+    if request.method == "POST" and request.form.get("action") == "reset":
+        if person.id == g.staff.id:
+            error = "Change your own password from Account."
+        else:
+            import secrets
+
+            password = secrets.token_urlsafe(18)
+            person.password_hash = generate_password_hash(password)
+            person.failed_attempts = 0
+            person.locked_until = None
+            record_audit("reset_password", "staff", person.id, person.email)
+            db.session.commit()
+            session["reset_password"] = {"user_id": person.id, "email": person.email, "password": password}
+            flash("A temporary password was created. It is shown once.")
+            return redirect(url_for("admin.user_edit", user_id=person.id))
+    elif request.method == "POST" and request.form.get("action") == "reset_mfa":
+        if person.id == g.staff.id:
+            error = "You cannot clear your own authenticator from this page."
+        else:
+            person.totp_secret = ""
+            person.totp_enabled = False
+            person.last_totp_step = 0
+            person.recovery_hashes = ""
+            record_audit("reset_mfa", "staff", person.id, person.email)
+            db.session.commit()
+            flash("Authenticator cleared. They set it up again at the next sign-in.")
+            return redirect(url_for("admin.user_edit", user_id=person.id))
+    elif request.method == "POST":
         role = db.session.get(StaffRole, request.form.get("role_id", type=int))
         active = request.form.get("is_active") == "1"
         if role is None:
@@ -769,8 +863,12 @@ def user_edit(user_id):
             db.session.commit()
             flash("User updated.")
             return redirect(url_for("admin.user_edit", user_id=person.id))
+    else:
+        pending = session.get("reset_password") or {}
+        if pending.get("user_id") == person.id:
+            reset = session.pop("reset_password")
     roles = StaffRole.query.order_by(StaffRole.name).all()
-    return _render("admin/user_form.html", title=person.email, person=person, roles=roles, error=error)
+    return _render("admin/user_form.html", title=person.email, person=person, roles=roles, error=error, reset=reset)
 
 
 @bp.route("/access-roles", methods=["GET", "POST"])

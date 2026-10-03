@@ -3,7 +3,7 @@
 <h1 class="h3">Homepage</h1>
 <p class="text-secondary">Hide a section, move it, or replace its headline. Blank copy keeps the designed text. The public page uses this order.</p>
 {% for row in rows %}
-<form class="card mb-3" method="post">
+<form class="card mb-3" method="post" id="{{ row.key }}">
     <div class="card-body">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="section_id" value="{{ row.id }}">
@@ -25,6 +25,7 @@
             <button class="btn btn-outline-secondary btn-sm" name="action" value="up" type="submit">Move up</button>
             <button class="btn btn-outline-secondary btn-sm" name="action" value="down" type="submit">Move down</button>
             <button class="btn btn-outline-secondary btn-sm" name="action" value="duplicate" type="submit">Duplicate</button>
+            {% if row.key not in builtin %}<button class="btn btn-outline-secondary btn-sm" name="action" value="delete" type="submit" formnovalidate>Remove copy</button>{% endif %}
         </div>
         {% endif %}
     </div>

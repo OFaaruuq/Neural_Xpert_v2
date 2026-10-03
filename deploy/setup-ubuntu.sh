@@ -70,6 +70,7 @@ rsync -a --delete \
   --exclude '__pycache__/' \
   --exclude '.pytest_cache/' \
   --exclude '.env' \
+  --exclude 'app/static/uploads/' \
   "${SOURCE_DIR}/" "${APP_DIR}/"
 
 if [[ ! -f "${APP_DIR}/app/static/img/logo-neural-xpert.png" ]] \
@@ -97,6 +98,9 @@ fi
 
 install -d -o www-data -g www-data -m 750 "${APP_DIR}/instance"
 install -d -o www-data -g www-data -m 750 "${APP_DIR}/instance/uploads"
+install -d -o www-data -g www-data -m 750 "${APP_DIR}/instance/uploads/media"
+install -d -o www-data -g www-data -m 755 "${APP_DIR}/app/static/uploads"
+chown -R www-data:www-data "${APP_DIR}/instance" "${APP_DIR}/app/static/uploads"
 
 env_get() {
   local line value
@@ -175,6 +179,7 @@ MAIL_PASSWORD="${MAIL_PASSWORD:-}"
 MAIL_DEFAULT_SENDER="Neural Xpert"
 MAIL_DEFAULT_RECIPIENT="${MAIL_DEFAULT_RECIPIENT:-}"
 CONTACT_RECIPIENT="${CONTACT_RECIPIENT:-${MAIL_DEFAULT_RECIPIENT:-}}"
+UPLOAD_FOLDER="${APP_DIR}/instance/uploads"
 ENV
   cat > "${CREDENTIALS_FILE}" <<CREDS
 Neural Xpert production credentials
@@ -191,6 +196,10 @@ else
   env_set "${ENV_FILE}" MAIL_DEFAULT_SENDER "Neural Xpert"
   if [[ -z "$(env_get "${ENV_FILE}" SITE_URL)" || "$(env_get "${ENV_FILE}" SITE_URL)" == "https://${DOMAIN}" ]]; then
     env_set "${ENV_FILE}" SITE_URL "https://www.${DOMAIN}"
+  fi
+  current_uploads="$(env_get "${ENV_FILE}" UPLOAD_FOLDER)"
+  if [[ -z "${current_uploads}" || "${current_uploads}" == "instance/uploads" ]]; then
+    env_set "${ENV_FILE}" UPLOAD_FOLDER "${APP_DIR}/instance/uploads"
   fi
   if [[ -n "${DB_PASSWORD:-}" ]]; then
     cat > "${CREDENTIALS_FILE}" <<CREDS
@@ -236,6 +245,15 @@ load_env() {
 
 if [[ ! -f "${APP_DIR}/migrations/env.py" ]]; then
   echo "migrations/ was not copied to ${APP_DIR}."
+  exit 1
+fi
+if [[ ! -f "${APP_DIR}/app/visitors.py" || ! -f "${APP_DIR}/app/images.py" ]]; then
+  echo "Visitor tracking or image uploads were not copied into ${APP_DIR}."
+  exit 1
+fi
+if [[ ! -f "${APP_DIR}/migrations/versions/b7e2c4a91d08_page_visit_ips.py" ]] \
+  || [[ ! -f "${APP_DIR}/migrations/versions/c8d4e1b72a05_content_image_size_radius.py" ]]; then
+  echo "The visitor IP or image-size migration is missing. PostgreSQL would start without those tables."
   exit 1
 fi
 
@@ -289,6 +307,10 @@ server {
     server_tokens off;
     client_max_body_size 6m;
 
+    location ~ /\\.(?!well-known) {
+        deny all;
+    }
+
     location ^~ /.well-known/acme-challenge/ {
         root /var/www/html;
     }
@@ -306,8 +328,21 @@ server {
     ssl_certificate_key ${CERT_DIR}/privkey.pem;
     client_max_body_size 6m;
 
+    location ~ /\\.(?!well-known) {
+        deny all;
+    }
+
     location ^~ /.well-known/acme-challenge/ {
         root /var/www/html;
+    }
+
+    location /static/uploads/ {
+        alias ${APP_DIR}/app/static/uploads/;
+        expires 7d;
+        add_header Cache-Control "public" always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options SAMEORIGIN always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
     }
 
     location /static/ {
@@ -322,6 +357,7 @@ server {
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$remote_addr;
         proxy_set_header X-Forwarded-Host \$host;
         proxy_set_header X-Forwarded-Proto https;
@@ -337,8 +373,21 @@ server {
     server_tokens off;
     client_max_body_size 6m;
 
+    location ~ /\\.(?!well-known) {
+        deny all;
+    }
+
     location ^~ /.well-known/acme-challenge/ {
         root /var/www/html;
+    }
+
+    location /static/uploads/ {
+        alias ${APP_DIR}/app/static/uploads/;
+        expires 7d;
+        add_header Cache-Control "public" always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options SAMEORIGIN always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
     }
 
     location /static/ {
@@ -353,6 +402,7 @@ server {
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$remote_addr;
         proxy_set_header X-Forwarded-Host \$host;
         proxy_set_header X-Forwarded-Proto \$scheme;
@@ -394,6 +444,8 @@ else
 fi
 
 echo
+echo "Uploaded images stay in ${APP_DIR}/app/static/uploads"
+echo "Staff files and CVs stay in ${APP_DIR}/instance/uploads"
 echo "Neural Xpert is installed at ${APP_DIR}"
 echo "Public site: http://${DOMAIN}"
 if [[ -f "${CREDENTIALS_FILE}" ]]; then
